@@ -2,15 +2,14 @@ library(shiny)
 
 shinyUI( bootstrapPage(
 
+  # Hidden input boxes to save the variable to
+  HTML(' <input type="text" id="userID" name="userID" style="display: none;"> '),
+  HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
+  
   
   # include the js code
   includeScript("../../scripts/get_user_id.js"),
   
-  # a div named mydiv
-  tags$div(id="mydiv",
-           style="width: 50px; height :50px; left: 100px; top: 100px;
-           background-color: gray; position: absolute"),
-  
-  # an element for unformatted text
-  verbatimTextOutput("results")
+  # Show the output
+  textOutput("view")
 ))

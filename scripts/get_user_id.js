@@ -1,11 +1,11 @@
-document.domain = "predret.com";
-
- var username = parent.username;
-   var userID =   parent.userID;
-   
-
-document.write('Your username is '+username+' and user id is '+userID+'.');
-
+  document.domain = "predret.com";
   
-Shiny.onInputChange("mydata", userID);
-   
+  
+  var userIDVariableName = parent.userID; 
+  var userID = document.getElementById("userID"); 
+  userID.value = userIDVariableName;
+     
+  var usernameVariableName = parent.username; 
+  var username = document.getElementById("username"); 
+  username.value = usernameVariableName;
+  
