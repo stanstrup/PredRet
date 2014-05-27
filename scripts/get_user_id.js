@@ -1,4 +1,4 @@
-document.domain = "10.0.100.99";
+document.domain = "predret.com";
 
  var username = parent.username;
    var userID =   parent.userID;
