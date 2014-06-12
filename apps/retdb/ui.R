@@ -1,26 +1,22 @@
-inputTextarea <- function(inputId, label,value="", nrows, ncols) {
-  tagList(
-    singleton(tags$head(tags$script(src = "textarea.js"))),
-    tags$label(`for` = inputId,
-                  as.character(label)
-    ),
-    tags$textarea(id = inputId,
-                  class = "inputtextarea",
-                  as.character(value),
-                  style=paste0("height:",nrows,"px;width:",ncols,"px")
-                  )
-  )
-}
-
-
-
 shinyUI(
   navbarPage("",
+             
+             
                         tabPanel('Upload data',
+
+                                                   # Hidden input boxes to save the variable to
+                                                   HTML(' <input type="text" id="userID" name="userID" style="display: none;"> '),
+                                                   HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
+                                                   
+                                                   # include the js code
+                                                   includeScript("../../scripts/get_user_id.js"),
+                                                   
+                                 
                                                   pageWithSidebar(
-                                                                    headerPanel("File input test"),
+                                                                    headerPanel("Upload data"),
                                                                     sidebarPanel(
-                                                                                    fileInput("files", "File data", multiple=T,accept=c("text/csv"))
+                                                                                  uiOutput("system_upload"),              
+                                                                                  fileInput("files", "File data", multiple=T,accept=c("text/csv"))
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),
@@ -44,7 +40,7 @@ shinyUI(
                                                                                column(5,
                                                                                              headerPanel("Add or modify system"),
                                                                                               uiOutput("system_name"),
-                                                                                             inputTextarea('system_desc','System description', 'Describe column, solvents, modifiers and gradient etc.',300,600),
+                                                                                              uiOutput("system_desc"),
                                                                                              actionButton("submit_system","Add/update system")
                                                                                )
                                                                     ) 

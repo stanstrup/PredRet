@@ -6,6 +6,13 @@ library(rmongodb.quick)
 
 shinyServer(function(input, output,session) {
 
+  ## get username ##################
+  userID <- reactive({   input$userID })
+  username <- reactive({   input$username })
+  
+  
+  ## functions ##################
+  source("inputTextarea.R",local=TRUE)
   
   
   ## Upload data ##################
@@ -16,6 +23,7 @@ shinyServer(function(input, output,session) {
   source("server_system_tab.R",local=TRUE)
   
 
+  
 
   
   

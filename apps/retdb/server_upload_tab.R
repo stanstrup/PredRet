@@ -1,3 +1,11 @@
+## Drop down menu
+output$system_upload <- renderUI({
+  selectInput(inputId = 'system_upload',label= 'Select existing system',choices=c("",   as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))          ),selected="",selectize=TRUE)
+})
+
+
+
+## Table with info on uploaded file
 output$filetable <- renderTable({
   if (is.null(input$files))    return(NULL)
   # User has not uploaded a file yet
@@ -8,6 +16,8 @@ output$filetable <- renderTable({
 
 
 
+
+## Clean up the uploaded data and extract the relevant data
 data_cleaned <- reactive({
   if (is.null(input$files))    return(NULL)
   # User has not uploaded a file yet
@@ -39,7 +49,23 @@ data_cleaned <- reactive({
   
   temp_data[,"pubchem"] = as.integer(temp_data[,"pubchem"])
   
+  # get the time
+  time = Sys.time()
   
+  # get the system ID from select if present. otherwise get from file.
+  sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+  sys_id = unlist(lapply(systems_in_db(),function(x) as.character.mongo.oid(x$`_id`))  )
+
+  if(input$system_upload==""){  
+    idx = match(temp_data[,"system_name"],sys_name)
+    }else{
+  idx = input$system_upload==sys_name
+  }
+  
+  sys_id = sys_id[idx]
+  
+  # But everything together in a dataframe.
+  temp_data =data.frame(sys_id,temp_data,time=time,userID=as.integer(userID()),username=as.character(username()),stringsAsFactors= FALSE)
   
   
   
@@ -49,8 +75,8 @@ data_cleaned <- reactive({
 
 
 
-
-observe({
+## Add the data to the database and output true when done
+data_has_been_written <- reactive({
   if (is.null(input$files))    return(NULL)
   
   # Convert data.frame to bson
@@ -62,40 +88,46 @@ observe({
   
   ns <- "test2.rtdata"
   
-  mongo.insert.batch(mongo, ns, bson_data)
+  wrote = mongo.insert.batch(mongo, ns, bson_data)
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
-  output$is_written <- renderUI({
-    div("Data written to database")
-  })
-  
-  
-  
-  output$data <- renderTable({
-    if (is.null(input$files))    return(NULL)
-    # User has not uploaded a file yet
-    
-    
-    #data_cleaned()
-    
-    
-    
-    mongo <- mongo.create()
-    ns <- "test2.rtdata"
-    
-    data_back = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
-    row.names(data_back) <- seq(nrow(data_back))
-    
-    del <- mongo.disconnect(mongo)
-    del <- mongo.destroy(mongo)
-    
-    subset(data_back, select=-c(`_id`))
-    
-  })
-  
-  
-  
-  
+  wrote
 })
+
+
+
+## Text saying if the data was uploaded
+output$is_written <- renderUI({  
+  if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
+  if(is.null(data_has_been_written()))   return(NULL)
+  if(!(data_has_been_written()))      return(NULL)
+ 
+    div("Data written to database")    
+})
+
+
+
+## Read all data back and display it
+output$data <- renderTable({
+  if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
+  if(is.null(data_has_been_written()))  return(NULL)
+  if(!(data_has_been_written()))      return(NULL)
+  
+  
+       
+        mongo <- mongo.create()
+        ns <- "test2.rtdata"
+        
+        data_back = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+        row.names(data_back) <- seq(nrow(data_back))
+        
+        del <- mongo.disconnect(mongo)
+        del <- mongo.destroy(mongo)
+        
+       subset(data_back, select=-c(`_id`))
+        
+     
+})
+
