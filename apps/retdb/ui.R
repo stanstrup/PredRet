@@ -15,6 +15,7 @@ shinyUI(
                                                   pageWithSidebar(
                                                                     headerPanel("Upload data"),
                                                                     sidebarPanel(
+                                                                                  checkboxInput("only_own_systems_upload","Only show your own systems?",value=TRUE),
                                                                                   uiOutput("system_upload"),              
                                                                                   fileInput("files", "File data", multiple=T,accept=c("text/csv"))
                                                                                 ),
@@ -33,6 +34,7 @@ shinyUI(
                                                                                column(3,
                                                                                              wellPanel(
                                                                                                         style="margin-top:60px",
+                                                                                                        checkboxInput("only_own_systems","Only show your own systems?",value=TRUE),
                                                                                                         uiOutput("system_name_select")
                                                                                                        
                                                                                              )

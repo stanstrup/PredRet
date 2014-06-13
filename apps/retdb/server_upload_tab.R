@@ -1,6 +1,16 @@
 ## Drop down menu
 output$system_upload <- renderUI({
-  selectInput(inputId = 'system_upload',label= 'Select existing system',choices=c("",   as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))          ),selected="",selectize=TRUE)
+  
+  sys_to_show = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))    
+  
+  if(input$only_own_systems_upload){
+    sys_userid = as.integer(unlist(lapply(systems_in_db(),function(x) x$userID)))
+    sys_to_show =   sys_to_show[       sys_userid == userID()       ]
+  }
+  
+  
+  
+  selectInput(inputId = 'system_upload',label= 'Select existing system',choices=c("", sys_to_show   ),selected="",selectize=TRUE)
 })
 
 

@@ -31,8 +31,18 @@ systems_in_db <- reactive({
 ## Make UI elements ###########################
 ## Drop down menu
 output$system_name_select <- renderUI({
-  selectInput(inputId = 'system_name_select',label= 'Select existing system',choices=c("",   as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))          ),selected="",selectize=TRUE)
+
+  sys_to_show = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))    
+  
+  if(input$only_own_systems){
+  sys_userid = as.integer(unlist(lapply(systems_in_db(),function(x) x$userID)))
+  sys_to_show =   sys_to_show[       sys_userid == userID()       ]
+  }
+  
+  selectInput(inputId = 'system_name_select',label= 'Select existing system',choices=c("",  sys_to_show      ),selected="",selectize=TRUE)
 })
+
+
 
 ## System name text box
 output$system_name <- renderUI({
