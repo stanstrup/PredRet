@@ -41,7 +41,7 @@ shinyUI(
                                                                                              headerPanel("Add or modify system"),
                                                                                               uiOutput("system_name"),
                                                                                               uiOutput("system_desc"),
-                                                                                             actionButton("submit_system","Add/update system")
+                                                                                              uiOutput("submit_system")
                                                                                )
                                                                     ) 
                                  

@@ -60,7 +60,16 @@ output$system_desc <- renderUI({
 })
 
 
-
+## submit button
+output$submit_system <- renderUI({
+  sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
+ 
+  if(any(sys_name==input$system_name)){buttontext = "Update system"}  
+  if(!any(sys_name==input$system_name)){buttontext = "Add system"}  
+  
+  
+  return( actionButton("submit_system",buttontext)  )
+})
 
 
 
@@ -84,36 +93,42 @@ system_desc_bson <- reactive({
 
 # Actually write the object
 observe({
+  if(length(input$submit_system) == 0) return(NULL)
   if(input$submit_system == 0) return(NULL)
   
   
   isolate({
-  # make db connection
-  mongo <- mongo.create()
-  ns <- "test2.chrom_systems"
-  
-  
-  # Systems already in the db
-  sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
-  
-  if(any(sys_name==input$system_name)){ # the system is already in the db
-    idx = input$system_name==sys_name
+    # make db connection
+    mongo <- mongo.create()
+    ns <- "test2.chrom_systems"
     
-    buf <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append(buf, "_id", systems_in_db()[[which(idx)]]$`_id`)
-    criteria <- mongo.bson.from.buffer(buf)
     
-    mongo.update(mongo, ns, criteria, system_desc_bson())
-
-  }else{
-    mongo.insert.batch(mongo, ns, list(system_desc_bson()))
-  }
-  
-  
-  
-  
-  # Disconnect from db
-  del <- mongo.disconnect(mongo)
-  del <- mongo.destroy(mongo)
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
+    
+    if(any(sys_name==input$system_name)){ # the system is already in the db
+      idx = input$system_name==sys_name
+      
+#           
+#       validate({
+#       need(   systems_in_db()[[which(idx)]]$userID == userID()   ,message="You can only update systems that you added yourself")
+#       })
+#            
+      
+      buf <- mongo.bson.buffer.create()
+      mongo.bson.buffer.append(buf, "_id", systems_in_db()[[which(idx)]]$`_id`)
+      criteria <- mongo.bson.from.buffer(buf)
+      
+      mongo.update(mongo, ns, criteria, system_desc_bson())
+      
+    }else{
+      mongo.insert.batch(mongo, ns, list(system_desc_bson()))
+    }
+    
+    
+    
+    
+    # Disconnect from db
+    del <- mongo.disconnect(mongo)
+    del <- mongo.destroy(mongo)
   })
 })
