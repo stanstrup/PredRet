@@ -37,7 +37,7 @@ data_cleaned <- reactive({
   temp_data = read.csv(input$files$datapath,stringsAsFactors=F)
   
   # limit data shown used
-  if (nrow(temp_data)==1){
+  if (nrow(temp_data)<200){
     temp_data =      temp_data
   }else{
     temp_data   =   temp_data[1:200,]
