@@ -21,6 +21,7 @@ shinyUI(
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),
+                                                                              uiOutput("error_msg"),
                                                                               tableOutput("filetable"),
                                                                               tableOutput("data")
                                                                             )

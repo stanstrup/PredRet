@@ -6,6 +6,8 @@ output$system_upload <- renderUI({
   if(input$only_own_systems_upload){
     sys_userid = as.integer(unlist(lapply(systems_in_db(),function(x) x$userID)))
     sys_to_show =   sys_to_show[       sys_userid == userID()       ]
+    
+    if(all(is.na(sys_to_show))) {sys_to_show = ""}
   }
   
   
@@ -36,6 +38,10 @@ data_cleaned <- reactive({
   # read data
   temp_data = read.csv(input$files$datapath,stringsAsFactors=F)
   
+  # Make error messages
+  errors = list(error=F,msg='')
+  
+  
   # limit data shown used
   if (nrow(temp_data)<200){
     temp_data =      temp_data
@@ -46,21 +52,45 @@ data_cleaned <- reactive({
   
   # get only interesting columns and rename them
   colnames = tolower(colnames(temp_data))
+  cols_to_get = c("compound","rt","method","pubchem","inchi")
+  select=rep(NA,length(cols_to_get))
+  for(i in 1:length(cols_to_get)){
+    select[i] = grep(cols_to_get[i],colnames,fixed = T)[1]
+  }
+
+  temp_data   =    temp_data[,select[!is.na(select)]]
   
-  select=rep(NA,5)
-  select[1] = grep("compound",colnames,fixed = T)[1]
-  select[2] = grep("rt",colnames,fixed = T)[1]
-  select[3] = grep("method",colnames,fixed = T)[1]
-  select[4] = grep("pubchem",colnames,fixed = T)[1]
-  select[5] = grep("inchi",colnames,fixed = T)[1]
   
-  temp_data   =    temp_data[,select]
-  colnames(temp_data) = c("name","rt","system_name","pubchem","inchi")
+  # change column names
+  colnames(temp_data) = c("name","rt","system_name","pubchem","inchi")[!is.na(select)]
+    
   
+  # Make sure pubchem id is treated as integer
+  if(any(colnames(temp_data)=="pubchem")){
   temp_data[,"pubchem"] = as.integer(temp_data[,"pubchem"])
+  }
   
+  
+  # Check if all relevant columns are present
+  if(any(is.na(select))){
+    
+    if(   (input$system_upload=="")     &      (  any(is.na(select[c(1,2,4)]))  )     ){
+      errors = list(error=T,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],'. "compound","rt", "method" and "pubchem" required',collapse=", ")  ,'.'     ))
+    }
+  
+    if(   (!(input$system_upload==""))  &      (  any(is.na(select[c(1:4)]))    )     ){
+      errors = list(error=T,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],'. "compound","rt" and "pubchem" required',collapse=", ")  ,'.'     ))
+    }
+    
+  }
+  
+  
+
   # get the time
   time = Sys.time()
+  
+  
+  
   
   # get the system ID from select if present. otherwise get from file.
   sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
@@ -68,16 +98,27 @@ data_cleaned <- reactive({
 
   if(input$system_upload==""){  
     idx = match(temp_data[,"system_name"],sys_name)
-    }else{
-  idx = input$system_upload==sys_name
+  }else{
+    idx = input$system_upload==sys_name
   }
   
   sys_id = sys_id[idx]
   
-  # But everything together in a dataframe.
+  
+  
+  # check if all methods have a database match
+  if(any(is.na(idx))){
+    errors = list(error=T,msg=paste0('No system(s) called "',paste(unique(temp_data[is.na(idx),"system_name"])  , collapse=", "),'" (found in the csv file) was/were found in the database. Create a system with the corresponding name or select a single system in the upload column.'))
+  }
+  
+  
+  # Put everything together in a dataframe.
   temp_data =data.frame(sys_id,temp_data,time=time,userID=as.integer(userID()),username=as.character(username()),stringsAsFactors= FALSE)
   
   
+# output error or data
+if(errors$error){return(errors)}
+
   
   return(temp_data)
 })
@@ -88,6 +129,9 @@ data_cleaned <- reactive({
 ## Add the data to the database and output true when done
 data_has_been_written <- reactive({
   if (is.null(input$files))    return(NULL)
+  if(!is.data.frame(data_cleaned())) return(NULL)
+  if(!is.null(data_cleaned()$error)){         if((data_cleaned()$error))  return(NULL)         }
+  
   
   # Convert data.frame to bson
   bson_data = dataframe2bson(data_cleaned())
@@ -112,9 +156,24 @@ data_has_been_written <- reactive({
 output$is_written <- renderUI({  
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written()))   return(NULL)
-  if(!(data_has_been_written()))      return(NULL)
- 
-    div("Data written to database")    
+  
+  if((data_has_been_written())){   div("Data written to database")  }
+  
+})
+
+
+
+## Text saying if errors
+output$error_msg <- renderUI({  
+  if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
+  if(is.data.frame(data_cleaned())) return(NULL)
+  if(is.null(data_cleaned()$error)){   return(NULL)         }
+  
+  
+  if((data_cleaned()$error)){
+  div(data_cleaned()$msg)
+  }
+  
 })
 
 
@@ -124,6 +183,8 @@ output$data <- renderTable({
   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written()))  return(NULL)
   if(!(data_has_been_written()))      return(NULL)
+  if(!is.data.frame(data_cleaned())) return(NULL)
+  if(!is.null(data_cleaned()$error)){         if((data_cleaned()$error))  return(NULL)         }
   
   
        
