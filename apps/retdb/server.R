@@ -21,7 +21,9 @@ shinyServer(function(input, output,session) {
   
   ## Define new system ##################
   source("server_system_tab.R",local=TRUE)
-  
+
+  ## Define new system ##################
+  source("server_manage.R",local=TRUE)
 
   
 

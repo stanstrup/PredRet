@@ -48,7 +48,28 @@ shinyUI(
                                                                                )
                                                                     ) 
                                  
-                                 )
+                                 ),
+             
+             
+                       tabPanel('Manage data',
+                                
+                                basicPage(
+                                  div(style="display:flex",
+                                      div(style="width: 300px;",         
+                                                                                selectInput(inputId = 'MANAGE_filter_by',label= 'Filter by',choices=c("","system", "date added"),selected="",selectize=TRUE)
+                                          ),
+                                      div(style="flex-grow: 1;",
+                                                                        uiOutput("MANAGE_filter_select")
+                                          )
+                                      ),
+                                  
+                                    
+                                    div(style="padding:30px"),
+                                    dataTableOutput("MANAGE_data")
+                                  
+                                )
+                       )
+             
                       
                         
                         
