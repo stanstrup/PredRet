@@ -78,11 +78,12 @@ data_cleaned <- reactive({
   
   
   
-  ## Get inchi from pubchem
+  # Get inchi from pubchem
   no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
   temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
   
-  
+  # remove stereochemistry
+  temp_data[,"inchi"] = inchi.rem.stereo(temp_data[,"inchi"])
   
   
   # get the time
