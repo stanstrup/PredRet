@@ -11,11 +11,11 @@ data_cleaned <- reactive({
   
   
   # limit data shown used
-  if (nrow(temp_data)<200){
-    temp_data =      temp_data
-  }else{
-    temp_data   =   temp_data[1:200,]
-  }
+#   if (nrow(temp_data)<200){
+#     temp_data =      temp_data
+#   }else{
+#     temp_data   =   temp_data[1:200,]
+#   }
   
   
   # get only interesting columns and rename them
