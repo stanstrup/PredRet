@@ -87,8 +87,7 @@ output$data <- renderTable({
   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written()))  return(NULL)
   if(!(data_has_been_written()))      return(NULL)
-  if(length(data_cleaned()$errors)>0) return(NULL)
- 
+  if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
        
         mongo <- mongo.create()
         
