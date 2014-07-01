@@ -1,76 +1,34 @@
 ## Upper options ##############################
 output$MANAGE_filter_select <- renderUI({
-  if(input$MANAGE_filter_by=="system"){
-                                          selectInput(inputId = 'MANAGE_filter_select',label= 'Show only',choices=c("",unique(users_data()$system)),selected="",selectize=TRUE)
+
+  if(!(input$MANAGE_filter_by=="")){
+  selectInput(inputId = 'MANAGE_filter_select',label= 'Select',choices=c("",as.character(unique(users_data()[[input$MANAGE_filter_by]]))),selected="",selectize=TRUE)
   }
+  
 })
   
-
-
-
-
 
 
 ## Get all user data from database ##############################
-
-users_data =  reactive({ 
-# Update if file is uploaded
-  input$files
+users_data <-  reactive({ 
+  input$files # Update if file is uploaded
+  data_was_deleted$done # database deletions are done
   
-  ## Only get users own data
-  
-  
-  mongo <- mongo.create()
-  ns <- "test2.rtdata"
-  
-  data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
-  row.names(data_all) <- seq(nrow(data_all))
-  
-  del <- mongo.disconnect(mongo)
-  del <- mongo.destroy(mongo)
-  
-  
-  # Take some data directly
-  data = data_all[,c("name","rt","pubchem","inchi")]
-  
-  
-  # Get correctly formatted time
-  data = cbind.data.frame(data , `data added` = as.POSIXct(data_all[,"time"],origin="1970-01-01")     ,stringsAsFactors = F)
-  
-  
-  # Get system name from system ID
-  sys_id_data = as.character(data_all[,"sys_id"])
-  sys_id_db = unlist(lapply(systems_in_db(),function(x) as.character.mongo.oid(x$`_id`))  )
-  sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
-  
-  data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
-  
-  
-  # Format RT data
-  data[,"rt"]      =     round(data[,"rt"],digits=2)
-  
-  
-  # sort columns
-  data = data[,  c("name","rt","system","data added","pubchem","inchi")    ]
-  #data[,  "system"  ] = as.character(data[,  "system"  ])
-  
-  # Add checkboxcolumn
-  addCheckBoxes <- paste0('<input type="checkbox" checked="','yes','" name="row" value="', 1:nrow(data), '">')
-  data = cbind.data.frame(Pick=addCheckBoxes,data           ,stringsAsFactors = F)
-  
+  data = get_user_data()
   return(data)
-  
 })
+
+
 
 
 ## Make settings for table and display it ##############################
 
 ## Make settings
-manage_table_settings = reactive({
-  colwidths <- c("30px","600px", "60px", "150px", "150px", "100px","NA")
-  col.names <- names(users_data())
+manage_table_settings <- reactive({
+  colwidths <- c("60px","600px", "60px", "150px", "150px", "100px","NA")
+  col.names <- c("Select","Name","RT","System","Date added","Pubchem","InChI")
   aoColumnDefs <- list(NULL)
-  for(i in 1:ncol(users_data())){
+  for(i in 1:length(col.names)){
     column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
     aoColumnDefs[[i]] <- column
   }
@@ -80,14 +38,66 @@ manage_table_settings = reactive({
 
 
 ## Display the table
-output$MANAGE_data <- renderDataTable(users_data(),options=list(iDisplayLength = 15,aoColumnDefs=manage_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+output$MANAGE_data <- renderDataTable({
+  # if(exists("data_was_deleted")) data_was_deleted()
+  
+  data_to_show = users_data()
+  
+  # Select rows
+  checked=rep('',nrow(users_data()))
+  if(!(input$MANAGE_filter_by=="") & !is.null(input$MANAGE_filter_select)){
+    if(!(input$MANAGE_filter_select=="")){
+      checked[        as.character(data_to_show[[input$MANAGE_filter_by]]) == as.character(input$MANAGE_filter_select)    ]   ='checked="checked"'
+    }
+  }
+  
+  
+  # Make sure Inchi is not too long
+  data_to_show[,"inchi"] = 
+  paste0('<div style= "-o-text-overflow: ellipsis; text-overflow: ellipsis;  overflow:hidden;  white-space:nowrap;   width: 500px;">'
+         ,data_to_show[,"inchi"],'</div>')
+  
+  
+  
+  # Add checkbox column
+  addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(users_data()), '">')
+  cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
+
+}
+
+
+,options=list(iDisplayLength = 15,aoColumnDefs=manage_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
 )
 
 
 
-
-## Show selected in terminal
+## Show selected rows in terminal
 observe({
   print(as.numeric(input$row))
 }) 
+
+
+
+
+
+
+
+
+## Delete selected rows when actionButton is clicked  ##############################
+data_was_deleted <- reactiveValues()
+
+observe({
+  if(input$del_data == 0) return(NULL)
+  
+  isolate({
+    if(length(input$row)==0) return()
+    
+    to_del = as.numeric(input$row)
+    mongo_del_oid(ns=ns_rtdata,     oids = users_data()[to_del,"_id"]     )
+    data_was_deleted$done <- input$del_data
+  })
+}) 
+
+
+
                                               
