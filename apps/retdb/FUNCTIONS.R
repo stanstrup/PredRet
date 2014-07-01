@@ -13,6 +13,9 @@ mongo <- mongo.create()
 ns <- "test2.rtdata"
 
 data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+
+if(is.null(data_all)) return(NULL)
+
 row.names(data_all) <- seq(nrow(data_all))
 
 del <- mongo.disconnect(mongo)

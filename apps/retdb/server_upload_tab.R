@@ -41,11 +41,11 @@ source("server_upload_tab_process_data.R",local=TRUE)
 ## Add the data to the database and output true when done ###########################
 data_has_been_written <- reactive({
   if (is.null(input$files))    return(NULL)
-  if(!is.data.frame(data_cleaned())) return(NULL)
- 
+  if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
+  
   
   # Convert data.frame to bson
-  bson_data = dataframe2bson(data_cleaned())
+  bson_data = dataframe2bson(data_cleaned()$data)
   
   
   # add to table
@@ -73,9 +73,9 @@ output$is_written <- renderUI({
 ## Text saying if errors ###########################
 output$error_msg <- renderUI({  
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
-  if(is.data.frame(data_cleaned())) return(NULL)
+  if(length(data_cleaned()$errors)==0) return(NULL)
    
-  out = paste0('<p><strong>',as.character(lapply(data_cleaned(),function(x) x$msg)),'</strong></p>',collapse="<br />")
+  out = paste0('<p><strong>',as.character(lapply(data_cleaned()$errors,function(x) x$msg)),'</strong></p>',collapse="<br />")
   out = div(HTML(out),style="background-color:red")
   
 })
@@ -87,7 +87,7 @@ output$data <- renderTable({
   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written()))  return(NULL)
   if(!(data_has_been_written()))      return(NULL)
-  if(!is.data.frame(data_cleaned())) return(NULL)
+  if(length(data_cleaned()$errors)>0) return(NULL)
  
        
         mongo <- mongo.create()

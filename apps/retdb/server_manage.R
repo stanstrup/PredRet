@@ -15,6 +15,13 @@ users_data <-  reactive({
   data_was_deleted$done # database deletions are done
   
   data = get_user_data()
+  
+  if(is.null(data)){
+  data = matrix(,nrow=0,ncol=6)
+  colnames(data) = c("name","rt","system","date added","pubchem","inchi")
+  data = as.data.frame(data)
+  }
+  
   return(data)
 })
 
@@ -43,26 +50,26 @@ output$MANAGE_data <- renderDataTable({
   
   data_to_show = users_data()
   
-  # Select rows
-  checked=rep('',nrow(users_data()))
-  if(!(input$MANAGE_filter_by=="") & !is.null(input$MANAGE_filter_select)){
-    if(!(input$MANAGE_filter_select=="")){
-      checked[        as.character(data_to_show[[input$MANAGE_filter_by]]) == as.character(input$MANAGE_filter_select)    ]   ='checked="checked"'
+  
+  if(!(nrow(data_to_show)==0)){ # only do something if there is actually data returned from the database.
+    # Select rows
+    checked=rep('',nrow(users_data()))
+    if(!(input$MANAGE_filter_by=="") & !is.null(input$MANAGE_filter_select)){
+      if(!(input$MANAGE_filter_select=="")){
+        checked[        as.character(data_to_show[[input$MANAGE_filter_by]]) == as.character(input$MANAGE_filter_select)    ]   ='checked="checked"'
+      }
     }
+    
+    # Make sure Inchi is not too long
+    data_to_show[,"inchi"] = 
+      paste0('<div style= "-o-text-overflow: ellipsis; text-overflow: ellipsis;  overflow:hidden;  white-space:nowrap;   width: 500px;">'
+             ,data_to_show[,"inchi"],'</div>')
+    
+    
+    # Add checkbox column
+    addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(users_data()), '">')
+    cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
   }
-  
-  
-  # Make sure Inchi is not too long
-  data_to_show[,"inchi"] = 
-  paste0('<div style= "-o-text-overflow: ellipsis; text-overflow: ellipsis;  overflow:hidden;  white-space:nowrap;   width: 500px;">'
-         ,data_to_show[,"inchi"],'</div>')
-  
-  
-  
-  # Add checkbox column
-  addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(users_data()), '">')
-  cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
-
 }
 
 

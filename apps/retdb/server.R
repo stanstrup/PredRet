@@ -2,6 +2,7 @@ library(shiny)
 library(xlsx)
 library(rmongodb)
 library(rmongodb.quick)
+library(chemhelper)
 
 
 shinyServer(function(input, output,session) {
