@@ -107,4 +107,20 @@ observe({
 
 
 
-                                              
+            
+
+
+
+
+
+
+
+## Download button  ##############################
+output$downloadData <- downloadHandler(
+  filename = function() {
+    paste('data-', Sys.Date(), '.csv', sep='')
+  },
+  content = function(con) {
+    write.csv(users_data()[,c("name","rt","system","date added","pubchem","inchi")], con)
+  }
+)

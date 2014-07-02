@@ -54,16 +54,18 @@ shinyUI(
                        tabPanel('Manage data',
                                 
                                 basicPage(
+                                  
                                   div(style="display:flex",
                                       div(style="width: 300px;",         
                                                                                 selectInput(inputId = 'MANAGE_filter_by',label= 'Select by',choices=c("","system", "date added"),selected="",selectize=TRUE)
                                           ),
                                       div(style="flex-grow: 1;",
-                                                                        uiOutput("MANAGE_filter_select")
+                                                                                uiOutput("MANAGE_filter_select")
                                           )
                                       ),
                                   
                                     actionButton("del_data","Delete selected data"),
+                                    div(downloadButton('downloadData', 'Download your data'),style="text-align: right;margin-top:-30px"),
                                     div(style="padding:30px"),
                                     dataTableOutput("MANAGE_data")
                                   
