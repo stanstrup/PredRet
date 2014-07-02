@@ -82,9 +82,13 @@ output$error_msg <- renderUI({
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(length(data_cleaned()$errors)==0) return(NULL)
    
-  out = paste0('<p><strong>',as.character(lapply(data_cleaned()$errors,function(x) x$msg)),'</strong></p>',collapse="<br />")
-  out = div(HTML(out),style="background-color:red")
+  out1 = paste0('<p><strong>',as.character(unlist(lapply(data_cleaned()$errors,function(x) if(x$error==1){x$msg}))),'</strong></p>',collapse="<br />")
+  out1 = div(HTML(out1),style="background-color:red")
+
+  out2 = paste0('<p><strong>',as.character(unlist(lapply(data_cleaned()$errors,function(x) if(x$error==2){x$msg}))),'</strong></p>',collapse="<br />")
+  out2 = div(HTML(out2),style="background-color:green")
   
+  div(out2,out1)
 })
 
 
