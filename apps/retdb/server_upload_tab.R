@@ -39,11 +39,12 @@ source("server_upload_tab_process_data.R",local=TRUE)
 
 
 ## Add the data to the database and output true when done ###########################
-data_has_been_written <- reactive({
+data_has_been_written <- reactiveValues()
+ observe({
   if (is.null(input$files))    return(NULL)
   if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
   
-  
+  isolate({
   # Convert data.frame to bson
   bson_data = dataframe2bson(data_cleaned()$data)
   
@@ -54,7 +55,13 @@ data_has_been_written <- reactive({
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
-  return(wrote)
+  if(is.null(data_has_been_written$done)){
+    data_has_been_written$done <- as.numeric(wrote)
+  }else{
+    data_has_been_written$done <- as.numeric(wrote) + as.numeric(data_has_been_written$done)
+  }
+  
+  })
 })
 
 
@@ -62,9 +69,9 @@ data_has_been_written <- reactive({
 ## Text saying if the data was uploaded ###########################
 output$is_written <- renderUI({  
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
-  if(is.null(data_has_been_written()))   return(NULL)
+  if(is.null(data_has_been_written$done))   return(NULL)
   
-  if((data_has_been_written())){   div("Data written to database")  }
+  if((data_has_been_written$done>0)){   div("Data written to database")  }
   
 })
 
@@ -85,8 +92,8 @@ output$error_msg <- renderUI({
 ## Read all data back and display it ###########################
 output$data <- renderTable({
   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
-  if(is.null(data_has_been_written()))  return(NULL)
-  if(!(data_has_been_written()))      return(NULL)
+  if(is.null(data_has_been_written$done))  return(NULL)
+  if(!(data_has_been_written$done))      return(NULL)
   if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
        
         mongo <- mongo.create()

@@ -21,6 +21,7 @@ output$system_name_select <- renderUI({
   sys_to_show =   sys_to_show[       sys_userid == userID()       ]
   }
   
+
   selectInput(inputId = 'system_name_select',label= 'Select existing system',choices=c("",  sys_to_show      ),selected="",selectize=TRUE)
 })
 

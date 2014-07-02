@@ -17,7 +17,7 @@ shinyUI(
                                                                     sidebarPanel(
                                                                                   checkboxInput("only_own_systems_upload","Only show your own systems?",value=TRUE),
                                                                                   uiOutput("system_upload"),              
-                                                                                  fileInput("files", "File data", multiple=T,accept=c("text/csv"))
+                                                                                  fileInput("files", "File data", multiple=F,accept=c("text/csv"))
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),

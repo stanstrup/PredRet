@@ -11,7 +11,7 @@ output$MANAGE_filter_select <- renderUI({
 
 ## Get all user data from database ##############################
 users_data <-  reactive({ 
-  input$files # Update if file is uploaded
+  data_has_been_written$done # Update if data written to db
   data_was_deleted$done # database deletions are done
   
   data = get_user_data()

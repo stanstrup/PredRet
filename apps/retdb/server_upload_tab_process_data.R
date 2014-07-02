@@ -111,7 +111,10 @@ data_cleaned <- reactive({
   
   sys_id = sys_id[idx]
   
-  
+temp_data = subset(temp_data,select = -system_name) # Remove names and rely only on system ids
+
+
+
   
   # check if all methods have a database match
   if(any(is.na(idx))){
@@ -124,18 +127,19 @@ data_cleaned <- reactive({
   
 
   # Don't allow duplication of data already in the db
-  is_dup = duplicated(rbind(     temp_data[,c("sys_id","rt","inchi")]                 ,                    users_data()[,c("sys_id","rt","inchi")]        ),fromLast = TRUE)
+if(nrow(isolate(users_data()))>0){
+  is_dup = duplicated(rbind(     temp_data[,c("sys_id","rt","inchi")]                 ,                    isolate(users_data())[,c("sys_id","rt","inchi")]        ),fromLast = TRUE)
   is_dup = is_dup[1:nrow(temp_data)]
   temp_data = temp_data[!is_dup,,drop=F]
-
+  
   if(any(is_dup)){
     errors$has_dups = list(error=2,msg=paste0('Row(s) ',paste(which(is_dup),collapse=', '),' are duplicates of existing database entries. They have been ignored.'))
   }
-
-if(all(is_dup)){
-  errors$has_only_dups = list(error=1,msg=paste0('All rows are duplicates of existing database entries. No data added.'))
+  
+  if(all(is_dup)){
+    errors$has_only_dups = list(error=1,msg=paste0('All rows are duplicates of existing database entries. No data added.'))
+  }
 }
-
 
 
 
