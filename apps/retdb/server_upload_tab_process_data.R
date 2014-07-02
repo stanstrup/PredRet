@@ -85,13 +85,12 @@ data_cleaned <- reactive({
   no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
   temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
 
-  # remove stereochemistry
-  temp_data[,"inchi"] = inchi.rem.stereo(temp_data[,"inchi"])
 
 
-  # remove charges
-  temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])
-
+  
+  temp_data[,"inchi"] = inchi.rem.stereo( temp_data[,"inchi"])   # remove stereochemistry
+  temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])   # remove charges
+  temp_data[,"inchi"] = inchi.keep.cont(  temp_data[,"inchi"])  # Keep only largest continues part of molecule (that is remove salts)
   
   # get the time
   time = Sys.time()
