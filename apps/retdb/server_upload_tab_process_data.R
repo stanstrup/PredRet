@@ -49,11 +49,11 @@ data_cleaned <- reactive({
   if(any(is.na(select))){
     
     if(   (input$system_upload=="")     &      (  any(is.na(select[c(1,2,4)]))  )     ){
-      errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],'. "compound","rt", "method" and "pubchem" required',collapse=", ")  ,'.'     ))
+      errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt", "method" and "pubchem" required.'     ))
     }
     
     if(   (!(input$system_upload==""))  &      (  any(is.na(select[c(1:4)]))    )     ){
-      errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],'. "compound","rt" and "pubchem" required',collapse=", ")  ,'.'     ))
+      errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt" and "pubchem" required.'     ))
     }
     
   }
