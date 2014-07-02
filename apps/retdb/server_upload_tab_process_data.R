@@ -28,6 +28,9 @@ data_cleaned <- reactive({
   
   temp_data   =    temp_data[,select[!is.na(select)]]
   
+
+  # Remove duplicate rows
+  temp_data = unique(temp_data)
   
   # change column names
   colnames(temp_data) = c("name","rt","system_name","pubchem","inchi")[!is.na(select)]
@@ -77,15 +80,16 @@ data_cleaned <- reactive({
   temp_data =    temp_data[!(no_id | no_rt),,drop=F]
   
   
-  
+
   # Get inchi from pubchem
   no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
   temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
-  
+
   # remove stereochemistry
   temp_data[,"inchi"] = inchi.rem.stereo(temp_data[,"inchi"])
-  
-# remove charges
+
+
+  # remove charges
   temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])
 
   
@@ -118,6 +122,23 @@ data_cleaned <- reactive({
   # Put everything together in a dataframe.
   temp_data =data.frame(sys_id,temp_data,time=time,userID=as.integer(userID()),username=as.character(username()),stringsAsFactors= FALSE)
   
-    
+
+  # Don't allow duplication of data already in the db
+  is_dup = duplicated(rbind(     temp_data[,c("sys_id","rt","inchi")]                 ,                    users_data()[,c("sys_id","rt","inchi")]        ),fromLast = TRUE)
+  is_dup = is_dup[1:nrow(temp_data)]
+  temp_data = temp_data[!is_dup,,drop=F]
+
+  if(any(is_dup)){
+    errors$has_dups = list(error=2,msg=paste0('Row(s) ',paste(which(is_dup),collapse=', '),' are duplicates of existing database entries. They have been ignored.'))
+  }
+
+if(all(is_dup)){
+  errors$has_only_dups = list(error=1,msg=paste0('All rows are duplicates of existing database entries. No data added.'))
+}
+
+
+
+
+
   return(list(data=temp_data,errors=errors))
 })

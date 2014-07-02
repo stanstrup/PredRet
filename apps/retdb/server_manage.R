@@ -49,7 +49,7 @@ output$MANAGE_data <- renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
   
   data_to_show = users_data()
-  
+  data_to_show[,"rt"]      =     round(data_to_show[,"rt"],digits=2)
   
   if(!(nrow(data_to_show)==0)){ # only do something if there is actually data returned from the database.
     # Select rows

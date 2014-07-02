@@ -23,7 +23,7 @@ del <- mongo.destroy(mongo)
 
 
 # Take some data directly
-data = data_all[,c("_id","name","rt","pubchem","inchi")]
+data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi")]
 
 
 # Get correctly formatted time
@@ -39,7 +39,7 @@ data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]  
 
 
 # Format RT data
-data[,"rt"]      =     round(data[,"rt"],digits=2)
+#data[,"rt"]      =     round(data[,"rt"],digits=2)
 
 return(data)
 }
@@ -55,6 +55,7 @@ ns <- "test2.chrom_systems"
 # select fields (think columns)
 fields = mongo.bson.buffer.create()
 mongo.bson.buffer.append(fields, "_id", 1L)
+mongo.bson.buffer.append(fields, "sys_id", 1L)
 mongo.bson.buffer.append(fields, "system_name", 1L)
 mongo.bson.buffer.append(fields, "system_desc", 1L)
 mongo.bson.buffer.append(fields, "userID", 1L)

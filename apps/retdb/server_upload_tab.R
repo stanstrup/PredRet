@@ -106,4 +106,3 @@ output$data <- renderTable({
         
      return(data_back)
 })
-
