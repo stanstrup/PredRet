@@ -85,6 +85,9 @@ data_cleaned <- reactive({
   # remove stereochemistry
   temp_data[,"inchi"] = inchi.rem.stereo(temp_data[,"inchi"])
   
+# remove charges
+  temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])
+
   
   # get the time
   time = Sys.time()
