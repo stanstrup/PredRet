@@ -1,3 +1,6 @@
+## Functions for database query #####################
+
+
 get_user_data <- function() {
 
   dbsystems <- get_systems()
@@ -93,4 +96,188 @@ mongo_del_oid = function(ns,oids)  {
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sys_comb_matrix = function(oid1,oid2,ns)  {
+  require(rmongodb)
+  require(rmongodb.quick)
+  
+  
+  ## get data for the combination of systems ################
+  mongo <- mongo.create()
+  
+  buf <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(buf, "sys_id", oid1)
+  query <- mongo.bson.from.buffer(buf)
+  rt_sys1 = mongo.find.all2(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  
+  buf <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(buf, "sys_id", oid2)
+  query <- mongo.bson.from.buffer(buf)
+  rt_sys2 = mongo.find.all2(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  if(is.null(rt_sys1) | is.null(rt_sys2)) return(NULL)
+  
+  data = rbind(rt_sys1,rt_sys2)
+  rm(rt_sys1,rt_sys2)
+  
+  ##
+  
+  
+  
+  ## setup comparision matrix ################
+  unique_inchi = unique(data[,'inchi'])
+  unique_systems = unique(data[,'sys_id'])
+  unique_names = data[!duplicated(data[,'inchi']),'name']
+  
+  inchi_matrix = matrix(nrow=length(unique_inchi),ncol=length(unique_systems))
+  colnames(inchi_matrix) = unique_systems
+  rownames(inchi_matrix) = unique_names
+  
+  
+  rt_matrix = matrix(nrow=length(unique_inchi),ncol=length(unique_systems))
+  colnames(rt_matrix) = unique_systems
+  rownames(rt_matrix) = unique_names
+  
+  
+  for (i in 1:length(unique_inchi)){
+    for (i2 in 1:length(unique_systems)){
+      
+      select = unique_inchi[i] == data[,'inchi']        &     unique_systems[i2] == data[,'sys_id']
+      
+      if (any(select)){  
+        inchi_matrix[i,i2]=1   
+        rt_matrix[i,i2]=mean(data[select,'rt'])
+      }else{   
+        inchi_matrix[i,i2]=0    
+        rt_matrix[i,i2]=NA
+      }
+    }
+  }
+  ##
+  
+  return(rt_matrix)
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+## Functions for prediction #####################
+
+loess.fun <- function(in_data,inds,newdata,span){
+  require(monoProc)
+  x.star <- in_data[,1][inds]
+  y.star <- in_data[,2][inds]
+  
+  out.star <- loess(y.star ~ x.star, span=span)
+  y_pred= monoproc(out.star, bandwidth = 0.1, mono1 = "increasing", gridsize=100,xx= newdata)@fit@y
+  
+  return(y_pred)
+}
+
+
+
+
+
+boot2ci <- function(loess.boot){
+  # with the boot.ci function
+  temp=list()
+  for( i2 in 1:length(loess.boot$t0)){
+    temp[[i2]]=list()
+    temp[[i2]][[1]]=i2
+    temp[[i2]][[2]]=loess.boot
+  }
+  
+  
+  cl <- makeCluster(detectCores())
+  ci=parLapply(cl,temp,function(x) {
+    require(boot)
+    temp2=boot.ci(x[[2]],index=x[[1]],type="bca")
+    
+    ci=vector(mode="numeric",length=3)
+    ci[1] = temp2$t0
+    ci[c(2,3)] = temp2$bca[,c(4,5)]
+    return(ci)
+  })
+  stopCluster(cl)
+  ci = do.call(rbind,ci)
+  
+  return(ci)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+model_db_write <- function(loess_boot,ci,ns,sysoid1,sysoid2){
+  
+  mongo <- mongo.create()
+  buf <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(buf, "loess_boot", serialize(loess.boot, NULL, FALSE))
+  mongo.bson.buffer.append(buf, "ci", ci)
+  mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
+  mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
+  mongo.bson.buffer.append(buf, "status", "done")
+  mongo.bson.buffer.append(buf, "time", Sys.time())
+  buf <- mongo.bson.from.buffer(buf)
+  
+  
+  db_models_oids = mongo.find.all2(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
+  db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
+  
+  if(any(db_models_oids_hit)){
+    oids_to_update = lapply(db_models_oids, function(x) x$`_id`)
+    oids_to_update = oids_to_update[[which(db_models_oids_hit)]]
+    
+    criteria <- mongo.bson.buffer.create()
+    mongo.bson.buffer.append(criteria, "_id", oids_to_update)
+    criteria <- mongo.bson.from.buffer(criteria)
+    mongo.update(mongo, ns, criteria, buf)
+    
+  }else{
+    mongo.insert(mongo, ns, buf)
+  }
+  
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+}
+
+
+
 

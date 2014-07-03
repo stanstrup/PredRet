@@ -87,11 +87,13 @@ data_cleaned <- reactive({
 
 
 
-  
+  # Cleanup molecules
   temp_data[,"inchi"] = inchi.rem.stereo( temp_data[,"inchi"])   # remove stereochemistry
   temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])   # remove charges
   temp_data[,"inchi"] = inchi.keep.cont(  temp_data[,"inchi"])  # Keep only largest continues part of molecule (that is remove salts)
   
+
+
   # get the time
   time = Sys.time()
   
