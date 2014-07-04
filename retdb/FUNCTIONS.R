@@ -136,8 +136,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   if(is.null(rt_sys1) | is.null(rt_sys2)) return(NULL)
   
   data = rbind(rt_sys1,rt_sys2)
-  rm(rt_sys1,rt_sys2)
-  
+    
   ##
   
   
@@ -173,7 +172,8 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   }
   ##
   
-  return(rt_matrix)
+  
+  return(list(rt=rt_matrix,newest_entry = max(c(rt_sys1$time,rt_sys2$time))))
   
 }
 
@@ -181,7 +181,16 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
 
 
 
+get_ns <- function(ns){
 
+    mongo <- mongo.create()
+    data_back = mongo.find.all2(mongo, ns=ns)
+    del <- mongo.disconnect(mongo)
+    del <- mongo.destroy(mongo)
+    
+    return(data_back)
+  }
+  
 
 
 
@@ -243,16 +252,20 @@ boot2ci <- function(loess.boot){
 
 
 
-model_db_write <- function(loess_boot,ci,ns,sysoid1,sysoid2){
+model_db_write <- function(loess_boot,ci,ns,sysoid1,sysoid2,newest_entry){
   
   mongo <- mongo.create()
   buf <- mongo.bson.buffer.create()
-  mongo.bson.buffer.append(buf, "loess_boot", serialize(loess.boot, NULL, FALSE))
+  mongo.bson.buffer.append(buf, "loess_boot", serialize(loess_boot, NULL, FALSE))
   mongo.bson.buffer.append(buf, "ci", ci)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
   mongo.bson.buffer.append(buf, "status", "done")
   mongo.bson.buffer.append(buf, "time", Sys.time())
+  mongo.bson.buffer.append(buf, "n_points", nrow(loess_boot$data))
+  mongo.bson.buffer.append(buf, "newest_entry", newest_entry)
+  
+  
   buf <- mongo.bson.from.buffer(buf)
   
   

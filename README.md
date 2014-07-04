@@ -1,4 +1,4 @@
-shiny.apps
+retpred_shiny
 ==========
 
-A collection of shiny apps
+Shiny app for retention time prediction.
