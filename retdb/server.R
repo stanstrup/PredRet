@@ -9,9 +9,7 @@ shinyServer(function(input, output,session) {
 
   
   ## Basic settings ##################
-  ns_chrom_systems = "test2.chrom_systems"
-  ns_rtdata        = "test2.rtdata"
-  ns_sysmodels        = "test2.sysmodels"
+  source("settings/mongodb.R",local=TRUE)
   
   
   ## get username ##################
@@ -20,8 +18,8 @@ shinyServer(function(input, output,session) {
   
   
   ## functions ##################
-  source("inputTextarea.R",local=TRUE)
-  source("FUNCTIONS.R",local=TRUE)
+  source("functions/inputTextarea.R",local=TRUE)
+  source("functions/FUNCTIONS.R",local=TRUE)
   
   
   ## Upload data ##################
