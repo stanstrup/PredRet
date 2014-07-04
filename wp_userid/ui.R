@@ -8,7 +8,7 @@ shinyUI( bootstrapPage(
   
   
   # include the js code
-  includeScript("../scripts/get_user_id.js"),
+  includeScript("scripts/get_user_id.js"),
   
   # Show the output
   textOutput("view")
