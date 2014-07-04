@@ -9,7 +9,7 @@ shinyUI(
                                                    HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
                                                    
                                                    # include the js code
-                                                   includeScript("../../scripts/get_user_id.js"),
+                                                   includeScript("../scripts/get_user_id.js"),
                                                    
                                  
                                                   pageWithSidebar(

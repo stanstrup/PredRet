@@ -101,4 +101,4 @@ model_db_write(loess_boot=loess_boot,ci=ci,ns=ns_sysmodels,sysoid1=colnames(comb
 
 # check if there are new data
 # 1) deleted samples. nrow for any of the systems are not the same
-# 2) an entry with a date newer than the calculation date exists
+# 2) an entry with a date newer than the calculation date exists. so newest data point used must be written to db too.
