@@ -89,7 +89,7 @@ for(i in 1:length(comb_matrixes)){
   
   if(   is.null(comb_matrixes[[i]]$rt) )     next        
   if(  nrow(comb_matrixes[[i]]$rt)<10    )   next
-
+  
   
   # check if we already have newest data point in the calculation or if data was deleted.
   select    = colnames(comb_matrixes[[i]]$rt)[1]==sys_models_oid1 & colnames(comb_matrixes[[i]]$rt)[2]==sys_models_oid2
@@ -100,26 +100,38 @@ for(i in 1:length(comb_matrixes)){
   rm(select,is_newer,same_nrow)
   
   
-    fit=loess.wrapper(comb_matrixes[[i]]$rt[,1], comb_matrixes[[i]]$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrixes[[i]]$rt)) 
-    loess.boot <- boot(comb_matrixes[[i]]$rt,loess.fun,R=1000,newdata=comb_matrixes[[i]]$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
-    ci=boot2ci(loess.boot)
-    
-    ## loess.boot:
-    # t0: predicted y values
-    # t: predicted y values for each iteration
-    # data: original data
-    
-    
-    plot(loess.boot$data[,1],loess.boot$data[,2],pch=20)
-    lines(loess.boot$data[,1],ci[,1])
-    lines(loess.boot$data[,1],ci[,2],lty=3)
-    lines(loess.boot$data[,1],ci[,3],lty=3)
-    
-    
-    
-    ## Writing system
-    model_db_write(loess_boot=loess.boot,ci=ci,ns=ns_sysmodels,sysoid1=colnames(comb_matrixes[[i]]$rt)[1],sysoid2=colnames(comb_matrixes[[i]]$rt)[2],newest_entry=comb_matrixes[[i]]$newest_entry)
+  fit=loess.wrapper(comb_matrixes[[i]]$rt[,1], comb_matrixes[[i]]$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrixes[[i]]$rt)) 
+  loess.boot <- boot(comb_matrixes[[i]]$rt,loess.fun,R=1000,newdata=comb_matrixes[[i]]$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+  ci=boot2ci(loess.boot)
+  
+  ## loess.boot:
+  # t0: predicted y values
+  # t: predicted y values for each iteration
+  # data: original data
+  
+      
+  
+  ## Writing system
+  model_db_write(loess_boot=loess.boot,ci=ci,ns=ns_sysmodels,sysoid1=colnames(comb_matrixes[[i]]$rt)[1],sysoid2=colnames(comb_matrixes[[i]]$rt)[2],newest_entry=comb_matrixes[[i]]$newest_entry)
   
 }
 
 
+
+
+
+
+plotdata=cbind.data.frame(x=loess.boot$data[,1],
+                          y=loess.boot$data[,2],
+                          predicted=ci[,1],
+                          lower=ci[,2],
+                          upper=ci[,3],
+                          name=rownames(loess.boot$data),
+                          tooltip=paste0('<b>',rownames(loess.boot$data),'</b><br />','x: ',round(loess.boot$data[,1],2),'<br />y: ',round(loess.boot$data[,2],2))
+)
+
+
+
+
+p = plot_systems(plotdata)
+p
