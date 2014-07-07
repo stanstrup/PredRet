@@ -1,3 +1,7 @@
+## data_cleaned #####################################
+
+
+
 data_cleaned <- reactive({
   if (is.null(input$files))    return(NULL)
   # User has not uploaded a file yet
