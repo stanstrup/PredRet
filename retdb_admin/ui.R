@@ -12,15 +12,27 @@ shinyUI(
                                                    includeScript("scripts/get_user_id.js"),
                                                    
                                  
-                                                   basicPage(
-                                                     showOutput("chart1", "highcharts")
-                                                            )
-                      
-                        
-                        
-                                )
-         )
+                                 fluidRow(
+                                                                    div(headerPanel("Explore the models build between systems"),style="margin-left:47.9px"),
+                                                                    
+                                                                    column(3,style="margin-top:60px;width:300px",
+                                                                           wellPanel(
+                                                                                        
+                                                                                        uiOutput("explore_sys1"),
+                                                                                        uiOutput("explore_sys2")
+                                                                           )
+                                                                        
+                                                                                 ),
+
+                                                                    column(5,
+                                                                                        style="margin-top:60px",
+                                                                                        showOutput("chart1", "highcharts")
+                                                               
+                                                                                ) 
+
+                                                                )
+                           )
 
 
-
+            )
 )

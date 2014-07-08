@@ -14,7 +14,7 @@ get_user_data <- function() {
 
 
 mongo <- mongo.create()
-ns <- "test2.rtdata"
+ns <- ns_rtdata
 
 data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
 
@@ -202,6 +202,64 @@ get_ns <- function(ns){
 
 
 
+
+
+get_models <- function() {
+  require(rmongodb)
+  require(rmongodb.quick)
+  
+  
+  # select fields (think columns)
+  fields = mongo.bson.buffer.create()
+  mongo.bson.buffer.append(fields, "_id", 1L)
+  mongo.bson.buffer.append(fields, "loess_boot", 1L)
+  mongo.bson.buffer.append(fields, "ci", 1L)
+  mongo.bson.buffer.append(fields, "oid_sys1", 1L)
+  mongo.bson.buffer.append(fields, "oid_sys2", 1L)
+  mongo.bson.buffer.append(fields, "status", 1L)
+  fields = mongo.bson.from.buffer(fields)
+  
+  
+  # Connect to db
+  mongo <- mongo.create()
+  ns <- ns_sysmodels
+  data_back = mongo.find.all2(mongo, ns=ns,fields=fields)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  
+  # Unserialize models
+  
+  
+  data_back = lapply(data_back,function(x) {
+    x$loess_boot=unserialize(x$loess_boot)
+    return(x)
+    })
+  
+  
+  return(data_back)
+}
+
+
+
+
+
+
+
+sys_oid2name <- function(sys_id_data){
+  
+  dbsystems <- get_systems()
+  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
+  
+  system = sys_name[match(sys_id_data,sys_id_db)]
+  return(system)
+}
+
+
+
+
+
 ## Functions for prediction #####################
 
 loess.fun <- function(in_data,inds,newdata,span){
@@ -327,10 +385,10 @@ plot_systems <- function(plotdata) {
   
   # hPlot with tooltip ######################
   # Plot the points
-  p <- hPlot(y ~ x, data = plotdata, type = "scatter")
+  p <- hPlot(y ~ x, data = plotdata$data, type = "scatter")
   
   # fix data format
-  p$params$series[[1]]$data <- toJSONArray(plotdata, json = F)
+  p$params$series[[1]]$data <- toJSONArray(plotdata$data, json = F)
   
   # add tooltip formatter
   p$tooltip(formatter = "#! function() {return(this.point.tooltip);} !#")
@@ -339,8 +397,14 @@ plot_systems <- function(plotdata) {
   p$params$series[[1]]$zIndex=2
   
   
+  p$title(style=list(fontSize='24px'),text=plotdata$title)
+  
+  p$xAxis(title=list(text=plotdata$xlab,style=list(fontSize='18px')))
+  p$yAxis(title=list(text=plotdata$ylab,style=list(fontSize='18px')))
+  
+  
   p$series(
-    data = toJSONArray2(plotdata[,c('x', 'predicted')], names = F, json = F),
+    data = toJSONArray2(plotdata$data[,c('x', 'predicted')], names = F, json = F),
     type = 'line',
     zIndex = 1,
     marker=list(enabled=F,states=list(hover=list(enabled=F)))
@@ -348,7 +412,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = toJSONArray2(plotdata[,c('x', 'lower', 'upper')], names = F, json = F),
+    data = toJSONArray2(plotdata$data[,c('x', 'lower', 'upper')], names = F, json = F),
     type = 'arearange',
     fillOpacity = 0.3,
     lineWidth = 0,
@@ -364,8 +428,8 @@ plot_systems <- function(plotdata) {
   
   
   # set plot size
-  p$params$width=800
-  p$params$height=600
+  p$params$width=800*0.8
+  p$params$height=600*0.8
   
   # plot
   invisible(p)
