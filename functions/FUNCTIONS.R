@@ -217,6 +217,7 @@ get_models <- function() {
   mongo.bson.buffer.append(fields, "oid_sys1", 1L)
   mongo.bson.buffer.append(fields, "oid_sys2", 1L)
   mongo.bson.buffer.append(fields, "status", 1L)
+  mongo.bson.buffer.append(fields, "n_points", 1L)
   
   
   mongo.bson.buffer.append(fields, "mean_error_abs", 1L)

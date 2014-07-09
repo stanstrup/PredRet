@@ -1,13 +1,13 @@
 output$MODELSTATS_table <- renderDataTable({
   
   # Make a table with all relevant data
-  models_table <- lapply(models(),function(x) data.frame(x$oid_sys1,x$oid_sys2,x$status,x$mean_error_abs,x$median_error_abs,x$q95_error_abs,x$max_error_abs,x$mean_ci_width_abs,x$median_ci_width_abs,x$q95_ci_width_abs,x$max_ci_width_abs,stringsAsFactors=F))
+  models_table <- lapply(models(),function(x) data.frame(x$oid_sys1,x$oid_sys2,x$n_points,x$mean_error_abs,x$median_error_abs,x$q95_error_abs,x$max_error_abs,x$mean_ci_width_abs,x$median_ci_width_abs,x$q95_ci_width_abs,x$max_ci_width_abs,stringsAsFactors=F))
   
   models_table <- do.call(rbind,models_table)
     
   colnames(models_table)=c("Prediction from",
                            "Prediction to",
-                           "Modelling status",
+                           "# Common compounds",
                            "Mean prediction error",
                            "Median prediction error",
                            "95 % percentile prediction error",
