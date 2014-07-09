@@ -31,7 +31,43 @@ shinyUI(
                                                                                 ) 
 
                                                                 )
-                           )
+                           ),
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+                         tabPanel('Model statistics',
+                                  
+                                  basicPage(
+                                    
+                                            dataTableOutput("MODELSTATS_table") 
+                                    
+                                            )
+                         )             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
 
 
             )

@@ -1,9 +1,3 @@
-models <- reactive({get_models()})
-
-
-
-
-
 output$explore_sys1 <- renderUI({
   oids = do.call(rbind,lapply(models(),function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
   sys_name = sys_oid2name(as.character(oids))

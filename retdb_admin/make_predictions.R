@@ -92,13 +92,14 @@ for(i in 1:length(comb_matrixes)){
   
   
   # check if we already have newest data point in the calculation or if data was deleted.
+  if(!(length(sys_models)==0)){ # there are no systems at all
   select    = colnames(comb_matrixes[[i]]$rt)[1]==sys_models_oid1 & colnames(comb_matrixes[[i]]$rt)[2]==sys_models_oid2
   is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrixes[[i]]$newest_entry
   same_nrow = sys_models_n_points[select] == nrow(comb_matrixes[[i]]$rt) 
   
   if(!(is_newer | !same_nrow)) next
   rm(select,is_newer,same_nrow)
-  
+  }
   
   fit=loess.wrapper(comb_matrixes[[i]]$rt[,1], comb_matrixes[[i]]$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrixes[[i]]$rt)) 
   loess.boot <- boot(comb_matrixes[[i]]$rt,loess.fun,R=1000,newdata=comb_matrixes[[i]]$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
@@ -112,7 +113,21 @@ for(i in 1:length(comb_matrixes)){
       
   
   ## Writing system
-  model_db_write(loess_boot=loess.boot,ci=ci,ns=ns_sysmodels,sysoid1=colnames(comb_matrixes[[i]]$rt)[1],sysoid2=colnames(comb_matrixes[[i]]$rt)[2],newest_entry=comb_matrixes[[i]]$newest_entry)
+  model_db_write(loess_boot=loess.boot,
+                 ci=ci,
+                 ns=ns_sysmodels,
+                 sysoid1=colnames(comb_matrixes[[i]]$rt)[1],
+                 sysoid2=colnames(comb_matrixes[[i]]$rt)[2],
+                 newest_entry=comb_matrixes[[i]]$newest_entry,
+                 mean_error_abs=mean(abs(loess.boot$data[,2]-ci[,1])),
+                 median_error_abs=median(abs(loess.boot$data[,2]-ci[,1])),
+                 q95_error_abs=quantile(abs(loess.boot$data[,2]-ci[,1]),0.95),
+                 max_error_abs=max(abs(loess.boot$data[,2]-ci[,1])),
+                 mean_ci_width_abs=mean(ci[,3]-ci[,2]),
+                 median_ci_width_abs=median(ci[,3]-ci[,2]),
+                 q95_ci_width_abs=quantile(ci[,3]-ci[,2],0.95),
+                 max_ci_width_abs=max(ci[,3]-ci[,2])
+                 )
   
 }
 

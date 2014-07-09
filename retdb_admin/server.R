@@ -13,10 +13,15 @@ shinyServer(function(input, output,session) {
   
   ## functions ##################
   source("functions/FUNCTIONS.R",local=TRUE)
+
+  
+  # some shared reactives ##################
+  models <- reactive({get_models()})
   
 
-  ## Explore data ##################
+  ## Tabs ##################
   source("server_explore.R",local=TRUE)
+  source("server_modelstats.R",local=TRUE)
 
 
 

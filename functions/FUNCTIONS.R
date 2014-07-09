@@ -217,8 +217,20 @@ get_models <- function() {
   mongo.bson.buffer.append(fields, "oid_sys1", 1L)
   mongo.bson.buffer.append(fields, "oid_sys2", 1L)
   mongo.bson.buffer.append(fields, "status", 1L)
+  
+  
+  mongo.bson.buffer.append(fields, "mean_error_abs", 1L)
+  mongo.bson.buffer.append(fields, "median_error_abs", 1L)
+  mongo.bson.buffer.append(fields, "q95_error_abs", 1L)
+  mongo.bson.buffer.append(fields, "max_error_abs", 1L)
+  mongo.bson.buffer.append(fields, "mean_ci_width_abs", 1L)
+  mongo.bson.buffer.append(fields, "median_ci_width_abs", 1L)
+  mongo.bson.buffer.append(fields, "q95_ci_width_abs", 1L)
+  mongo.bson.buffer.append(fields, "max_ci_width_abs", 1L)
+  
   fields = mongo.bson.from.buffer(fields)
   
+    
   
   # Connect to db
   mongo <- mongo.create()
@@ -315,9 +327,25 @@ boot2ci <- function(loess.boot){
 
 
 
-model_db_write <- function(loess_boot,ci,ns,sysoid1,sysoid2,newest_entry){
+model_db_write <- function(loess_boot,
+                           ci,
+                           ns,
+                           sysoid1,
+                           sysoid2,
+                           newest_entry,
+                           mean_error_abs,
+                           median_error_abs,
+                           q95_error_abs,
+                           max_error_abs,
+                           mean_ci_width_abs,
+                           median_ci_width_abs,
+                           q95_ci_width_abs,
+                           max_ci_width_abs
+                           ){
+  
   
   mongo <- mongo.create()
+  
   buf <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(buf, "loess_boot", serialize(loess_boot, NULL, FALSE))
   mongo.bson.buffer.append(buf, "ci", ci)
@@ -328,6 +356,15 @@ model_db_write <- function(loess_boot,ci,ns,sysoid1,sysoid2,newest_entry){
   mongo.bson.buffer.append(buf, "n_points", nrow(loess_boot$data))
   mongo.bson.buffer.append(buf, "newest_entry", newest_entry)
   
+  mongo.bson.buffer.append(buf, "mean_error_abs", mean_error_abs)
+  mongo.bson.buffer.append(buf, "median_error_abs", median_error_abs)
+  mongo.bson.buffer.append(buf, "q95_error_abs", as.numeric(q95_error_abs))
+  mongo.bson.buffer.append(buf, "max_error_abs", max_error_abs)
+  
+  mongo.bson.buffer.append(buf, "mean_ci_width_abs", mean_ci_width_abs)
+  mongo.bson.buffer.append(buf, "median_ci_width_abs", median_ci_width_abs)
+  mongo.bson.buffer.append(buf, "q95_ci_width_abs", as.numeric(q95_ci_width_abs))
+  mongo.bson.buffer.append(buf, "max_ci_width_abs", max_ci_width_abs)
   
   buf <- mongo.bson.from.buffer(buf)
   
