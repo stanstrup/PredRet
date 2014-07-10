@@ -50,10 +50,42 @@ shinyUI(
                                             dataTableOutput("MODELSTATS_table") 
                                     
                                             )
-                         )             
+                         ),            
              
              
              
+             
+             
+             
+             
+             
+                         tabPanel('Build models',
+                                  
+                                  fluidRow(
+                                            column(3,
+                                                      style="width:310px",
+                                            
+                                                      wellPanel(
+                                                                  uiOutput("build_sys1"),
+                                                                  uiOutput("build_sys2"),
+                                                                  div(actionButton("build_specific","(Re-)build model between systems") ,style="width:180px;margin: 0 auto;")
+                                                               ),
+                                                   
+                                                      wellPanel(
+                                                                  checkboxInput("build_force_recalc", "Force re-calculation", value = FALSE),
+                                                                  div(actionButton("build_all","(Re-)build model between ALL systems") ,style="width:180px;margin: 0 auto;")
+                                                               )
+                                            ),
+                                            
+                                            column(7,
+                                                   dataTableOutput("build_table"),
+                                                   div(style="margin-top:100px",h2("Build log")),
+                                                   dataTableOutput("build_log")
+                                                   )
+                                            
+                                    
+                                  )
+                         )    
              
              
              

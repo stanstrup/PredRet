@@ -22,7 +22,7 @@ shinyServer(function(input, output,session) {
   ## Tabs ##################
   source("server_explore.R",local=TRUE)
   source("server_modelstats.R",local=TRUE)
-
+  source("server_build.R",local=TRUE)
 
 
 })

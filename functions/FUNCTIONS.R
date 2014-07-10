@@ -204,7 +204,7 @@ get_ns <- function(ns){
 
 
 
-get_models <- function() {
+get_models <- function(include.loess=TRUE) {
   require(rmongodb)
   require(rmongodb.quick)
   
@@ -212,12 +212,14 @@ get_models <- function() {
   # select fields (think columns)
   fields = mongo.bson.buffer.create()
   mongo.bson.buffer.append(fields, "_id", 1L)
-  mongo.bson.buffer.append(fields, "loess_boot", 1L)
+  if(include.loess){ mongo.bson.buffer.append(fields, "loess_boot", 1L) }
   mongo.bson.buffer.append(fields, "ci", 1L)
   mongo.bson.buffer.append(fields, "oid_sys1", 1L)
   mongo.bson.buffer.append(fields, "oid_sys2", 1L)
   mongo.bson.buffer.append(fields, "status", 1L)
   mongo.bson.buffer.append(fields, "n_points", 1L)
+  mongo.bson.buffer.append(fields, "time", 1L)
+  mongo.bson.buffer.append(fields, "newest_entry", 1L)
   
   
   mongo.bson.buffer.append(fields, "mean_error_abs", 1L)
@@ -242,13 +244,12 @@ get_models <- function() {
   
   
   # Unserialize models
-  
-  
+  if(include.loess){ 
   data_back = lapply(data_back,function(x) {
     x$loess_boot=unserialize(x$loess_boot)
     return(x)
     })
-  
+  }
   
   return(data_back)
 }
@@ -268,6 +269,75 @@ sys_oid2name <- function(sys_id_data){
   system = sys_name[match(sys_id_data,sys_id_db)]
   return(system)
 }
+
+
+
+
+
+wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
+  buf <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
+  mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
+  mongo.bson.buffer.append(buf, "msg", msg)
+  mongo.bson.buffer.append(buf, "time", Sys.time())
+  buf <- mongo.bson.from.buffer(buf)
+  
+  mongo <- mongo.create()
+  mongo.insert(mongo, ns, buf)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+}
+
+
+
+
+
+
+
+log_count <- function(ns){
+require(rmongodb)
+
+mongo <- mongo.create()
+n = mongo.count(mongo, ns=ns_sysmodels_log )
+del <- mongo.disconnect(mongo)
+del <- mongo.destroy(mongo)
+
+return(n)
+}
+
+
+
+
+
+
+get_build_log <- function(ns){
+  require(rmongodb)
+  require(rmongodb.quick)
+  
+  mongo <- mongo.create()
+  
+  # Get the data
+  fields = mongo.bson.buffer.create()
+  mongo.bson.buffer.append(fields, "_id", 0L)
+  fields = mongo.bson.from.buffer(fields)
+  
+  sysmodel_log = mongo.find.all2(mongo, ns=ns,fields = fields)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  # Make it into a table
+  sysmodel_log <- lapply(sysmodel_log,function(x) data.frame(time=x$time,oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2,msg=x$msg,stringsAsFactors=F))
+  sysmodel_log <- do.call(rbind,sysmodel_log)
+  
+  # Change sys oids to names  
+  log_sys_names = sys_oid2name(as.character(as.matrix(sysmodel_log[,c("oid_sys1","oid_sys2")])))
+  dim(log_sys_names) <- c(length(log_sys_names)/2,2)
+  sysmodel_log[,c("oid_sys1","oid_sys2")] <- log_sys_names
+  
+  
+  return(sysmodel_log)
+}
+
 
 
 
@@ -477,4 +547,85 @@ plot_systems <- function(plotdata) {
   
   
   
+
+
+
+build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
+  require(boot)
+  require("bisoreg")
   
+  
+  # get Comparision matrix from database  
+  comb_matrix = sys_comb_matrix(oid1,oid2,ns=ns_rtdata)
+  if(is.null(comb_matrix)) return(NULL)  # say something
+  
+  
+  # Remove compounds where we have no data in one or both systems and order the data
+  if(!is.null(comb_matrix$rt)){
+    del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
+    comb_matrix$rt = comb_matrix$rt[!del,]
+    
+    ord = order(comb_matrix$rt[,1])
+    comb_matrix$rt = comb_matrix$rt[ord,]
+  }
+  
+  if(   is.null(comb_matrix$rt) )     return(NULL)        
+  if(  nrow(comb_matrix$rt)<10    )   return(NULL)
+  
+  
+  
+  # get info about current models
+  sys_models = get_models(include.loess=FALSE)
+  
+  sys_models_newest_entry = lapply(sys_models,function(x) x$newest_entry)
+  sys_models_n_points = sapply(sys_models,function(x) x$n_points)
+  
+  sys_models_oid1 = sapply(sys_models,function(x) x$oid_sys1)
+  sys_models_oid2 = sapply(sys_models,function(x) x$oid_sys2)
+  
+  
+  # check if we already have newest data point in the calculation or if data was deleted.
+  if(!(length(sys_models)==0)){ # there are no systems at all
+    select    = colnames(comb_matrix$rt)[1]==sys_models_oid1 & colnames(comb_matrix$rt)[2]==sys_models_oid2
+    is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrix$newest_entry
+    same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
+    
+  #  if(!(is_newer | !same_nrow)) return(NULL)
+  }
+  
+  # Building the model
+  fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
+  loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+  ci=boot2ci(loess.boot)
+  
+  ## loess.boot:
+  # t0: predicted y values
+  # t: predicted y values for each iteration
+  # data: original data
+  
+  
+  
+  ## Writing system
+  model_db_write(loess_boot=loess.boot,
+                 ci=ci,
+                 ns=ns_sysmodels,
+                 sysoid1=colnames(comb_matrix$rt)[1],
+                 sysoid2=colnames(comb_matrix$rt)[2],
+                 newest_entry=comb_matrix$newest_entry,
+                 mean_error_abs=mean(abs(loess.boot$data[,2]-ci[,1])),
+                 median_error_abs=median(abs(loess.boot$data[,2]-ci[,1])),
+                 q95_error_abs=quantile(abs(loess.boot$data[,2]-ci[,1]),0.95),
+                 max_error_abs=max(abs(loess.boot$data[,2]-ci[,1])),
+                 mean_ci_width_abs=mean(ci[,3]-ci[,2]),
+                 median_ci_width_abs=median(ci[,3]-ci[,2]),
+                 q95_ci_width_abs=quantile(ci[,3]-ci[,2],0.95),
+                 max_ci_width_abs=max(ci[,3]-ci[,2])
+  )
+  
+  
+  wrote_model_log(sysoid1=colnames(comb_matrix$rt)[1],
+                  sysoid2=colnames(comb_matrix$rt)[2]
+                  ,msg="Model was written to the database.",
+                  ns=ns_sysmodels_log)
+  
+}
