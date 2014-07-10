@@ -1,4 +1,6 @@
-require(rCharts)
+library(shiny)
+library(rCharts)
+library(shinyIncubator)
 
 shinyUI(
   navbarPage("",
@@ -61,19 +63,20 @@ shinyUI(
              
                          tabPanel('Build models',
                                   
-                                  fluidRow(
+                                  fluidRow(progressInit(),
                                             column(3,
                                                       style="width:310px",
                                             
                                                       wellPanel(
                                                                   uiOutput("build_sys1"),
                                                                   uiOutput("build_sys2"),
+                                                                  checkboxInput("build_force_recalc", "Force re-calculation", value = FALSE),
                                                                   div(actionButton("build_specific","(Re-)build model between systems") ,style="width:180px;margin: 0 auto;")
                                                                ),
                                                    
                                                       wellPanel(
-                                                                  checkboxInput("build_force_recalc", "Force re-calculation", value = FALSE),
-                                                                  div(actionButton("build_all","(Re-)build model between ALL systems") ,style="width:180px;margin: 0 auto;")
+                                                                  checkboxInput("build_force_recalc_all", "Force re-calculation", value = FALSE),
+                                                                  div(actionButton("build_all","(Re-)build models between ALL systems") ,style="width:180px;margin: 0 auto;")
                                                                )
                                             ),
                                             

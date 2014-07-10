@@ -89,8 +89,8 @@ observe({
     oid1 = sys_oids[input$build_sys1==sys_names]
     oid2 = sys_oids[input$build_sys2==sys_names]
     
-    build_model(oid1=oid1,oid2=oid2,ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log) 
-   
+    build_model(oid1=oid1,oid2=oid2,ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=input$build_force_recalc) 
+
   })
 })
 
@@ -113,12 +113,7 @@ build_log_settings <- reactive({
 })
 
 
-
-
 build_log <- reactivePoll(2000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log))
-
-
-
 
 output$build_log <- renderDataTable(build_log(),
                                     options=list(iDisplayLength = 10,aoColumnDefs=build_log_settings(), aoColumns=NULL,bAutoWidth=FALSE    )

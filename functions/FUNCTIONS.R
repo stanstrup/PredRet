@@ -335,6 +335,11 @@ get_build_log <- function(ns){
   sysmodel_log[,c("oid_sys1","oid_sys2")] <- log_sys_names
   
   
+  # sort by date
+  order        <- order(sysmodel_log[,"time"],decreasing = TRUE)
+  sysmodel_log <- sysmodel_log[order,]
+  
+  
   return(sysmodel_log)
 }
 
@@ -550,17 +555,30 @@ plot_systems <- function(plotdata) {
 
 
 
-build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
+build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=FALSE) {
   require(boot)
   require("bisoreg")
   
+   
+  # get Comparision matrix from database
+  progress <- Progress$new(session, min=1, max=100)
+  on.exit(progress$close())
+  progress$set(message = 'Calculation in progress (progress is not accurately followed)',
+               detail = 'Retrieving database values',
+               value=10)
   
-  # get Comparision matrix from database  
   comb_matrix = sys_comb_matrix(oid1,oid2,ns=ns_rtdata)
-  if(is.null(comb_matrix)) return(NULL)  # say something
   
+  if(is.null(comb_matrix)){
+    wrote_model_log(msg="No RT data found for one or both systems",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    return(NULL)
+  }
   
   # Remove compounds where we have no data in one or both systems and order the data
+  progress$set(message = 'Calculation in progress (progress is not accurately followed)',
+               detail = 'Getting common compounds',
+               value=20)
+  
   if(!is.null(comb_matrix$rt)){
     del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
     comb_matrix$rt = comb_matrix$rt[!del,]
@@ -569,9 +587,15 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
     comb_matrix$rt = comb_matrix$rt[ord,]
   }
   
-  if(   is.null(comb_matrix$rt) )     return(NULL)        
-  if(  nrow(comb_matrix$rt)<10    )   return(NULL)
+  if(   is.null(comb_matrix$rt) ){
+    wrote_model_log(msg="Systems have no compounds in common. No model can be calculated",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    return(NULL)
+  }
   
+  if(  nrow(comb_matrix$rt)<10    ){
+    wrote_model_log(msg="Systems have less than 10 compounds in common. No model will be calculated",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    return(NULL)
+  }
   
   
   # get info about current models
@@ -590,13 +614,22 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
     is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrix$newest_entry
     same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
     
-  #  if(!(is_newer | !same_nrow)) return(NULL)
+    if(   !(is_newer | !same_nrow)  & !force  ){
+      wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+      return(NULL)
+    }
   }
   
   # Building the model
-  fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
-  loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
-  ci=boot2ci(loess.boot)
+  progress$set(message = 'Calculation in progress (progress is not accurately followed)',
+               detail = paste0('Model being build for ',sys_oid2name(oid2),' vs. ',sys_oid2name(oid1)),
+               value=30)
+  
+    fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
+    loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+    ci=boot2ci(loess.boot)
+
+  
   
   ## loess.boot:
   # t0: predicted y values
@@ -604,13 +637,15 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
   # data: original data
   
   
+  progress$set(message = 'Calculation in progress (progress is not accurately followed)',
+               detail = 'Writing data to the database.',
+               value=90)
   
-  ## Writing system
   model_db_write(loess_boot=loess.boot,
                  ci=ci,
                  ns=ns_sysmodels,
-                 sysoid1=colnames(comb_matrix$rt)[1],
-                 sysoid2=colnames(comb_matrix$rt)[2],
+                 sysoid1=oid1,
+                 sysoid2=oid2,
                  newest_entry=comb_matrix$newest_entry,
                  mean_error_abs=mean(abs(loess.boot$data[,2]-ci[,1])),
                  median_error_abs=median(abs(loess.boot$data[,2]-ci[,1])),
@@ -623,9 +658,6 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log) {
   )
   
   
-  wrote_model_log(sysoid1=colnames(comb_matrix$rt)[1],
-                  sysoid2=colnames(comb_matrix$rt)[2]
-                  ,msg="Model was written to the database.",
-                  ns=ns_sysmodels_log)
+  wrote_model_log(msg="New model data was written to the database.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
   
 }
