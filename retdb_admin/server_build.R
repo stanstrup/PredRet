@@ -89,7 +89,8 @@ observe({
     oid1 = sys_oids[input$build_sys1==sys_names]
     oid2 = sys_oids[input$build_sys2==sys_names]
     
-    build_model(oid1=oid1,oid2=oid2,ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=input$build_force_recalc) 
+    
+    build_model(oid1=oid1,oid2=oid2,ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=input$build_force_recalc,session=session) 
 
   })
 })

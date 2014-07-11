@@ -3,49 +3,53 @@
 
 get_user_data <- function() {
   require(rmongodb)
-
+  
   dbsystems <- get_systems()
   
   
   
-## Only get users own data
-
-
-
-
-mongo <- mongo.create()
-ns <- ns_rtdata
-
-data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
-
-if(is.null(data_all)) return(NULL)
-
-row.names(data_all) <- seq(nrow(data_all))
-
-del <- mongo.disconnect(mongo)
-del <- mongo.destroy(mongo)
-
-
-# Take some data directly
-data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi")]
-
-
-# Get correctly formatted time
-data = cbind.data.frame(data , `date added` = as.POSIXct(data_all[,"time"],origin="1970-01-01")     ,stringsAsFactors = F)
-
-
-# Get system name from system ID
-sys_id_data = as.character(data_all[,"sys_id"])
-sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
-sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
-
-data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
-
-
-# Format RT data
-#data[,"rt"]      =     round(data[,"rt"],digits=2)
-
-return(data)
+  ## Only get users own data
+  
+  
+  
+  
+  mongo <- mongo.create()
+  ns <- ns_rtdata
+  
+  data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+  
+  if(is.null(data_all)){
+    del <- mongo.disconnect(mongo)
+    del <- mongo.destroy(mongo)
+    return(NULL)
+  }
+  
+  row.names(data_all) <- seq(nrow(data_all))
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  
+  # Take some data directly
+  data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi")]
+  
+  
+  # Get correctly formatted time
+  data = cbind.data.frame(data , `date added` = as.POSIXct(data_all[,"time"],origin="1970-01-01")     ,stringsAsFactors = F)
+  
+  
+  # Get system name from system ID
+  sys_id_data = as.character(data_all[,"sys_id"])
+  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
+  
+  data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
+  
+  
+  # Format RT data
+  #data[,"rt"]      =     round(data[,"rt"],digits=2)
+  
+  return(data)
 }
 
 
@@ -55,27 +59,27 @@ get_systems <- function() {
   require(rmongodb.quick)
   
   
-# Connect to db
-mongo <- mongo.create()
-ns <- "test2.chrom_systems"
-
-
-# select fields (think columns)
-fields = mongo.bson.buffer.create()
-mongo.bson.buffer.append(fields, "_id", 1L)
-mongo.bson.buffer.append(fields, "sys_id", 1L)
-mongo.bson.buffer.append(fields, "system_name", 1L)
-mongo.bson.buffer.append(fields, "system_desc", 1L)
-mongo.bson.buffer.append(fields, "userID", 1L)
-mongo.bson.buffer.append(fields, "username", 1L)
-fields = mongo.bson.from.buffer(fields)
-
-data_back = mongo.find.all2(mongo, ns=ns,fields=fields)
-
-del <- mongo.disconnect(mongo)
-del <- mongo.destroy(mongo)
-
-return(data_back)
+  # Connect to db
+  mongo <- mongo.create()
+  ns <- "test2.chrom_systems"
+  
+  
+  # select fields (think columns)
+  fields = mongo.bson.buffer.create()
+  mongo.bson.buffer.append(fields, "_id", 1L)
+  mongo.bson.buffer.append(fields, "sys_id", 1L)
+  mongo.bson.buffer.append(fields, "system_name", 1L)
+  mongo.bson.buffer.append(fields, "system_desc", 1L)
+  mongo.bson.buffer.append(fields, "userID", 1L)
+  mongo.bson.buffer.append(fields, "username", 1L)
+  fields = mongo.bson.from.buffer(fields)
+  
+  data_back = mongo.find.all2(mongo, ns=ns,fields=fields)
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  return(data_back)
 }
 
 
@@ -295,14 +299,14 @@ wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
 
 
 log_count <- function(ns){
-require(rmongodb)
-
-mongo <- mongo.create()
-n = mongo.count(mongo, ns=ns_sysmodels_log )
-del <- mongo.disconnect(mongo)
-del <- mongo.destroy(mongo)
-
-return(n)
+  require(rmongodb)
+  
+  mongo <- mongo.create()
+  n = mongo.count(mongo, ns=ns_sysmodels_log )
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  return(n)
 }
 
 
@@ -342,6 +346,56 @@ get_build_log <- function(ns){
   
   return(sysmodel_log)
 }
+
+
+
+
+
+
+set_model_status <- function(sysoid1,sysoid2,status,ns){
+  
+  mongo <- mongo.create()
+
+  db_models_oids = mongo.find.all2(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
+  db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
+  
+  
+  if(any(db_models_oids_hit)){
+    oids_to_update = lapply(db_models_oids, function(x) x$`_id`)
+    oids_to_update = oids_to_update[[which(db_models_oids_hit)]]
+    
+    criteria <- mongo.bson.buffer.create()
+    mongo.bson.buffer.append(criteria, "_id", oids_to_update)
+    criteria <- mongo.bson.from.buffer(criteria)
+    
+    buf = mongo.bson.from.list(list("$set"=list("status"=status)))
+    
+    status = mongo.update(mongo, ns, criteria, objNew=buf)
+    
+    
+  }else{
+    buf <- mongo.bson.buffer.create()
+    mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
+    mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
+    mongo.bson.buffer.append(buf, "status", status)
+    buf <- mongo.bson.from.buffer(buf)
+    
+    status = mongo.insert(mongo, ns, buf)
+  }
+  
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -405,7 +459,8 @@ boot2ci <- function(loess.boot){
 
 model_db_write <- function(loess_boot,
                            ci,
-                           ns,
+                           ns_sysmodels,
+                           ns_sysmodels_log,
                            sysoid1,
                            sysoid2,
                            newest_entry,
@@ -423,7 +478,7 @@ model_db_write <- function(loess_boot,
   mongo <- mongo.create()
   
   buf <- mongo.bson.buffer.create()
-  mongo.bson.buffer.append(buf, "loess_boot", serialize(loess_boot, NULL, FALSE))
+  #mongo.bson.buffer.append(buf, "loess_boot", serialize(loess_boot, NULL, FALSE))
   mongo.bson.buffer.append(buf, "ci", ci)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
@@ -445,7 +500,7 @@ model_db_write <- function(loess_boot,
   buf <- mongo.bson.from.buffer(buf)
   
   
-  db_models_oids = mongo.find.all2(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
+  db_models_oids = mongo.find.all2(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L))
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   if(any(db_models_oids_hit)){
@@ -455,15 +510,42 @@ model_db_write <- function(loess_boot,
     criteria <- mongo.bson.buffer.create()
     mongo.bson.buffer.append(criteria, "_id", oids_to_update)
     criteria <- mongo.bson.from.buffer(criteria)
-    mongo.update(mongo, ns, criteria, buf)
+    
+
+#     print((criteria))
+#     print((buf))
+#     print((ns_sysmodels))
+#     print((mongo))
+# 
+#     print("errors here:")
+#     print(mongo.get.err(mongo))
+    success=mongo.update(mongo, ns_sysmodels, criteria, buf)
+     print("errors here:")
+     print(mongo.get.err(mongo))    
+#      print(mongo.get.prev.err(mongo, "test2"))
+#      print(mongo.get.server.err(mongo))
+#      print(mongo.get.server.err.string(mongo))
+#      print(mongo.get.last.err(mongo, "test2"))
+#      print(mongo.get.server.err(mongo))
+#      print(mongo.get.server.err.string(mongo))
+    
+    
     
   }else{
-    mongo.insert(mongo, ns, buf)
+    success=mongo.insert(mongo, ns_sysmodels, buf)
   }
-  
-  
+  print(success)
+
+
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
+  
+  if(success){
+    wrote_model_log(msg="New model data was successfully written to the database.",sysoid1=sysoid1,sysoid2=sysoid2,ns=ns_sysmodels_log)
+  }else{
+    wrote_model_log(msg="Attempt to write new model data to the database failed.",sysoid1=sysoid1,sysoid2=sysoid2,ns=ns_sysmodels_log)
+  }
+  
   
 }
 
@@ -555,17 +637,20 @@ plot_systems <- function(plotdata) {
 
 
 
-build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=FALSE) {
-  require(boot)
+build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=FALSE,withProgress=TRUE,session) {
+  require("boot")
   require("bisoreg")
+  set_model_status(sysoid1=oid1,sysoid2=oid2,status="calculating",ns=ns_sysmodels)
   
    
   # get Comparision matrix from database
+  if(withProgress){
   progress <- Progress$new(session, min=1, max=100)
   on.exit(progress$close())
   progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                detail = 'Retrieving database values',
                value=10)
+  }
   
   comb_matrix = sys_comb_matrix(oid1,oid2,ns=ns_rtdata)
   
@@ -574,10 +659,13 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
     return(NULL)
   }
   
+  
   # Remove compounds where we have no data in one or both systems and order the data
+  if(withProgress){
   progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                detail = 'Getting common compounds',
                value=20)
+  }
   
   if(!is.null(comb_matrix$rt)){
     del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
@@ -609,8 +697,11 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
   
   # check if we already have newest data point in the calculation or if data was deleted.
-  if(!(length(sys_models)==0)){ # there are no systems at all
-    select    = colnames(comb_matrix$rt)[1]==sys_models_oid1 & colnames(comb_matrix$rt)[2]==sys_models_oid2
+  select    = oid1==sys_models_oid1 & oid2==sys_models_oid2
+  
+  
+  
+  if(       !(length(sys_models)==0)    &    any(select)    &    !is.null(sys_models_newest_entry[[which(select)]])         ){ # there are no systems at all
     is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrix$newest_entry
     same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
     
@@ -618,12 +709,17 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
       wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
       return(NULL)
     }
+    
   }
   
+  
   # Building the model
+  if(withProgress){
   progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                detail = paste0('Model being build for ',sys_oid2name(oid2),' vs. ',sys_oid2name(oid1)),
                value=30)
+  }
+    
   
     fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
     loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
@@ -636,14 +732,16 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   # t: predicted y values for each iteration
   # data: original data
   
-  
+  if(withProgress){
   progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                detail = 'Writing data to the database.',
                value=90)
+  }
   
   model_db_write(loess_boot=loess.boot,
                  ci=ci,
-                 ns=ns_sysmodels,
+                 ns_sysmodels=ns_sysmodels,
+                 ns_sysmodels_log=ns_sysmodels_log,
                  sysoid1=oid1,
                  sysoid2=oid2,
                  newest_entry=comb_matrix$newest_entry,
@@ -658,6 +756,6 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   )
   
   
-  wrote_model_log(msg="New model data was written to the database.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+  
   
 }
