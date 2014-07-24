@@ -420,6 +420,8 @@ loess.fun <- function(in_data,inds,newdata,span){
 
 
 boot2ci <- function(loess.boot){
+  require(parallel)
+  
   # with the boot.ci function
   temp=list()
   for( i2 in 1:length(loess.boot$t0)){
@@ -475,10 +477,23 @@ model_db_write <- function(loess_boot,
                            ){
   
   
-  mongo <- mongo.create()
   
+  
+  # Serialize loess_boot
+  temp = loess_boot
+  temp$statistic <- NULL  # This need to be removed since it references the whole calling environment
+  temp = serialize(temp, connection = NULL, ascii = FALSE)
+  #print(object.size(temp),units = "Kb")
+  
+  
+  
+  
+  # Make the object to write to the db
+  mongo <- mongo.create()
   buf <- mongo.bson.buffer.create()
-  mongo.bson.buffer.append(buf, "loess_boot", serialize(loess_boot, NULL, FALSE))
+  
+  mongo.bson.buffer.append(buf, "loess_boot", temp)
+  
   mongo.bson.buffer.append(buf, "ci", ci)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
@@ -511,30 +526,14 @@ model_db_write <- function(loess_boot,
     mongo.bson.buffer.append(criteria, "_id", oids_to_update)
     criteria <- mongo.bson.from.buffer(criteria)
     
+    success <- mongo.update(mongo, ns_sysmodels, criteria, buf)
 
-#     print((criteria))
-#     print((buf))
-#     print((ns_sysmodels))
-#     print((mongo))
-# 
-#     print("errors here:")
-#     print(mongo.get.err(mongo))
-    success=mongo.update(mongo, ns_sysmodels, criteria, buf)
-#      print("errors here:")
-#      print(mongo.get.err(mongo))    
-#      print(mongo.get.prev.err(mongo, "test2"))
-#      print(mongo.get.server.err(mongo))
-#      print(mongo.get.server.err.string(mongo))
-#      print(mongo.get.last.err(mongo, "test2"))
-#      print(mongo.get.server.err(mongo))
-#      print(mongo.get.server.err.string(mongo))
-    
-    
+
     
   }else{
-    success=mongo.insert(mongo, ns_sysmodels, buf)
+    success <- mongo.insert(mongo, ns_sysmodels, buf)
   }
-  print(success)
+  #print(success)
 
 
   del <- mongo.disconnect(mongo)
@@ -546,7 +545,7 @@ model_db_write <- function(loess_boot,
     wrote_model_log(msg="Attempt to write new model data to the database failed.",sysoid1=sysoid1,sysoid2=sysoid2,ns=ns_sysmodels_log)
   }
   
-  
+ return(success)
 }
 
 
@@ -640,9 +639,9 @@ plot_systems <- function(plotdata) {
 build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=FALSE,withProgress=TRUE,session) {
   require("boot")
   require("bisoreg")
-  set_model_status(sysoid1=oid1,sysoid2=oid2,status="calculating",ns=ns_sysmodels)
+  require("parallel")
   
-   
+     
   # get Comparision matrix from database
   if(withProgress){
   progress <- Progress$new(session, min=1, max=100)
@@ -701,19 +700,22 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
   
   
-  if(       !(length(sys_models)==0)    &    any(select)    &    !is.null(sys_models_newest_entry[[which(select)]])         ){ # there are no systems at all
-    is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrix$newest_entry
-    same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
-    
-    if(   !(is_newer | !same_nrow)  & !force  ){
-      wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
-      return(NULL)
+  
+  if(any(select)){
+    if(       !(length(sys_models)==0)    &     !is.null(sys_models_newest_entry[[which(select)]])         ){ # there are no systems at all
+      is_newer  = sys_models_newest_entry[[which(select)]]<comb_matrix$newest_entry
+      same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
+      
+      if(   !(is_newer | !same_nrow)  & !force  ){
+        wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+        return(NULL)
+      }
     }
-    
   }
   
-  
   # Building the model
+  set_model_status(sysoid1=oid1,sysoid2=oid2,status="calculating",ns=ns_sysmodels)
+  
   if(withProgress){
   progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                detail = paste0('Model being build for ',sys_oid2name(oid2),' vs. ',sys_oid2name(oid1)),
@@ -723,6 +725,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
     fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
     loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+  
     ci=boot2ci(loess.boot)
 
   
