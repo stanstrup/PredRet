@@ -52,6 +52,7 @@ shinyUI(
              
              
                        tabPanel('Manage data',
+                                HTML('<script>document.domain = "predret.com"</script>'),
                                 
                                 basicPage(
                                   
@@ -70,6 +71,7 @@ shinyUI(
                                     dataTableOutput("MANAGE_data")
                                   
                                 )
+                                ,HTML('<script type="text/javascript" src="http://predret.com/scripts/iframeResizer.contentWindow.min.js"></script>')
                        )
              
                       

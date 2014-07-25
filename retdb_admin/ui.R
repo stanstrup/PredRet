@@ -62,7 +62,7 @@ shinyUI(
              
              
                          tabPanel('Build models',
-                                  
+                                  HTML('<script>document.domain = "predret.com"</script>'),
                                   fluidRow(progressInit(),
                                             column(3,
                                                       style="width:310px",
@@ -88,6 +88,7 @@ shinyUI(
                                             
                                     
                                   )
+                                  ,HTML('<script type="text/javascript" src="http://predret.com/scripts/iframeResizer.contentWindow.min.js"></script>')
                          )    
              
              
@@ -104,6 +105,6 @@ shinyUI(
              
              
 
-
+             
             )
 )
