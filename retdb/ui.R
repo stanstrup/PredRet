@@ -1,16 +1,3 @@
-conditionalPanel(
-  condition = "!(input.userID > 0)",
-  basicPage(helpText("You need to be logged in to use this feature."))
-)
-
-
-
-
-
-conditionalPanel(
-  condition = "input.userID > 0",
-
-
   navbarPage("",
              
              
@@ -19,7 +6,9 @@ conditionalPanel(
                                                    # Hidden input boxes to save the variable to
                                                    HTML(' <input type="text" id="userID" name="userID" style="display: none;"> '),
                                                    HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
-                                                   
+                                                   HTML(' <input type="text" id="user_logged_in" name="user_logged_in" style="display: none;"> '),
+                                 
+                                 
                                                    # include the js code
                                                    includeScript("scripts/get_user_id.js"),
                                                    
@@ -90,7 +79,3 @@ conditionalPanel(
                         
                         
           )
-
-
-  
-)
