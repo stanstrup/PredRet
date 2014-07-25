@@ -6,15 +6,18 @@ shinyServer(function(input, output,session) {
   userID <- reactive({   input$userID })
   username <- reactive({   input$username })
   user_logged_in <- reactive({   input$user_logged_in })
+  is_admin <- reactive({   input$is_admin })
   
   
   
   
    observe({
-          
       if(is.null(user_logged_in())) return(NULL) # when not set yet
+      if(is.null(is_admin())) return(NULL) # when not set yet
       if(  user_logged_in() == ""    ) return(NULL) # when not set yet
+      if(  is_admin() == ""    ) return(NULL) # when not set yet
       if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
+      if(  !(as.logical(is_admin()))  ) return(NULL) # if not admin
      
     
   ## Basic settings ##################

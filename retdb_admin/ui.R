@@ -13,6 +13,7 @@ navbarPage("",
                     HTML(' <input type="text" id="userID" name="userID" style="display: none;"> '),
                     HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
                     HTML(' <input type="text" id="user_logged_in" name="user_logged_in" style="display: none;"> '),
+                    HTML(' <input type="text" id="is_admin" name="is_admin" style="display: none;"> '),
                     
                     # include the js code
                     includeScript("scripts/get_user_id.js"),
