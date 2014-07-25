@@ -2,7 +2,17 @@ library(shiny)
 library(rCharts)
 library(shinyIncubator)
 
-shinyUI(
+
+  conditionalPanel(
+    condition = "!(input.userID > 0)",
+    basicPage(helpText("You need to be logged in to use this feature."))
+    )
+  
+  
+  
+  conditionalPanel(
+    condition = "input.userID > 0",
+  
   navbarPage("",
                         tabPanel('Explore models',
 
@@ -107,4 +117,4 @@ shinyUI(
 
              
             )
-)
+  )

@@ -1,4 +1,16 @@
-shinyUI(
+conditionalPanel(
+  condition = "!(input.userID > 0)",
+  basicPage(helpText("You need to be logged in to use this feature."))
+)
+
+
+
+
+
+conditionalPanel(
+  condition = "input.userID > 0",
+
+
   navbarPage("",
              
              
@@ -78,7 +90,7 @@ shinyUI(
                         
                         
           )
+
+
+  
 )
-
-
-
