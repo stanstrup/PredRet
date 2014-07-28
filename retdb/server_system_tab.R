@@ -29,8 +29,48 @@ output$system_name_select <- renderUI({
 
 ## System name text box
 output$system_name <- renderUI({
-  textInput('system_name', label='System name',value = input$system_name_select)
+  textInput('system_name', label=strong('System name'),value = input$system_name_select)
 })
+
+
+
+## System eluents + modifiers
+output$SYSTEM_eluent_select <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_eluent = as.character(unlist(lapply(systems_in_db(),function(x) x$system_eluent)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    eluent_shown = sys_eluent[idx]
+    
+  }else{
+    eluent_shown = ""
+  }
+  
+  selectInput(inputId = 'SYSTEM_eluent_select',label = 'Suggested descriptions', choices = c("",unique(sys_eluent)),selected=eluent_shown)
+})
+
+
+
+
+output$SYSTEM_eluent_name <- renderUI({
+    textInput(inputId   = 'SYSTEM_eluent_name', label='New eluents and modifier description',value = input$SYSTEM_eluent_select)
+})
+
+
+
+
+
+
+
+## System column
+## System reference (link or doi)
+
+
 
 
 ## Text area with system desc
@@ -49,7 +89,7 @@ output$system_desc <- renderUI({
     desc_shown = "Describe column, solvents, modifiers and gradient etc."
   }
   
-  inputTextarea('system_desc','System description', desc_shown ,300,600)
+  inputTextarea('system_desc',strong('System description'), desc_shown ,"300px","100%")
 })
 
 
@@ -79,6 +119,7 @@ system_desc_bson <- reactive({
     mongo.bson.buffer.append(buf, "username", username())
     mongo.bson.buffer.append(buf, "system_name", input$system_name)
     mongo.bson.buffer.append(buf, "system_desc", input$system_desc)
+    mongo.bson.buffer.append(buf, "system_eluent", input$SYSTEM_eluent_name)
     mongo.bson.from.buffer(buf)
   })
 })

@@ -1,6 +1,15 @@
-  navbarPage("",
+library(shinyBS)
+
+navbarPage("",
              
-             
+             tabPanel('Introduction',
+                                      fluidPage(
+                                       titlePanel("Introduction"),
+                                       includeMarkdown("markdowns/intro_text.md")
+                                     )
+                      ),
+                      
+                      
                         tabPanel('Upload data',
 
                                                    # Hidden input boxes to save the variable to
@@ -18,7 +27,8 @@
                                                                     sidebarPanel(
                                                                                   checkboxInput("only_own_systems_upload","Only show your own systems?",value=TRUE),
                                                                                   uiOutput("system_upload"),              
-                                                                                  fileInput("files", "File data", multiple=F,accept=c("text/csv"))
+                                                                                  fileInput("files", "File data", multiple=F,accept=c("text/csv")),
+                                                                                  bsCollapse(bsCollapsePanel("Show help",includeMarkdown("markdowns/upload_help.md")))
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),
@@ -33,17 +43,35 @@
                         
                         tabPanel('Add or modify system',
                                                            fluidRow(
+                                                                               headerPanel("Add or modify system"),
                                                                                column(3,
                                                                                              wellPanel(
                                                                                                         style="margin-top:60px",
                                                                                                         checkboxInput("only_own_systems","Only show your own systems?",value=TRUE),
-                                                                                                        uiOutput("system_name_select")
+                                                                                                        uiOutput("system_name_select"),
+                                                                                                        bsCollapse(bsCollapsePanel("Show help",includeMarkdown("markdowns/addsys_help.md")))
                                                                                                        
                                                                                              )
                                                                                ),
                                                                                column(5,
-                                                                                             headerPanel("Add or modify system"),
                                                                                               uiOutput("system_name"),
+                                                                                      
+                                                                                              div(strong("Eluents and modifier"),style="padding-top:20px"),
+                                                                                      
+                                                                                              div(style="display:flex",
+                                                                                                  div(style="width: 300px;",         
+                                                                                                      uiOutput("SYSTEM_eluent_select")
+                                                                                                  ),
+                                                                                                  div(style="flex-grow: 1;",
+                                                                                                      uiOutput("SYSTEM_eluent_name"),
+                                                                                                      tags$style(type='text/css', "#SYSTEM_eluent_name { width: 100%; }")
+                                                                                                  )
+                                                                                              ),
+                                                                                              
+                                                                                      div(strong("Column"),style="padding-top:20px"),
+                                                                                      
+                                                                                      div(p(strong("Reference "), em("(link or doi)")),style="padding-top:20px;padding-bottom:20px"),
+                                                                                              
                                                                                               uiOutput("system_desc"),
                                                                                               uiOutput("submit_system")
                                                                                )
@@ -55,7 +83,7 @@
                        tabPanel('Manage data',
                                 HTML('<script>document.domain = "predret.com"</script>'),
                                 
-                                basicPage(
+                                fluidPage(
                                   
                                   div(style="display:flex",
                                       div(style="width: 300px;",         

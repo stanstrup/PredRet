@@ -7,7 +7,7 @@ inputTextarea <- function(inputId, label,value="", nrows, ncols) {
     tags$textarea(id = inputId,
                   class = "inputtextarea",
                   as.character(value),
-                  style=paste0("height:",nrows,"px;width:",ncols,"px")
+                  style=paste0("height:",nrows,";width:",ncols)
     )
   )
 }
