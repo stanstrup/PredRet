@@ -63,7 +63,7 @@ navbarPage("",
                                                                                               div(strong("Eluents and modifiers"),style="padding-top:20px"),
                                                                                       
                                                                                               div(style="display:flex",
-                                                                                                  div(style="width: 300px;",         
+                                                                                                  div(style="width: 50%;",         
                                                                                                       uiOutput("SYSTEM_eluent_select")
                                                                                                   ),
                                                                                                   div(style="flex-grow: 1;",
@@ -79,7 +79,7 @@ navbarPage("",
                                                                                       div(strong("Column"),style="padding-top:20px"),
                                                                                       
                                                                                       div(style="display:flex",
-                                                                                          div(style="width: 300px;",         
+                                                                                          div(style="width: 50%;",         
                                                                                               uiOutput("SYSTEM_column_select")
                                                                                           ),
                                                                                           div(style="flex-grow: 1;",

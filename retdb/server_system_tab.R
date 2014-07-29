@@ -51,7 +51,7 @@ output$SYSTEM_eluent_select <- renderUI({
     eluent_shown = ""
   }
   
-  selectInput(inputId = 'SYSTEM_eluent_select',label = 'Suggested descriptions', choices = c("",unique(sys_eluent)),selected=eluent_shown)
+  selectInput(inputId = 'SYSTEM_eluent_select',label = 'Suggested descriptions', choices = c("",unique(sys_eluent)),selected=eluent_shown,width="100%")
 })
 
 
@@ -84,7 +84,7 @@ output$SYSTEM_column_select <- renderUI({
     column_shown = ""
   }
   
-  selectInput(inputId = 'SYSTEM_column_select',label = 'Suggested columns', choices = c("",unique(sys_column)),selected=column_shown)
+  selectInput(inputId = 'SYSTEM_column_select',label = 'Suggested columns', choices = c("",unique(sys_column)),selected=column_shown,width="100%")
 })
 
 
