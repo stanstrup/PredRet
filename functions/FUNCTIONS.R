@@ -73,6 +73,8 @@ get_systems <- function() {
   mongo.bson.buffer.append(fields, "userID", 1L)
   mongo.bson.buffer.append(fields, "username", 1L)
   mongo.bson.buffer.append(fields, "system_eluent", 1L)
+  mongo.bson.buffer.append(fields, "system_column", 1L)
+  mongo.bson.buffer.append(fields, "system_ref", 1L)
   fields = mongo.bson.from.buffer(fields)
   
   data_back = mongo.find.all2(mongo, ns=ns,fields=fields)

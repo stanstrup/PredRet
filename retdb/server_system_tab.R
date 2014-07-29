@@ -68,7 +68,61 @@ output$SYSTEM_eluent_name <- renderUI({
 
 
 ## System column
+output$SYSTEM_column_select <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_column = as.character(unlist(lapply(systems_in_db(),function(x) x$system_column)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    column_shown = sys_column[idx]
+    
+  }else{
+    column_shown = ""
+  }
+  
+  selectInput(inputId = 'SYSTEM_column_select',label = 'Suggested columns', choices = c("",unique(sys_column)),selected=column_shown)
+})
+
+
+
+
+output$SYSTEM_column_name <- renderUI({
+  textInput(inputId   = 'SYSTEM_column_name', label='New column',value = input$SYSTEM_column_select)
+})
+
+
+
+
+
+
+
+
 ## System reference (link or doi)
+output$SYSTEM_ref <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_ref = as.character(unlist(lapply(systems_in_db(),function(x) x$system_ref)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    ref_shown = sys_ref[idx]
+    
+  }else{
+    ref_shown = "doi or link"
+  }
+  
+  textInput(inputId   = 'SYSTEM_ref', label=strong('Reference'),value = ref_shown)  
+})
+
+
+
 
 
 
@@ -120,6 +174,8 @@ system_desc_bson <- reactive({
     mongo.bson.buffer.append(buf, "system_name", input$system_name)
     mongo.bson.buffer.append(buf, "system_desc", input$system_desc)
     mongo.bson.buffer.append(buf, "system_eluent", input$SYSTEM_eluent_name)
+    mongo.bson.buffer.append(buf, "system_column", input$SYSTEM_column_name)
+    mongo.bson.buffer.append(buf, "system_ref", input$SYSTEM_ref)
     mongo.bson.from.buffer(buf)
   })
 })

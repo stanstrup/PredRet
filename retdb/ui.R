@@ -56,7 +56,11 @@ navbarPage("",
                                                                                column(5,
                                                                                               uiOutput("system_name"),
                                                                                       
-                                                                                              div(strong("Eluents and modifier"),style="padding-top:20px"),
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                              div(strong("Eluents and modifiers"),style="padding-top:20px"),
                                                                                       
                                                                                               div(style="display:flex",
                                                                                                   div(style="width: 300px;",         
@@ -68,9 +72,30 @@ navbarPage("",
                                                                                                   )
                                                                                               ),
                                                                                               
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
                                                                                       div(strong("Column"),style="padding-top:20px"),
                                                                                       
-                                                                                      div(p(strong("Reference "), em("(link or doi)")),style="padding-top:20px;padding-bottom:20px"),
+                                                                                      div(style="display:flex",
+                                                                                          div(style="width: 300px;",         
+                                                                                              uiOutput("SYSTEM_column_select")
+                                                                                          ),
+                                                                                          div(style="flex-grow: 1;",
+                                                                                              uiOutput("SYSTEM_column_name"),
+                                                                                              tags$style(type='text/css', "#SYSTEM_column_name { width: 100%; }")
+                                                                                          )
+                                                                                      ),
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      div(style="padding-top:20px"),
+                                                                                      textInput(inputId   = 'SYSTEM_ref', label=strong('Reference'),value = "doi or link"),
+                                                                                      tags$style(type='text/css', "#SYSTEM_ref { width: 100%; }"),
+                                                                                      div(style="padding-top:20px"),
+                                                                                      
+                                                                                      
                                                                                               
                                                                                               uiOutput("system_desc"),
                                                                                               uiOutput("submit_system")
