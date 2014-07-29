@@ -52,11 +52,11 @@ data_cleaned <- reactive({
   # Check if all relevant columns are present
   if(any(is.na(select))){
     
-    if(   (input$system_upload=="")     &      (  any(is.na(select[c(1,2,4)]))  )     ){
+    if(   (input$system_upload=="")     &      (  any(is.na(select[c(1:4)]))  )     ){
       errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt", "method" and "pubchem" required.'     ))
     }
     
-    if(   (!(input$system_upload==""))  &      (  any(is.na(select[c(1:4)]))    )     ){
+    if(   (!(input$system_upload==""))  &      (  any(is.na(select[c(1,2,4)]))    )     ){
       errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt" and "pubchem" required.'     ))
     }
     
@@ -76,7 +76,13 @@ data_cleaned <- reactive({
   }
   
   # Delete rows that don't contain pubchem or inchi
+if(any(colnames(temp_data)=="inchi")){
   no_id = (is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"])) & !grepl("InChI",temp_data[,"inchi"],fixed=T)
+}else{
+  no_id = (is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
+}
+
+
   if(any(no_id)){
     errors$no_id = list(error=2,msg=paste0('Neither pubchem id nor inchi was found in rows ',paste(which(no_id),collapse=", "),'. Rows have been removed.'))
   }
@@ -86,8 +92,18 @@ data_cleaned <- reactive({
   
 
   # Get inchi from pubchem
+if(any(colnames(temp_data)=="inchi")){
   no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
   temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
+}else{
+  temp_data=cbind.data.frame(temp_data,inchi=NA)
+  temp_data[,"inchi"] = pubchem2inchi(    temp_data[,"pubchem"]       )
+}
+
+
+
+
+  
 
 
 
@@ -116,7 +132,12 @@ data_cleaned <- reactive({
   
   sys_id = sys_id[idx]
   
-temp_data = subset(temp_data,select = -system_name) # Remove names and rely only on system ids
+
+if(any(colnames(temp_data)=="system_name")){
+  temp_data = subset(temp_data,select = -system_name) # Remove names and rely only on system ids  
+}
+
+
 
 
 
