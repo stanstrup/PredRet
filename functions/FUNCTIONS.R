@@ -671,10 +671,10 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
   if(!is.null(comb_matrix$rt)){
     del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
-    comb_matrix$rt = comb_matrix$rt[!del,]
+    comb_matrix$rt = comb_matrix$rt[!del,,drop=F]
     
     ord = order(comb_matrix$rt[,1])
-    comb_matrix$rt = comb_matrix$rt[ord,]
+    comb_matrix$rt = comb_matrix$rt[ord,,drop=F]
   }
   
   if(   is.null(comb_matrix$rt) ){
@@ -726,7 +726,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   }
     
   
-    fit=loess.wrapper(comb_matrix$rt[,1], comb_matrix$rt[,2], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
+    fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
     loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
   
     ci=boot2ci(loess.boot)
