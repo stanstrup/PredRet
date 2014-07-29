@@ -91,7 +91,7 @@ navbarPage("",
                                                                                       
                                                                                       
                                                                                       div(style="padding-top:20px"),
-                                                                                      textInput(inputId   = 'SYSTEM_ref', label=strong('Reference'),value = "doi or link"),
+                                                                                      uiOutput("SYSTEM_ref"),
                                                                                       tags$style(type='text/css', "#SYSTEM_ref { width: 100%; }"),
                                                                                       div(style="padding-top:20px"),
                                                                                       
