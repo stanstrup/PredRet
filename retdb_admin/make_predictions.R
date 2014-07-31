@@ -135,8 +135,9 @@ for(i in 1:length(comb_matrixes)){
 
 
 
+library(rCharts)
 
-plotdata=cbind.data.frame(x=loess.boot$data[,1],
+plotdata=list(x=loess.boot$data[,1],
                           y=loess.boot$data[,2],
                           predicted=ci[,1],
                           lower=ci[,2],
@@ -146,7 +147,24 @@ plotdata=cbind.data.frame(x=loess.boot$data[,1],
 )
 
 
-
+temp=plotdata
+plotdata=list()
+plotdata$data=temp
 
 p = plot_systems(plotdata)
 p
+
+
+
+
+
+
+
+
+
+
+# Simple R plot ################
+# plot(loess.boot$data[,1],loess.boot$data[,2],pch=20)
+# lines(seq(from=min(loess.boot$data[,1]),to=max(loess.boot$data[,1]),by=0.005),ci[,1])
+# lines(seq(from=min(loess.boot$data[,1]),to=max(loess.boot$data[,1]),by=0.005),ci[,2],lty=3)
+# lines(seq(from=min(loess.boot$data[,1]),to=max(loess.boot$data[,1]),by=0.005),ci[,3],lty=3)

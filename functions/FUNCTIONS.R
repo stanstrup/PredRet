@@ -221,6 +221,7 @@ get_models <- function(include.loess=TRUE) {
   mongo.bson.buffer.append(fields, "_id", 1L)
   if(include.loess){ mongo.bson.buffer.append(fields, "loess_boot", 1L) }
   mongo.bson.buffer.append(fields, "ci", 1L)
+  mongo.bson.buffer.append(fields, "newdata", 1L)
   mongo.bson.buffer.append(fields, "oid_sys1", 1L)
   mongo.bson.buffer.append(fields, "oid_sys2", 1L)
   mongo.bson.buffer.append(fields, "status", 1L)
@@ -434,8 +435,10 @@ boot2ci <- function(loess.boot){
   }
   
   
-  cl <- makeCluster(detectCores())
-  ci=parLapply(cl,temp,function(x) {
+ # cl <- makeCluster(detectCores()) # multithreaded makes it break on the server.
+  
+  #ci=parLapply(cl,temp,function(x) {
+  ci=lapply(temp,function(x) {
     require(boot)
     temp2=boot.ci(x[[2]],index=x[[1]],type="bca")
     
@@ -444,7 +447,7 @@ boot2ci <- function(loess.boot){
     ci[c(2,3)] = temp2$bca[,c(4,5)]
     return(ci)
   })
-  stopCluster(cl)
+ # stopCluster(cl)
   ci = do.call(rbind,ci)
   
   return(ci)
@@ -464,6 +467,7 @@ boot2ci <- function(loess.boot){
 
 model_db_write <- function(loess_boot,
                            ci,
+                           newdata,
                            ns_sysmodels,
                            ns_sysmodels_log,
                            sysoid1,
@@ -498,6 +502,7 @@ model_db_write <- function(loess_boot,
   mongo.bson.buffer.append(buf, "loess_boot", temp)
   
   mongo.bson.buffer.append(buf, "ci", ci)
+  mongo.bson.buffer.append(buf, "newdata", newdata)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
   mongo.bson.buffer.append(buf, "status", "done")
@@ -585,7 +590,7 @@ plot_systems <- function(plotdata) {
   p <- hPlot(y ~ x, data = plotdata$data, type = "scatter")
   
   # fix data format
-  p$params$series[[1]]$data <- toJSONArray(plotdata$data, json = F)
+  p$params$series[[1]]$data <- toJSONArray(cbind.data.frame(x = plotdata$data$x, y = plotdata$data$y,name = plotdata$data$name,tooltip = plotdata$data$tooltip), json = F)
   
   # add tooltip formatter
   p$tooltip(formatter = "#! function() {return(this.point.tooltip);} !#")
@@ -601,7 +606,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = toJSONArray2(plotdata$data[,c('x', 'predicted')], names = F, json = F),
+    data = toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['predicted']]), names = F, json = F),
     type = 'line',
     zIndex = 1,
     marker=list(enabled=F,states=list(hover=list(enabled=F)))
@@ -609,7 +614,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = toJSONArray2(plotdata$data[,c('x', 'lower', 'upper')], names = F, json = F),
+    data = toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['lower']],plotdata$data[['upper']]), names = F, json = F),
     type = 'arearange',
     fillOpacity = 0.3,
     lineWidth = 0,
@@ -725,12 +730,12 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                value=30)
   }
     
-  
+    newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),by=0.005)
     fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
-    loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=comb_matrix$rt[,1],span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+    loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=newdata,span=fit$pars$span,parallel="multicore",ncpus=detectCores())
   
     ci=boot2ci(loess.boot)
-
+  
   
   
   ## loess.boot:
@@ -744,17 +749,23 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                value=90)
   }
   
+  
+  
+  predicted_at_orig_x = apply(loess.boot$data,1,function(x) which.min(abs((x[1]-newdata))))
+    
+  
   model_db_write(loess_boot=loess.boot,
                  ci=ci,
+                 newdata=as.numeric(newdata),
                  ns_sysmodels=ns_sysmodels,
                  ns_sysmodels_log=ns_sysmodels_log,
                  sysoid1=oid1,
                  sysoid2=oid2,
                  newest_entry=comb_matrix$newest_entry,
-                 mean_error_abs=mean(abs(loess.boot$data[,2]-ci[,1])),
-                 median_error_abs=median(abs(loess.boot$data[,2]-ci[,1])),
-                 q95_error_abs=quantile(abs(loess.boot$data[,2]-ci[,1]),0.95),
-                 max_error_abs=max(abs(loess.boot$data[,2]-ci[,1])),
+                 mean_error_abs=mean(abs(loess.boot$data[,2]-ci[predicted_at_orig_x,1])),
+                 median_error_abs=median(abs(loess.boot$data[,2]-ci[predicted_at_orig_x,1])),
+                 q95_error_abs=quantile(abs(loess.boot$data[,2]-ci[predicted_at_orig_x,1]),0.95),
+                 max_error_abs=max(abs(loess.boot$data[,2]-ci[predicted_at_orig_x,1])),
                  mean_ci_width_abs=mean(ci[,3]-ci[,2]),
                  median_ci_width_abs=median(ci[,3]-ci[,2]),
                  q95_ci_width_abs=quantile(ci[,3]-ci[,2],0.95),

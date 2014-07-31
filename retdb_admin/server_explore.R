@@ -42,6 +42,7 @@ output$chart1 <- renderChart2({
   
   loess.boot   =   models()[[which(model_select)]]$loess_boot
   ci   =   models()[[which(model_select)]]$ci
+  newdata   =   models()[[which(model_select)]]$newdata
   select_names = sys_oid2name(colnames(loess.boot$data))
   
   plotdata=list(
@@ -50,8 +51,9 @@ output$chart1 <- renderChart2({
     ylab = paste0('RT (',select_names[2],')'),
     
     
-    data = cbind.data.frame(x=loess.boot$data[,1],
+    data = list(            x=loess.boot$data[,1],
                             y=loess.boot$data[,2],
+                            newdata=newdata,
                             predicted=ci[,1],
                             lower=ci[,2],
                             upper=ci[,3],
