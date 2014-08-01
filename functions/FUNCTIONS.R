@@ -413,7 +413,7 @@ loess.fun <- function(in_data,inds,newdata,span){
   x.star <- in_data[,1][inds]
   y.star <- in_data[,2][inds]
   
-  out.star <- loess(y.star ~ x.star, span=span)
+  out.star <- loess(y.star ~ x.star, span=span, control = loess.control(surface = "direct")  ) # direct is needed, otherwise it occationally blows up. I assume some border situations.
   y_pred= monoproc(out.star, bandwidth = 0.1, mono1 = "increasing", gridsize=100,xx= newdata)@fit@y
   
   return(y_pred)
@@ -489,6 +489,7 @@ model_db_write <- function(loess_boot,
   # Serialize loess_boot
   temp = loess_boot
   temp$statistic <- NULL  # This need to be removed since it references the whole calling environment
+  temp$t <- NULL  # we don't need the result from all the simulations.
   temp = serialize(temp, connection = NULL, ascii = FALSE)
   #print(object.size(temp),units = "Kb")
   
