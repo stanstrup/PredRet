@@ -33,15 +33,15 @@ shinyServer(function(input, output,session) {
   source("functions/FUNCTIONS.R",local=TRUE)
   
   
-  ## Upload data ##################
+  ## Tabs ##################
   source("server_upload_tab.R",local=TRUE)
-  
-  
-  ## Define new system ##################
   source("server_system_tab.R",local=TRUE)
-
-  ## Define new system ##################
   source("server_manage.R",local=TRUE)
+  source("server_predictions_tab.R",local=TRUE)
+  
+  
+  # some shared reactives ##################
+  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
 
   })
 

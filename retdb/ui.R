@@ -126,7 +126,16 @@ navbarPage("",
                                   
                                 )
                                 ,HTML('<script type="text/javascript" src="http://predret.com/scripts/iframeResizer.contentWindow.min.js"></script>')
-                       )
+                       ),
+           
+                       tabPanel('Get predictions',
+                                fluidPage(
+                                            uiOutput("PREDICTIONS_select_system"),
+                                            downloadButton('download_predicted', 'Download'),
+                                            dataTableOutput("PREDICTIONS_data"),
+                                            div(style="height:200px")
+                                          )
+             )
              
                       
                         
