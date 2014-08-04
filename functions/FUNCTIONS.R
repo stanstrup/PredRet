@@ -731,7 +731,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                value=30)
   }
     
-    newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),by=0.005)
+    newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),length.out=500)
     fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
     loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=newdata,span=fit$pars$span,parallel="multicore",ncpus=detectCores())
   
