@@ -39,8 +39,8 @@ shinyServer(function(input, output, session) {
                                                       # if the load balancer appname is "histogram" 
                                                       # all apps named "histogram_1" or "histogram_2" 
                                                       # will be considered for load balancing
-                                                      list.dirs("../", pattern=paste0("^",pwd(),"_[0-9]")),
-                                                      "http://predret.com/shiny/shiny.apps/apps/retpred_shiny/")),
+                                                      list.dirs("../retdb_symlinks/", pattern=paste0("^",pwd(),"_[0-9]")),
+                                                      "http://predret.com/shiny/shiny.apps/apps/retpred_shiny/retdb_symlinks/")),
        # JavaScript for redirecting
        tags$script(type="text/javascript", src = "shiny-redirect.js")
   )

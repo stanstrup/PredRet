@@ -26,7 +26,7 @@ setwd("/srv/shiny-server/shiny.apps/apps/retpred_shiny/retdb_redirector/Data")
             PID <- dat$PID[i]
             netstat <- readLines(pipe(paste("sudo netstat -p | grep", PID), "r"))
             lsof <- readLines(pipe(paste0("sudo lsof -p", PID, "| grep /",PATH),"r"))
-            dat$usr[i] <- tryCatch(length(grep("CONNECTED", netstat) & grep("tcp", netstat)), 
+            dat$usr[i] <- tryCatch(length(grep("ESTABLISHED", netstat) & grep("tcp", netstat)), 
                                    error=function(e) NA)
             dat$app[i] <- tryCatch(regmatches(lsof, regexec(paste0(PATH,"(.*)"), lsof))[[1]][2],
                                    error=function(e) NA)
@@ -35,6 +35,8 @@ setwd("/srv/shiny-server/shiny.apps/apps/retpred_shiny/retdb_redirector/Data")
     } else {
         dat <- data.frame(app = "app", usr = 0)
     }
-    dat = dat[   !is.na(as.numeric(dat$app))      ,]
+
+    dat$app = str_replace(dat$app,"_","")
+    dat = dat[   !is.na(as.numeric(dat$app))      ,,drop=F]
     write.table(dat, file = "CPU.txt")
 
