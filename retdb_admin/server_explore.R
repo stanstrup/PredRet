@@ -30,8 +30,10 @@ output$chart1 <- renderChart2({
   
   
   
+  models_extended = get_models(include.loess=TRUE,include.ci = TRUE,include.newdata = TRUE )
   
-  oids = do.call(rbind,lapply(models(),function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
+  
+  oids = do.call(rbind,lapply(models_extended,function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
   sys_name = sys_oid2name(as.character(oids))
   dim(sys_name)=c(length(sys_name)/2,2)
   
@@ -40,9 +42,9 @@ output$chart1 <- renderChart2({
   if(all(!model_select)) return(Highcharts$new())
   
   
-  loess.boot   =   models()[[which(model_select)]]$loess_boot
-  ci   =   models()[[which(model_select)]]$ci
-  newdata   =   models()[[which(model_select)]]$newdata
+  loess.boot   =   models_extended[[which(model_select)]]$loess_boot
+  ci   =   models_extended[[which(model_select)]]$ci
+  newdata   =   models_extended[[which(model_select)]]$newdata
   select_names = sys_oid2name(colnames(loess.boot$data))
   
   plotdata=list(

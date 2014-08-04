@@ -211,7 +211,7 @@ get_ns <- function(ns){
 
 
 
-get_models <- function(include.loess=TRUE) {
+get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE) {
   require(rmongodb)
   require(rmongodb.quick)
   
@@ -220,9 +220,10 @@ get_models <- function(include.loess=TRUE) {
   fields = mongo.bson.buffer.create()
   mongo.bson.buffer.append(fields, "_id", 1L)
   if(include.loess){ mongo.bson.buffer.append(fields, "loess_boot", 1L) }
-  mongo.bson.buffer.append(fields, "ci", 1L)
-  mongo.bson.buffer.append(fields, "newdata", 1L)
-  mongo.bson.buffer.append(fields, "oid_sys1", 1L)
+  if(include.ci){ mongo.bson.buffer.append(fields, "ci", 1L) }
+  if(include.newdata){ mongo.bson.buffer.append(fields, "newdata", 1L) }
+  
+    mongo.bson.buffer.append(fields, "oid_sys1", 1L)
   mongo.bson.buffer.append(fields, "oid_sys2", 1L)
   mongo.bson.buffer.append(fields, "status", 1L)
   mongo.bson.buffer.append(fields, "n_points", 1L)
@@ -695,7 +696,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
   
   # get info about current models
-  sys_models = get_models(include.loess=FALSE)
+  sys_models = get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )
   
   sys_models_newest_entry = lapply(sys_models,function(x) x$newest_entry)
   sys_models_n_points = sapply(sys_models,function(x) x$n_points)
