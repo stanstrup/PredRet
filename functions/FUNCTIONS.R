@@ -415,7 +415,9 @@ loess.fun <- function(in_data,inds,newdata,span){
   y.star <- in_data[,2][inds]
   
   out.star <- loess(y.star ~ x.star, span=span, control = loess.control(surface = "direct")  ) # direct is needed, otherwise it occationally blows up. I assume some border situations.
-  y_pred= monoproc(out.star, bandwidth = 0.1, mono1 = "increasing", gridsize=100,xx= newdata)@fit@y
+  y_pred = monoproc(out.star, bandwidth = 0.1, mono1 = "increasing", gridsize=100,xx= newdata)@fit@y
+  
+  y_pred[y_pred < 0] = 0
   
   return(y_pred)
 }
