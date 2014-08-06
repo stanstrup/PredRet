@@ -18,23 +18,42 @@ predicted_data <- reactive({
   del <- mongo.destroy(mongo)  
   
   
-  select <- data_all[,"sys_id"] %in% target_systems
-  data_all <- data_all[select,,drop=F]
+  select <- data_all[,"sys_id"] %in% target_systems # only compound we know in systems where we are able to make models
+  data_target <- data_all[select,,drop=F]
   
-  unique_inchi <- unique(data_all[,"inchi"])
-  
-  
+  unique_inchi <- unique(data_target[,"inchi"])
   
   
   
-  predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=6))
-  colnames(predicted_data)=c("name","predicted_rt","ci_lower","ci_upper","pubchem","inchi")
+  
+  
+  predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=7))
+  colnames(predicted_data)=c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")
   
   
   for(i in 1:length(unique_inchi)){    
-    single_inchi_data <-  data_all[unique_inchi[i]==data_all[,"inchi"],,drop=FALSE]
+    single_inchi_data <-  data_target[unique_inchi[i]==data_target[,"inchi"],,drop=FALSE]
     single_inchi_data <-  data.frame(single_inchi_data,predicted=NA,ci_lower=NA,ci_upper=NA)
     
+    
+    
+    # average out rt in the same system
+    unique_targer_id = unique(single_inchi_data[,"sys_id"])
+    
+    if(length(unique_targer_id) != nrow(single_inchi_data)){
+      for(i3 in 1:length(unique_targer_id)){
+        unique_targer_id_loc <- which(unique_targer_id[i3]==single_inchi_data[,"sys_id"])
+        
+        if(length(unique_targer_id_loc)>1){
+        single_inchi_data[unique_targer_id_loc,"rt"] <- mean(single_inchi_data[unique_targer_id_loc,"rt"])
+        rem <- which(duplicated(single_inchi_data[,"sys_id"]) & (unique_targer_id[i3]==single_inchi_data[,"sys_id"]))
+        single_inchi_data <- single_inchi_data[-rem,,drop=F]
+        }
+      }
+    }
+    
+    
+    # Make predictions for each system
     for(i2 in 1:nrow(single_inchi_data)){   
       current_model <- models_extended[[   which(       (sys_models_oid1 == single_inchi_data[i2,"sys_id"])    &   (sys_models_oid2 == input$PREDICTIONS_select_system)                 )     ]]
       close_rt <- which.min(abs(single_inchi_data[i2,"rt"]-current_model$newdata))
@@ -45,9 +64,11 @@ predicted_data <- reactive({
     }
     
     
-    # For the moment we select just the one with the most narrow CI
+    # We select just the one with the most narrow CI (relative value)
     best_pred <- which.min(single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])
+    #best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
     
+  
     predicted_data[i,"name"]         <- single_inchi_data[best_pred,"name"]
     predicted_data[i,"predicted_rt"] <- single_inchi_data[best_pred,"predicted"]
     predicted_data[i,"ci_lower"]     <- single_inchi_data[best_pred,"ci_lower"]
@@ -55,11 +76,21 @@ predicted_data <- reactive({
     predicted_data[i,"pubchem"]      <- single_inchi_data[best_pred,"pubchem"]
     predicted_data[i,"inchi"]        <- single_inchi_data[best_pred,"inchi"]
     
+# Get experimental value if it exists.
+    select <- (predicted_data[i,"inchi"] == data_all[,"inchi"])    &   (input$PREDICTIONS_select_system == data_all[,"sys_id"])
+    
+    if(any(select)){
+      predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"rt"]
+    }else{
+      predicted_data[i,"recorded_rt"] <- ""
+    }
+    
+    
   }
   
   return(predicted_data)
   
-  })
+})
 
 
 
@@ -107,7 +138,7 @@ output$download_predicted <- downloadHandler(
 
 
 output$PREDICTIONS_data <- renderDataTable({
-    
+  
   return(   predicted_data()   )
   
 })
