@@ -438,19 +438,19 @@ boot2ci <- function(loess.boot){
   }
   
   
-  cl <- makeCluster(detectCores()) # multithreaded makes it break on the server.
+ # cl <- makeCluster(detectCores()) # multithreaded makes it break on the server. --> seems ok now. But it uses too much memory.
   
-  ci=parLapply(cl,temp,function(x) {
-  #ci=lapply(temp,function(x) {
+  #ci=parLapply(cl,temp,function(x) {
+  ci=lapply(temp,function(x) {
     require(boot)
-    temp2=boot.ci(x[[2]],index=x[[1]],type="bca")
+    temp2=boot.ci(x[[2]],index=x[[1]],type="perc")
     
     ci=vector(mode="numeric",length=3)
     ci[1] = temp2$t0
-    ci[c(2,3)] = temp2$bca[,c(4,5)]
+    ci[c(2,3)] = temp2$percent[,c(4,5)]
     return(ci)
   })
-  stopCluster(cl)
+ # stopCluster(cl)
   ci = do.call(rbind,ci)
   
   return(ci)
