@@ -438,10 +438,10 @@ boot2ci <- function(loess.boot){
   }
   
   
- # cl <- makeCluster(detectCores()) # multithreaded makes it break on the server.
+  cl <- makeCluster(detectCores()) # multithreaded makes it break on the server.
   
-  #ci=parLapply(cl,temp,function(x) {
-  ci=lapply(temp,function(x) {
+  ci=parLapply(cl,temp,function(x) {
+  #ci=lapply(temp,function(x) {
     require(boot)
     temp2=boot.ci(x[[2]],index=x[[1]],type="bca")
     
@@ -450,7 +450,7 @@ boot2ci <- function(loess.boot){
     ci[c(2,3)] = temp2$bca[,c(4,5)]
     return(ci)
   })
- # stopCluster(cl)
+  stopCluster(cl)
   ci = do.call(rbind,ci)
   
   return(ci)
