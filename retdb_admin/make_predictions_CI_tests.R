@@ -44,7 +44,7 @@ boot2ci <- function(loess.boot){
 
 
 
-boot2ci_PI <- function(loess.boot,newdata){
+boot2ci_PI <- function(loess.boot,newdata,alpha=0.05){
   require(parallel)
   
   # SD at each  x values (newdata) between all bootstrap iterations
@@ -119,8 +119,8 @@ boot2ci_PI <- function(loess.boot,newdata){
   
 # Finally we make a matrix with the fitted value and the lower and upper bounds of the CI.
 ci=cbind(   loess.boot$t0,
-            loess.boot$t0    -    SD_combined_newdata*qnorm(1-.05/2),
-            loess.boot$t0    +    SD_combined_newdata*qnorm(1-.05/2))
+            loess.boot$t0    -    SD_combined_newdata*qnorm(1-alpha/2),
+            loess.boot$t0    +    SD_combined_newdata*qnorm(1-alpha/2))
 
 
   
@@ -171,7 +171,8 @@ lines(newdata,ci[,3],lty=3,col="red")
 
 
 # Manually calculating residual variance and model variance between bootstrap iterations.
-ci2 <- boot2ci_PI(loess.boot,newdata)
+ci2 <- boot2ci_PI(loess.boot,newdata,alpha=0.05)
+#ci2 <- boot2ci_PI(loess.boot,newdata,alpha=10^-8)
 
 
 plot(loess.boot$data[,1],loess.boot$data[,2],pch=20)
@@ -194,13 +195,15 @@ library(cobs)
 library(quantreg)
 
 
-a = 0.1
-lambda = 0
+a      <- 0.1
+lambda <- 0
+nknots <- 100
+knots  <- seq(from=min(x),to=max(x),by=.3)
+knots  <- c(knots,max(x))
 
-
-Rbs.upper     <- cobs(x,y, constraint="increase",tau=1-a ,nknots=100,lambda=lambda,ic="SIC") 
-Rbs.lower     <- cobs(x,y, constraint="increase",tau=a   ,nknots=100,lambda=lambda,ic="SIC") 
-Rbs.median    <- cobs(x,y, constraint="increase",tau=0.50,nknots=100,lambda=lambda,ic="SIC")
+Rbs.upper     <- cobs(x,y, constraint="increase",tau=1-a ,lambda=lambda,ic="SIC",nknots=nknots,knots=knots) 
+Rbs.lower     <- cobs(x,y, constraint="increase",tau=a   ,lambda=lambda,ic="SIC",nknots=nknots,knots=knots) 
+Rbs.median    <- cobs(x,y, constraint="increase",tau=0.50,lambda=lambda,ic="SIC",nknots=nknots,knots=knots)
 
 plot(x,y,pch=20)
 lines(predict(Rbs.median,nz=500), col = "black", lwd = 1.5)
@@ -222,3 +225,20 @@ lines(prediction[,"z"],prediction[,"ci.lo"], col = "blue", lwd = 1.5) #pointwise
 lines(prediction[,"z"],prediction[,"ci.up"], col = "blue", lwd = 1.5)
 
 
+
+
+
+
+
+
+
+
+
+
+
+### Using locfit ########################
+fit <- locfit(y~lp(x,nn=0.25))
+#crit(fit) <- crit(fit,cov=0.99)
+crit(fit) <- kappa0(y~x,cov=0.95)
+plot(fit,band="local")
+points(x,y,pch=20)
