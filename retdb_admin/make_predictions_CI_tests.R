@@ -195,11 +195,12 @@ library(cobs)
 library(quantreg)
 
 
-a      <- 0.1
+a      <- 0.05
 lambda <- 0
-nknots <- 100
-knots  <- seq(from=min(x),to=max(x),by=.3)
+#nknots <- 100
+knots  <- seq(from=min(x),to=max(x),by=.4)
 knots  <- c(knots,max(x))
+nknots <- length(knots)
 
 Rbs.upper     <- cobs(x,y, constraint="increase",tau=1-a ,lambda=lambda,ic="SIC",nknots=nknots,knots=knots) 
 Rbs.lower     <- cobs(x,y, constraint="increase",tau=a   ,lambda=lambda,ic="SIC",nknots=nknots,knots=knots) 
