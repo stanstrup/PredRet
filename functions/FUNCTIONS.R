@@ -414,6 +414,9 @@ loess.fun <- function(in_data,inds,newdata,span){
   x.star <- in_data[,1][inds]
   y.star <- in_data[,2][inds]
   
+  #inds_saved[[length(inds_saved)+1]] <<- inds
+  #counter[length(counter)+1] <<- counter+1
+  
   out.star <- loess(y.star ~ x.star, span=span, control = loess.control(surface = "direct")  ) # direct is needed, otherwise it occationally blows up. I assume some border situations.
   y_pred = monoproc(out.star, bandwidth = 0.1, mono1 = "increasing", gridsize=100,xx= newdata)@fit@y
   
@@ -426,7 +429,49 @@ loess.fun <- function(in_data,inds,newdata,span){
 
 
 
-boot2ci <- function(loess.boot){
+
+
+
+gam.mono.con.fun <- function(in_data,inds,newdata,span){
+  require(mgcv)
+  x.star <- in_data[,1][inds]
+  y.star <- in_data[,2][inds]
+  
+  #inds_saved[[length(inds_saved)+1]] <<- inds
+  #counter[length(counter)+1] <<- length(counter)+1
+  
+  
+  dat <- data.frame(x=x.star,y=y.star)
+  f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
+  sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
+  con <- mono.con(sm$xp);   # get constraints
+  G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w=y.star*0+1)
+  G$Ain <- con$A
+  G$bin <- con$b
+  G$S <- sm$S
+  G$off <- 0
+  
+  p <- pcls(G);  # fit spline (using s.p. from unconstrained fit)
+  
+  fv<-Predict.matrix(sm,data.frame(x=newdata))%*%p
+  
+  
+  y_pred <- as.numeric(fv)
+  y_pred[y_pred < 0] = 0
+  
+  return(y_pred)
+  
+    
+}
+
+
+
+
+
+
+
+
+boot2ci <- function(loess.boot,alpha = 0.01){
   require(parallel)
   
   # with the boot.ci function
@@ -443,7 +488,7 @@ boot2ci <- function(loess.boot){
   #ci=parLapply(cl,temp,function(x) {
   ci=lapply(temp,function(x) {
     require(boot)
-    temp2=boot.ci(x[[2]],index=x[[1]],type="perc")
+    temp2=boot.ci(x[[2]],index=x[[1]],type="perc",conf = 1-alpha)
     
     ci=vector(mode="numeric",length=3)
     ci[1] = temp2$t0
@@ -455,6 +500,101 @@ boot2ci <- function(loess.boot){
   
   return(ci)
 }
+
+
+
+
+
+
+
+
+boot2ci_PI <- function(loess.boot,newdata,alpha=0.05){
+  require(parallel)
+  
+  # SD at each  x values (newdata) between all bootstrap iterations
+  loess_sd_newdata <- apply(loess.boot$t,2,sd)
+  
+  
+  
+  ## we need to interpolate from the newdata x values to the values used for the model
+  # then we calculate
+  # 1) sd of the residuals between the fit and the original values
+  # 2) sd of each predicted value between all bootstrap iterations
+  
+  loess_sd <- numeric(length=nrow(loess.boot$data))
+  res_sd <- numeric(length=nrow(loess.boot$data))
+  
+  
+  for( i in 1:nrow(loess.boot$data)){
+    
+    
+    if(any(newdata==loess.boot$data[i,1])){ # the predicted points match the model building x'es
+      loc <- which(newdata==loess.boot$data[i,1])
+      res <- loess.boot$t[,loc]-loess.boot$data[i,2]
+      res_sd[i] <- sd(res)
+    }else{ # we have to interpolate to the y at the model x'es. We do it linearly between the two nearest prediction x'es
+      
+      lower_idx <- which(newdata < loess.boot$data[i,1])
+      lower_idx <- lower_idx[length(lower_idx)]
+      higher_idx <- which(newdata > loess.boot$data[i,1])[1]
+      
+      
+      pred_y <- numeric(length=nrow(loess.boot$t)) 
+      for( i2 in 1:nrow(loess.boot$t)){
+        pred_y[i2] <- approx(x = c(newdata[lower_idx],newdata[higher_idx]), y = c(loess.boot$t[i2,lower_idx],loess.boot$t[i2,higher_idx]),  xout = loess.boot$data[i,1])$y
+      }
+      
+      res <- pred_y-loess.boot$data[i,2]
+      res_sd[i] <- sd(res)
+      
+      
+      loess_sd[i] <- approx(x = c(newdata[lower_idx],newdata[higher_idx]), y = c(loess_sd_newdata[lower_idx],loess_sd_newdata[higher_idx]),  xout = loess.boot$data[i,1])$y
+    }  
+    
+  }
+  
+  
+  # Now we combine the SDs
+  SD_combined <- sqrt(loess_sd^2+res_sd^2)
+  
+  
+  
+  
+  
+  # We now have the SDs at the x values used to build the model.
+  # We now need to interpolate back to the values we have chosen to predict (newdata)
+  
+  SD_combined_newdata <- numeric(length=length(newdata))
+  
+  for(i in 1:length(newdata)){
+    if(any(newdata[i]==loess.boot$data[,1])){ 
+      loc <- which(newdata[i]==loess.boot$data[,1])
+      SD_combined_newdata[i] <- SD_combined[loc][1] # The [1] is in case there are several identical x values. They would have same SD anyway
+      
+    }else{ 
+      lower_idx <- which(newdata[i] > loess.boot$data[,1])
+      lower_idx <- lower_idx[length(lower_idx)]
+      higher_idx <- which(newdata[i] < loess.boot$data[,1])[1]
+      
+      SD_combined_newdata[i] <- approx(x = c(loess.boot$data[lower_idx,1],loess.boot$data[higher_idx,1]), y = c(SD_combined[lower_idx],SD_combined[higher_idx]),  xout = newdata[i])$y
+    }
+  }
+  
+  
+  # Finally we make a matrix with the fitted value and the lower and upper bounds of the CI.
+  ci=cbind(   loess.boot$t0,
+              loess.boot$t0    -    SD_combined_newdata*qnorm(1-alpha/2),
+              loess.boot$t0    +    SD_combined_newdata*qnorm(1-alpha/2))
+  
+  
+  
+  return(ci)
+}
+
+
+
+
+
 
 
 
@@ -569,9 +709,9 @@ plot_systems <- function(plotdata) {
   
   # Simple R plot ################
   # plot(loess.boot$data[,1],loess.boot$data[,2],pch=20)
-  # lines(loess.boot$data[,1],ci[,1])
-  # lines(loess.boot$data[,1],ci[,2],lty=3)
-  # lines(loess.boot$data[,1],ci[,3],lty=3)
+  # lines(newdata,ci[,1])
+  # lines(newdata,ci[,2],lty=3)
+  # lines(newdata,ci[,3],lty=3)
   
   
   
@@ -735,10 +875,13 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   }
     
     newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),length.out=500)
-    fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
-    loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=newdata,span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+    #fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
+    #loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=newdata,span=fit$pars$span,parallel="multicore",ncpus=detectCores())
+    #ci=boot2ci_PI(loess.boot,newdata,alpha=10^-8) # this crazy alpha value is there till a better solution is found
   
-    ci=boot2ci(loess.boot)
+  
+  loess.boot <- boot(comb_matrix$rt,gam.mono.con.fun,R=1000,newdata=newdata,parallel="multicore",ncpus=detectCores())
+  ci=boot2ci(loess.boot,alpha=0.01)
   
   
   

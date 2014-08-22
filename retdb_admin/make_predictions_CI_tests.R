@@ -198,7 +198,7 @@ library(quantreg)
 a      <- 0.05
 lambda <- 0
 #nknots <- 100
-knots  <- seq(from=min(x),to=max(x),by=.4)
+knots  <- seq(from=min(x),to=max(x),by=.5)
 knots  <- c(knots,max(x))
 nknots <- length(knots)
 
