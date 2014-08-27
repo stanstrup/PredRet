@@ -1,3 +1,5 @@
+library(rCharts)
+
 shinyServer(function(input, output,session) {
 
 
