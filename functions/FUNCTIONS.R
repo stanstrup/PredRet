@@ -31,7 +31,7 @@ get_user_data <- function() {
   
   
   # Take some data directly
-  data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi")]
+  data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi","generation")]
   
   
   # Get correctly formatted time

@@ -149,7 +149,7 @@ if(any(colnames(temp_data)=="system_name")){
   
   
   # Put everything together in a dataframe.
-  temp_data =data.frame(sys_id,temp_data,time=time,userID=as.integer(userID()),username=as.character(username()),stringsAsFactors= FALSE)
+  temp_data =data.frame(sys_id,temp_data,time=time,userID=as.integer(userID()),username=as.character(username()),generation=as.integer(0),stringsAsFactors= FALSE)
   
 
   # Don't allow duplication of data already in the db
