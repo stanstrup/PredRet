@@ -147,9 +147,11 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   
   if(is.null(rt_sys1) | is.null(rt_sys2)) return(NULL)
   
-  data = rbind(rt_sys1,rt_sys2)
+  data <- rbind(rt_sys1,rt_sys2)
     
-  ##
+  data <- data[data$generation==0,] # only experimental data. not predicted is used for the model.
+  
+  
   
   
   
@@ -182,7 +184,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
       }
     }
   }
-  ##
+  
   
   
   return(list(rt=rt_matrix,newest_entry = max(c(rt_sys1$time,rt_sys2$time))))
