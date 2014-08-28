@@ -1019,7 +1019,7 @@ predict_RT <- function(predict_to_system) {
     if(any(select)){
       predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"rt"]
     }else{
-      predicted_data[i,"recorded_rt"] <- ""
+      predicted_data[i,"recorded_rt"] <- NA
     }
     
     
