@@ -1,10 +1,3 @@
----
-title: "Scheduling (re-)build of models"
-author: "Jan Stanstrup"
-date: "08/28/2014"
-output: html_document
----
-
 To schedule running of the script that rebuilds the models every 5 minutes run:
 ```
 crontab -e
