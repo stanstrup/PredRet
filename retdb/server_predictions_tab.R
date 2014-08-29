@@ -85,7 +85,7 @@ output$PREDICTIONS_data <- renderDataTable({
   
   predicted_data[,"recorded_rt"]      <-     round(predicted_data[,"recorded_rt"],digits=2)
   predicted_data[,"predicted_rt"]     <-     round(predicted_data[,"predicted_rt"],digits=2)
-  predicted_data[,"ci_lower"]         <-     round(predicted_data[,"ci_upper"],digits=2)
+  predicted_data[,"ci_lower"]         <-     round(predicted_data[,"ci_lower"],digits=2)
   predicted_data[,"ci_upper"]         <-     round(predicted_data[,"ci_upper"],digits=2)
   
   
