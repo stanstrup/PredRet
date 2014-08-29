@@ -41,6 +41,7 @@ output$PREDICTIONS_select_system <- renderUI({
 
 
 output$download_predicted <- downloadHandler(
+    
   filename = function() {
     paste('data-', Sys.Date(), '.csv', sep='')
   },
@@ -50,17 +51,53 @@ output$download_predicted <- downloadHandler(
 )
 
 
-
-
-
-
-output$PREDICTIONS_data <- renderDataTable({
-  predicted_data <- predicted_data()[c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")]
+output$download_predicted_ui <- renderUI({
+  if(is.null(predicted_data())) return(NULL)
   
-  
-  
-  
-  
-  return(   predicted_data   )
+  downloadButton('download_predicted', 'Download predicted data')
   
 })
+
+
+
+
+
+## Make settings
+predict_table_settings <- reactive({
+  colwidths <- c("500px", "120px","120px", "120px","120px","120px","NA")
+  col.names <- c("Name","Recorded RT","Predicted RT","CI lower","CI upper","Pubchem","InChI")
+  aoColumnDefs <- list(NULL)
+  for(i in 1:length(col.names)){
+    column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
+    aoColumnDefs[[i]] <- column
+  }
+  
+  return(aoColumnDefs)
+})
+
+
+## Display the table
+output$PREDICTIONS_data <- renderDataTable({
+  if(is.null(predicted_data())) return(NULL)
+  
+  
+  predicted_data <- predicted_data()[c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")]
+  
+  predicted_data[,"recorded_rt"]      <-     round(predicted_data[,"recorded_rt"],digits=2)
+  predicted_data[,"predicted_rt"]     <-     round(predicted_data[,"predicted_rt"],digits=2)
+  predicted_data[,"ci_lower"]         <-     round(predicted_data[,"ci_upper"],digits=2)
+  predicted_data[,"ci_upper"]         <-     round(predicted_data[,"ci_upper"],digits=2)
+  
+  
+  # Make sure Inchi is not too long
+  predicted_data[,"inchi"] = 
+    paste0('<div style= "-o-text-overflow: ellipsis; text-overflow: ellipsis;  overflow:hidden;  white-space:nowrap;   width: 500px;">'
+           ,predicted_data[,"inchi"],'</div>')
+  
+  
+  
+  return(predicted_data)
+  
+}
+,options=list(iDisplayLength = 15,aoColumnDefs=predict_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+)
