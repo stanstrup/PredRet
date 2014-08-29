@@ -2,11 +2,19 @@ predicted_data <- reactive({
   if(is.null(input$PREDICTIONS_select_system)) return(NULL)
   if(input$PREDICTIONS_select_system == "") return(NULL)
   
-
-  predicted_data <- predict_RT(input$PREDICTIONS_select_system)
+  
+  criteria <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(criteria, "sys_id", input$PREDICTIONS_select_system)
+  mongo.bson.buffer.append(criteria, "generation", 1L)
+  criteria <- mongo.bson.from.buffer(criteria)
+  
+  mongo <- mongo.create()
+  predicted_data <- mongo.find.all(mongo,ns=ns_rtdata,query=criteria,data.frame = TRUE)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
   
   return(predicted_data)
-  
 })
 
 

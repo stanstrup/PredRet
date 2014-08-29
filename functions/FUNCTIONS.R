@@ -135,21 +135,25 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   buf <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(buf, "sys_id", oid1)
   query <- mongo.bson.from.buffer(buf)
-  rt_sys1 = mongo.find.all2(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  rt_sys1 = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  rt_sys1 <- rt_sys1[rt_sys1$generation==0,] # only experimental data. not predicted is used for the model.
+  
   
   buf <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(buf, "sys_id", oid2)
   query <- mongo.bson.from.buffer(buf)
-  rt_sys2 = mongo.find.all2(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  rt_sys2 = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
+  rt_sys2 <- rt_sys2[rt_sys2$generation==0,] # only experimental data. not predicted is used for the model.
+  
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
-  if(is.null(rt_sys1) | is.null(rt_sys2)) return(NULL)
+  if(is.null(rt_sys1) | is.null(rt_sys2) | nrow(rt_sys1)==0 | nrow(rt_sys2)==0 ) return(NULL)
   
   data <- rbind(rt_sys1,rt_sys2)
     
-  data <- data[data$generation==0,] # only experimental data. not predicted is used for the model.
+  
   
   
   
@@ -955,6 +959,10 @@ predict_RT <- function(predict_to_system) {
   del <- mongo.destroy(mongo)  
   
   
+  data_all <- data_all[data_all$generation==0,] # only experimental data. predicted data is not used to predict in other systems. Yet...
+  
+  
+  
   select <- data_all[,"sys_id"] %in% target_systems # only compound we know in systems where we are able to make models
   data_target <- data_all[select,,drop=F]
   
@@ -1030,6 +1038,7 @@ predict_RT <- function(predict_to_system) {
   
   predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="")
   predicted_data$username <- as.character(predicted_data$username)
+  predicted_data$sys_id <- as.character(predicted_data$sys_id)
   
   
   return(predicted_data)
