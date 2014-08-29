@@ -332,7 +332,7 @@ get_build_log <- function(ns){
   mongo.bson.buffer.append(fields, "_id", 0L)
   fields = mongo.bson.from.buffer(fields)
   
-  sysmodel_log = mongo.find.all2(mongo, ns=ns,fields = fields)
+  sysmodel_log = mongo.find.all(mongo, ns=ns,fields = fields,limit=200L,sort = list(time=-1L))
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   

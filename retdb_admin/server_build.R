@@ -146,7 +146,7 @@ build_log_settings <- reactive({
 })
 
 
-build_log <- reactivePoll(2000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log))
+build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log))
 
 output$build_log <- renderDataTable(build_log(),
                                     options=list(iDisplayLength = 10,aoColumnDefs=build_log_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
