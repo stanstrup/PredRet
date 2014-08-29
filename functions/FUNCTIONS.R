@@ -31,7 +31,7 @@ get_user_data <- function() {
   
   
   # Take some data directly
-  data = data_all[,c("_id","sys_id","name","rt","pubchem","inchi","generation")]
+  data = data_all[,c("_id","sys_id","name","recorded_rt","pubchem","inchi","generation")]
   
   
   # Get correctly formatted time
@@ -177,7 +177,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
       
       if (any(select)){  
         inchi_matrix[i,i2]=1   
-        rt_matrix[i,i2]=mean(data[select,'rt'])
+        rt_matrix[i,i2]=mean(data[select,'recorded_rt'])
       }else{   
         inchi_matrix[i,i2]=0    
         rt_matrix[i,i2]=NA
@@ -964,9 +964,9 @@ predict_RT <- function(predict_to_system) {
   
   
   
-  predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=7))
-  colnames(predicted_data)=c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")
-  
+  predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=8))
+  colnames(predicted_data)=c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi","generation")
+
   
   for(i in 1:length(unique_inchi)){    
     single_inchi_data <-  data_target[unique_inchi[i]==data_target[,"inchi"],,drop=FALSE]
@@ -982,7 +982,7 @@ predict_RT <- function(predict_to_system) {
         unique_targer_id_loc <- which(unique_targer_id[i3]==single_inchi_data[,"sys_id"])
         
         if(length(unique_targer_id_loc)>1){
-          single_inchi_data[unique_targer_id_loc,"rt"] <- mean(single_inchi_data[unique_targer_id_loc,"rt"])
+          single_inchi_data[unique_targer_id_loc,"recorded_rt"] <- mean(single_inchi_data[unique_targer_id_loc,"recorded_rt"])
           rem <- which(duplicated(single_inchi_data[,"sys_id"]) & (unique_targer_id[i3]==single_inchi_data[,"sys_id"]))
           single_inchi_data <- single_inchi_data[-rem,,drop=F]
         }
@@ -993,7 +993,7 @@ predict_RT <- function(predict_to_system) {
     # Make predictions for each system
     for(i2 in 1:nrow(single_inchi_data)){   
       current_model <- models_extended[[   which(       (sys_models_oid1 == single_inchi_data[i2,"sys_id"])    &   (sys_models_oid2 == predict_to_system)                 )     ]]
-      close_rt <- which.min(abs(single_inchi_data[i2,"rt"]-current_model$newdata))
+      close_rt <- which.min(abs(single_inchi_data[i2,"recorded_rt"]-current_model$newdata))
       
       single_inchi_data[i2,"predicted"] <- current_model$ci[close_rt,1]
       single_inchi_data[i2,"ci_lower"]  <- current_model$ci[close_rt,2]
@@ -1017,14 +1017,19 @@ predict_RT <- function(predict_to_system) {
     select <- (predicted_data[i,"inchi"] == data_all[,"inchi"])    &   (predict_to_system == data_all[,"sys_id"])
     
     if(any(select)){
-      predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"rt"]
+      predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"recorded_rt"]
     }else{
       predicted_data[i,"recorded_rt"] <- NA
     }
     
+    predicted_data[i,"generation"] <- as.integer(1)
     
   }
   
+  
+  
+  predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="")
+  predicted_data$username <- as.character(predicted_data$username)
   
   
   return(predicted_data)

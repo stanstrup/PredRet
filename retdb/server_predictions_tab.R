@@ -45,7 +45,7 @@ output$download_predicted <- downloadHandler(
     paste('data-', Sys.Date(), '.csv', sep='')
   },
   content = function(file) {
-    write.csv(predicted_data(), file)
+    write.csv(predicted_data()[c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")], file)
   }
 )
 
@@ -55,7 +55,12 @@ output$download_predicted <- downloadHandler(
 
 
 output$PREDICTIONS_data <- renderDataTable({
+  predicted_data <- predicted_data()[c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi")]
   
-  return(   predicted_data()   )
+  
+  
+  
+  
+  return(   predicted_data   )
   
 })

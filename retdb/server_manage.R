@@ -18,7 +18,7 @@ users_data <-  reactive({
   
   if(is.null(data)){
   data = matrix(,nrow=0,ncol=6)
-  colnames(data) = c("name","rt","system","date added","pubchem","inchi")
+  colnames(data) = c("name","recorded_rt","system","date added","pubchem","inchi")
   data = as.data.frame(data)
   }
   
@@ -49,7 +49,7 @@ output$MANAGE_data <- renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
   
   data_to_show = users_data()
-  data_to_show[,"rt"]      =     round(data_to_show[,"rt"],digits=2)
+  data_to_show[,"recorded_rt"]      =     round(data_to_show[,"recorded_rt"],digits=2)
   
   if(!(nrow(data_to_show)==0)){ # only do something if there is actually data returned from the database.
     # Select rows
@@ -68,7 +68,7 @@ output$MANAGE_data <- renderDataTable({
     
     # Add checkbox column
     addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(users_data()), '">')
-    cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
+    cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","recorded_rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
   }
 }
 
@@ -121,6 +121,6 @@ output$downloadData <- downloadHandler(
     paste('data-', Sys.Date(), '.csv', sep='')
   },
   content = function(con) {
-    write.csv(users_data()[,c("name","rt","system","date added","pubchem","inchi")], con)
+    write.csv(users_data()[,c("name","recorded_rt","system","date added","pubchem","inchi")], con)
   }
 )

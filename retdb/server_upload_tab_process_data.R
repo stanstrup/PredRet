@@ -37,7 +37,7 @@ data_cleaned <- reactive({
   temp_data = unique(temp_data)
   
   # change column names
-  colnames(temp_data) = c("name","rt","system_name","pubchem","inchi")[!is.na(select)]
+  colnames(temp_data) = c("name","recorded_rt","system_name","pubchem","inchi")[!is.na(select)]
   
   
   # Make sure pubchem id is treated as integer
@@ -46,7 +46,7 @@ data_cleaned <- reactive({
   }
   
   # Make sure rt is treated as numeric
-    temp_data[,"rt"] = as.numeric(temp_data[,"rt"])
+    temp_data[,"recorded_rt"] = as.numeric(temp_data[,"recorded_rt"])
   
   
   # Check if all relevant columns are present
@@ -70,7 +70,7 @@ data_cleaned <- reactive({
   
   ## Delete rows without enough data
   # Delete rows that don't contain any rt data.
-  no_rt = is.na(temp_data[,"rt"]) | is.nan(temp_data[,"rt"])
+  no_rt = is.na(temp_data[,"recorded_rt"]) | is.nan(temp_data[,"recorded_rt"])
   if(any(no_rt)){
     errors$no_rt = list(error=2,msg=paste0('No rt data was found in rows ',paste(which(no_rt),collapse=", "),'. Rows have been removed.'))
   }
@@ -154,7 +154,7 @@ if(any(colnames(temp_data)=="system_name")){
 
   # Don't allow duplication of data already in the db
 if(nrow(isolate(users_data()))>0){
-  is_dup = duplicated(rbind(     temp_data[,c("sys_id","rt","inchi")]                 ,                    isolate(users_data())[,c("sys_id","rt","inchi")]        ),fromLast = TRUE)
+  is_dup = duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]                 ,                    isolate(users_data())[,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
   is_dup = is_dup[1:nrow(temp_data)]
   temp_data = temp_data[!is_dup,,drop=F]
   
