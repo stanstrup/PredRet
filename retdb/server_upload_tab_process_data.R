@@ -169,6 +169,8 @@ if(nrow(isolate(users_data()))>0){
 
 
 
+temp_data <- cbind.data.frame(temp_data,predicted_rt=as.numeric(NA),ci_lower=as.numeric(NA),ci_upper=as.numeric(NA))
+
 
   return(list(data=temp_data,errors=errors))
 })
