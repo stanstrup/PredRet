@@ -32,6 +32,8 @@ data_time_max <- max(sapply(data_time,function(x) x$time))
 for(i in 1:length(sys_models_oid1)){
   
   # We get the time of the latest model that predicts to the system we are interested in
+  # we check if:
+  # 1) there is new data since last model build.
   criteria_model_time <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(criteria_model_time, "oid_sys2", sys_models_oid1[i])
   criteria_model_time <- mongo.bson.from.buffer(criteria_model_time)
@@ -39,7 +41,11 @@ for(i in 1:length(sys_models_oid1)){
   
   model_time_max <- max(sapply(model_time,function(x) x$time))
   
-  if(model_time_max > data_time_max) next
+  # 2) if there has ever been any data predicted
+  prev_predictions_count <- mongo.count(mongo,ns=ns_rtdata,query=list(sys_id=sys_models_oid1[i],generation=1))
+  
+  
+  if(model_time_max > data_time_max & prev_predictions_count>0) next
   
   
   # If there is any new experimental data we predict all data again.
@@ -65,7 +71,7 @@ for(i in 1:length(sys_models_oid1)){
     criteria <- mongo.bson.buffer.create()
     mongo.bson.buffer.append(criteria, "sys_id", sys_models_oid1[i])
     mongo.bson.buffer.append(criteria, "inchi", predicted_data[i2,"inchi"])
-    mongo.bson.buffer.append(criteria, "generation", 0L)
+    mongo.bson.buffer.append(criteria, "generation", 1L)
     criteria <- mongo.bson.from.buffer(criteria)
 
     status = mongo.update(mongo, ns=ns_rtdata, criteria, objNew=bson_data[[1]],flags=1L)
@@ -75,3 +81,4 @@ for(i in 1:length(sys_models_oid1)){
 
 del <- mongo.disconnect(mongo)
 del <- mongo.destroy(mongo)
+
