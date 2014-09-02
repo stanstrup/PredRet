@@ -149,7 +149,8 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
-  if(is.null(rt_sys1) | is.null(rt_sys2) | nrow(rt_sys1)==0 | nrow(rt_sys2)==0 ) return(NULL)
+  if(is.null(rt_sys1) | is.null(rt_sys2)) return(NULL)
+  if(nrow(rt_sys1)==0 | nrow(rt_sys2)==0 ) return(NULL)
   
   data <- rbind(rt_sys1,rt_sys2)
     
@@ -446,6 +447,10 @@ gam.mono.con.fun <- function(in_data,inds,newdata,span){
   #inds_saved[[length(inds_saved)+1]] <<- inds
   #counter[length(counter)+1] <<- length(counter)+1
   
+  # We need at least 4 unique x-values to do the fit. So we add a small amount of jitter if it is not the case.
+  if(length(unique(x.star))<4){
+    x.star <- jitter(x.star,amount=0.01)
+  }
   
   dat <- data.frame(x=x.star,y=y.star)
   f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
@@ -1027,7 +1032,7 @@ predict_RT <- function(predict_to_system) {
     if(any(select)){
       predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"recorded_rt"]
     }else{
-      predicted_data[i,"recorded_rt"] <- NA
+      predicted_data[i,"recorded_rt"] <- as.numeric(NA)
     }
     
     predicted_data[i,"generation"] <- as.integer(1)
