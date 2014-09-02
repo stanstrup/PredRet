@@ -65,6 +65,7 @@ for(i in 1:length(sys_models_oid1)){
     criteria <- mongo.bson.buffer.create()
     mongo.bson.buffer.append(criteria, "sys_id", sys_models_oid1[i])
     mongo.bson.buffer.append(criteria, "inchi", predicted_data[i2,"inchi"])
+    mongo.bson.buffer.append(criteria, "generation", 0L)
     criteria <- mongo.bson.from.buffer(criteria)
 
     status = mongo.update(mongo, ns=ns_rtdata, criteria, objNew=bson_data[[1]],flags=1L)
