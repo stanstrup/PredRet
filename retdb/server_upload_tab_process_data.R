@@ -154,7 +154,7 @@ if(any(colnames(temp_data)=="system_name")){
 
   # Don't allow duplication of data already in the db
 if(nrow(isolate(users_data()))>0){
-  is_dup = duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]                 ,                    isolate(users_data())[,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
+  is_dup = duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]                 ,                    isolate(users_data())[isolate(users_data())[,"generation"]==0,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
   is_dup = is_dup[1:nrow(temp_data)]
   temp_data = temp_data[!is_dup,,drop=F]
   
