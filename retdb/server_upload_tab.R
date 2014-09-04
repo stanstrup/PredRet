@@ -21,6 +21,8 @@ output$system_upload <- renderUI({
 
 ## Table with info on uploaded file ###########################
 output$filetable <- renderTable({
+  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   if (is.null(input$files))    return(NULL)
   # User has not uploaded a file yet
   
@@ -41,6 +43,8 @@ source("server_upload_tab_process_data.R",local=TRUE)
 ## Add the data to the database and output true when done ###########################
 data_has_been_written <- reactiveValues()
  observe({
+   if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+   if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   if (is.null(input$files))    return(NULL)
   if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
   
@@ -68,6 +72,8 @@ data_has_been_written <- reactiveValues()
 
 ## Text saying if the data was uploaded ###########################
 output$is_written <- renderUI({  
+  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written$done))   return(NULL)
   
@@ -78,7 +84,9 @@ output$is_written <- renderUI({
 
 
 ## Text saying if errors ###########################
-output$error_msg <- renderUI({  
+output$error_msg <- renderUI({
+  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(length(data_cleaned()$errors)==0) return(NULL)
    
@@ -95,6 +103,8 @@ output$error_msg <- renderUI({
 
 ## Read all data back and display it ###########################
 output$data <- renderTable({
+  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written$done))  return(NULL)
   if(!(data_has_been_written$done))      return(NULL)

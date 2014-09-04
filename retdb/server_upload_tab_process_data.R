@@ -3,8 +3,13 @@
 
 
 data_cleaned <- reactive({
-  if (is.null(input$files))    return(NULL)
-  # User has not uploaded a file yet
+  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
+  
+  
+    
+  isolate({
+  if (is.null(input$files))    return(NULL) # User has not uploaded a file yet
   
   
   # read data
@@ -164,13 +169,18 @@ if(nrow(isolate(users_data()))>0){
   
   if(all(is_dup)){
     errors$has_only_dups = list(error=1,msg=paste0('All rows are duplicates of existing database entries. No data added.'))
+    temp_data <- NA
   }
 }
 
 
-
+if(!is.na(temp_data)){
 temp_data <- cbind.data.frame(temp_data,predicted_rt=as.numeric(NA),ci_lower=as.numeric(NA),ci_upper=as.numeric(NA))
+}
 
 
   return(list(data=temp_data,errors=errors))
+
+})
+
 })
