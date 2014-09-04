@@ -34,9 +34,9 @@ navbarPage("",
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),
-                                                                              uiOutput("error_msg"),
-                                                                              tableOutput("filetable"),
-                                                                              tableOutput("data")
+                                                                              bsAlert(inputId="upload_alerts")#,
+                                                                              #tableOutput("filetable"),
+                                                                              #tableOutput("data")
                                                                             )
                                                                 )
                         ),

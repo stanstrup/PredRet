@@ -20,15 +20,15 @@ output$system_upload <- renderUI({
 
 
 ## Table with info on uploaded file ###########################
-output$filetable <- renderTable({
-  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
-  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
-  if (is.null(input$files))    return(NULL)
-  # User has not uploaded a file yet
-  
-  
-  input$files
-})
+# output$filetable <- renderTable({
+#   if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+#   if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
+#   if (is.null(input$files))    return(NULL)
+#   # User has not uploaded a file yet
+#   
+#   
+#   input$files
+# })
 
 
 
@@ -49,6 +49,16 @@ data_has_been_written <- reactiveValues()
   if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
   
   isolate({
+    
+    # reset "done" if new file is selected or button is pushed
+    if(is.null(data_has_been_written$done)){
+      data_has_been_written$done <- 0L
+    }else{
+      data_has_been_written$done <- 0L
+    }
+    
+    
+    
   # Convert data.frame to bson
   bson_data = dataframe2bson(data_cleaned()$data)
   
@@ -59,11 +69,9 @@ data_has_been_written <- reactiveValues()
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
-  if(is.null(data_has_been_written$done)){
-    data_has_been_written$done <- as.numeric(wrote)
-  }else{
-    data_has_been_written$done <- as.numeric(wrote) + as.numeric(data_has_been_written$done)
-  }
+  
+  data_has_been_written$done <- as.numeric(wrote)
+
   
   })
 })
@@ -77,53 +85,74 @@ output$is_written <- renderUI({
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written$done))   return(NULL)
   
-  if((data_has_been_written$done>0)){   div("Data written to database")  }
+  if((data_has_been_written$done==1)){   div("Data written to database")  }
   
 })
 
 
 
 ## Text saying if errors ###########################
-output$error_msg <- renderUI({
+old_error_msg <- reactiveValues()
+
+observe({
   if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
   if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
-  if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
-  if(length(data_cleaned()$errors)==0) return(NULL)
-   
-  out1 = paste0('<p><strong>',as.character(unlist(lapply(data_cleaned()$errors,function(x) if(x$error==1){x$msg}))),'</strong></p>',collapse="<br />")
-  out1 = div(HTML(out1),style="background-color:red")
-
-  out2 = paste0('<p><strong>',as.character(unlist(lapply(data_cleaned()$errors,function(x) if(x$error==2){x$msg}))),'</strong></p>',collapse="<br />")
-  out2 = div(HTML(out2),style="background-color:green")
   
-  div(out2,out1)
+  # close previous alerts from other runs
+  if(!is.null(old_error_msg$N)){
+    if(old_error_msg$N != 0){
+      for(i in 1:old_error_msg$N){
+        closeAlert(session,alertId=paste0("alertId",i))
+      }
+    }
+  }
+  
+  
+  # Get new errors
+  msgtype <- sapply(data_cleaned()$errors, function(x) x$error)
+  msg     <- sapply(data_cleaned()$errors, function(x) x$msg)
+    
+
+  if(length(msgtype)>0){
+    for(i in 1:length(msgtype)){
+      createAlert(session,inputId="upload_alerts",alertId=paste0("alertId",i),title=c("Errors","Information")[msgtype[i]],message=as.character(msg[i]),type=c("danger","info")[msgtype[i]],dismiss=TRUE,append = TRUE)
+    }
+    old_error_msg$N <- length(msgtype)
+  }else{
+    old_error_msg$N <- 0L
+  }
+ 
+  
+
+
+
 })
 
 
 
 ## Read all data back and display it ###########################
-output$data <- renderTable({
-  if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
-  if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
-  if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
-  if(is.null(data_has_been_written$done))  return(NULL)
-  if(!(data_has_been_written$done))      return(NULL)
-  if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
-       
-        mongo <- mongo.create()
-        
-        data_back = mongo.find.all2(mongo=mongo, ns=ns_rtdata,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
-        row.names(data_back) <- seq(nrow(data_back))
-        
-        del <- mongo.disconnect(mongo)
-        del <- mongo.destroy(mongo)
-        
-  
-  data_back = data_back[         max(data_back$time) == data_back$time      ,,drop=F]
-  
-  data_back$time = as.character(as.POSIXct(data_back$time,origin="1970-01-01"))
-  
-  data_back = subset(data_back, select=-c(`_id`))
-        
-     return(data_back)
-})
+# output$data <- renderTable({
+#   if (is.null(input$upload_go_Button))    return(NULL) # button is pushed. It is NULL before it is properly initialized
+#   if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
+#   if(is.null(input$files))     return(NULL)   # User has not uploaded a file yet
+#   if(is.null(data_has_been_written$done))  return(NULL)
+#   if(!(data_has_been_written$done))      return(NULL)
+#   if(any(unlist(lapply(data_cleaned()$errors,function(x) x$error==1))))  return(NULL)
+#        
+#         mongo <- mongo.create()
+#         
+#         data_back = mongo.find.all2(mongo=mongo, ns=ns_rtdata,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+#         row.names(data_back) <- seq(nrow(data_back))
+#         
+#         del <- mongo.disconnect(mongo)
+#         del <- mongo.destroy(mongo)
+#         
+#   
+#   data_back = data_back[         max(data_back$time) == data_back$time      ,,drop=F]
+#   
+#   data_back$time = as.character(as.POSIXct(data_back$time,origin="1970-01-01"))
+#   
+#   data_back = subset(data_back, select=-c(`_id`))
+#         
+#      return(data_back)
+# })
