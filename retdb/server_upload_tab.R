@@ -85,7 +85,9 @@ output$is_written <- renderUI({
   if(is.null(input$files))    return(NULL)   # User has not uploaded a file yet
   if(is.null(data_has_been_written$done))   return(NULL)
   
-  if((data_has_been_written$done==1)){   div("Data written to database")  }
+  if((data_has_been_written$done==1)){   
+    createAlert(session,inputId="upload_complete",alertId="alertID_upload_done",type="success",title=c("Done!"),message="Data written to database",dismiss=TRUE,append = FALSE)
+  }
   
 })
 

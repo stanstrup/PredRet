@@ -34,6 +34,7 @@ navbarPage("",
                                                                                 ),
                                                                     mainPanel(
                                                                               uiOutput("is_written"),
+                                                                              bsAlert(inputId="upload_complete"),
                                                                               bsAlert(inputId="upload_alerts")#,
                                                                               #tableOutput("filetable"),
                                                                               #tableOutput("data")
