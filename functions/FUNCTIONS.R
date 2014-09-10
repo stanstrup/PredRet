@@ -1,22 +1,66 @@
 ## Functions for database query #####################
 
 
-get_user_data <- function() {
+get_user_data <- function(ns,userID=NULL,generation=NULL) {
   require(rmongodb)
   
+  # System data to be able to convert sysid to sysname
   dbsystems <- get_systems()
   
   
   
-  ## Only get users own data
+  
+  # Select which items to get
+  if(    (!is.null(userID))        |              (!is.null(generation))                ){
+    buf <- mongo.bson.buffer.create()
+    
+    
+    
+    if(!is.null(userID)){
+      mongo.bson.buffer.append(buf, "userID", userID)
+    }
+    
+    if(!is.null(generation)){
+      mongo.bson.buffer.append(buf, "generation", generation)
+    }
+    
+    
+    query <- mongo.bson.from.buffer(buf)
+    
+  }else{
+    query <- mongo.bson.empty()
+  }
   
   
   
   
+  # Select which columns/fields to get
+  buf <- mongo.bson.buffer.create()
+  
+  fields_to_get=c("_id","sys_id","name","pubchem","inchi","time","userID","username","generation")
+  
+  
+  if(!is.null(generation)){
+    if(generation==0L){
+      fields_to_get = c(fields_to_get,"recorded_rt")
+    }else{
+      fields_to_get = c(fields_to_get,c("predicted_rt","ci_lower","ci_upper"))
+    }
+  }else{
+    fields_to_get = c(fields_to_get,"recorded_rt",c("predicted_rt","ci_lower","ci_upper"))
+  }
+  
+  for(i in 1:length(fields_to_get)){
+    mongo.bson.buffer.append(buf, fields_to_get[i], 1L)
+  }
+  
+  
+  fields <- mongo.bson.from.buffer(buf)
+  
+  
+  # Read the data
   mongo <- mongo.create()
-  ns <- ns_rtdata
-  
-  data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+  data_all = mongo.find.all(mongo=mongo, ns=ns,query = query,fields = fields  ,data.frame=T,mongo.oid2character=T)
   
   if(is.null(data_all)){
     del <- mongo.disconnect(mongo)
@@ -31,8 +75,10 @@ get_user_data <- function() {
   
   
   # Take some data directly
-  data = data_all[,c("_id","sys_id","name","recorded_rt","pubchem","inchi","generation")]
+  #data = data_all[,c("_id","sys_id","name","recorded_rt","pubchem","inchi","generation")]
   
+  # Remove the time column
+  data <- subset(data_all,select=-c(generation))
   
   # Get correctly formatted time
   data = cbind.data.frame(data , `date added` = as.POSIXct(data_all[,"time"],origin="1970-01-01")     ,stringsAsFactors = F)
@@ -46,8 +92,7 @@ get_user_data <- function() {
   data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
   
   
-  # Format RT data
-  #data[,"rt"]      =     round(data[,"rt"],digits=2)
+
   
   return(data)
 }

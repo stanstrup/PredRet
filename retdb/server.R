@@ -10,7 +10,7 @@ shinyServer(function(input, output,session) {
 
   
   ## get username ##################
-  userID <- reactive({   input$userID })
+  userID <- reactive({   as.integer(input$userID) })
   username <- reactive({   input$username })
   user_logged_in <- reactive({   input$user_logged_in })
   

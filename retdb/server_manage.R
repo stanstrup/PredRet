@@ -14,7 +14,8 @@ users_data <-  reactive({
   data_has_been_written$done # Update if data written to db
   data_was_deleted$done # database deletions are done
   
-  data = get_user_data()
+  data <- get_user_data(ns=ns_rtdata,userID=userID(),generation=0) 
+  data <- data[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
   
   if(is.null(data)){
   data = matrix(,nrow=0,ncol=6)
