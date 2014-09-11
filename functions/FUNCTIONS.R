@@ -78,7 +78,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   #data = data_all[,c("_id","sys_id","name","recorded_rt","pubchem","inchi","generation")]
   
   # Remove the time column
-  data <- subset(data_all,select=-c(generation))
+  data <- subset(data_all,select=-c(time))
   
   # Get correctly formatted time
   data = cbind.data.frame(data , `date added` = as.POSIXct(data_all[,"time"],origin="1970-01-01")     ,stringsAsFactors = F)
