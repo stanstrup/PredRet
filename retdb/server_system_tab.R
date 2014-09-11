@@ -149,6 +149,16 @@ output$system_desc <- renderUI({
 
 ## submit button
 output$submit_system <- renderUI({
+  if(is.null(input$system_name)) return(NULL)
+  if(is.null(input$SYSTEM_eluent_name)) return(NULL)
+  if(is.null(input$SYSTEM_column_name)) return(NULL)
+  if(input$system_name=="") return(NULL)
+  if(input$SYSTEM_eluent_name=="") return(NULL)
+  if(input$SYSTEM_column_name=="") return(NULL)
+  
+  
+
+  
   sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
  
   if(any(sys_name==input$system_name)){buttontext = "Update system"}  
@@ -157,6 +167,45 @@ output$submit_system <- renderUI({
   
   return( actionButton("submit_system",buttontext)  )
 })
+
+
+
+
+##
+
+## submit button
+output$submit_system_warnings <- renderUI({
+  
+  if(is.null(input$system_name)) return(NULL)
+  if(is.null(input$SYSTEM_eluent_name)) return(NULL)
+  if(is.null(input$SYSTEM_column_name)) return(NULL)
+  
+  if(!(input$system_name=="") & !(input$SYSTEM_eluent_name=="")   &   !(input$SYSTEM_column_name=="")) return(NULL)
+  
+  warning_text = vector(length = 3,mode="list")
+  
+  if(input$system_name=="")         warning_text[[1]] <- "You must specify a system name"
+  if(input$SYSTEM_eluent_name=="")  warning_text[[2]] <- "You must specify eluents"
+  if(input$SYSTEM_column_name=="")  warning_text[[3]] <- "You must specify a column"
+  
+  warning_text <-   warning_text[    !sapply(warning_text,is.null)     ]
+  warning_text <- paste(warning_text,collapse="<br />")
+  
+  
+  div_style <- "color: #b94a48;background-color: #f2dede;border-color: #eed3d7;padding: 8px 35px 8px 14px;margin-bottom: 20px;text-shadow: 0 1px 0 rgba(255,255,255,0.5);border: 1px solid #fbeed5;border-radius: 4px;"
+  p_style   <- "margin-bottom:0px"
+  return(div(p(HTML(warning_text),style=p_style),style=div_style))
+})
+
+
+
+
+
+
+
+
+
+
 
 
 

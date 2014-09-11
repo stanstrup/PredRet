@@ -106,7 +106,8 @@ navbarPage("",
                                                                                       
                                                                                               
                                                                                               uiOutput("system_desc"),
-                                                                                              uiOutput("submit_system")
+                                                                                              uiOutput("submit_system"),
+                                                                                              uiOutput("submit_system_warnings")
                                                                                )
                                                                     ) 
                                  
