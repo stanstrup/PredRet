@@ -16,10 +16,10 @@ output$system_name_select <- renderUI({
 
   sys_to_show = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))    
   
-  if(input$only_own_systems){
+  #if(input$only_own_systems){
   sys_userid = as.integer(unlist(lapply(systems_in_db(),function(x) x$userID)))
   sys_to_show =   sys_to_show[       sys_userid == userID()       ]
-  }
+  #}
   
 
   selectInput(inputId = 'system_name_select',label= 'Select existing system',choices=c("",  sys_to_show      ),selected="",selectize=TRUE)
@@ -159,10 +159,22 @@ output$submit_system <- renderUI({
   
 
   
-  sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
- 
-  if(any(sys_name==input$system_name)){buttontext = "Update system"}  
+  sys_name  <- as.character(sapply(systems_in_db(),function(x) x$system_name))
+  sys_owner <- as.character(sapply(systems_in_db(),function(x) x$userID))
+  
   if(!any(sys_name==input$system_name)){buttontext = "Add system"}  
+  
+  if( any(sys_name==input$system_name)){
+    if(any(sys_name==input$system_name  &    sys_owner==userID())){
+      buttontext = "Update system"  
+    }else{
+      return(NULL) 
+    }
+  }  
+  
+  
+  
+  
   
   
   return( actionButton("submit_system",buttontext)  )
@@ -173,27 +185,48 @@ output$submit_system <- renderUI({
 
 ##
 
-## submit button
+## submit button warnings
 output$submit_system_warnings <- renderUI({
   
   if(is.null(input$system_name)) return(NULL)
   if(is.null(input$SYSTEM_eluent_name)) return(NULL)
   if(is.null(input$SYSTEM_column_name)) return(NULL)
   
-  if(!(input$system_name=="") & !(input$SYSTEM_eluent_name=="")   &   !(input$SYSTEM_column_name=="")) return(NULL)
   
-  warning_text = vector(length = 3,mode="list")
+  warning_text = vector(length = 4,mode="list")
   
-  if(input$system_name=="")         warning_text[[1]] <- "You must specify a system name"
-  if(input$SYSTEM_eluent_name=="")  warning_text[[2]] <- "You must specify eluents"
-  if(input$SYSTEM_column_name=="")  warning_text[[3]] <- "You must specify a column"
+  # check if the system name has been used by someone else
+  sys_name  <- as.character(sapply(systems_in_db(),function(x) x$system_name))
+  sys_owner <- as.character(sapply(systems_in_db(),function(x) x$userID))
   
+  if( any(sys_name==input$system_name)){
+    if(any(sys_name==input$system_name  &    sys_owner==userID())){
+      other_users_system <- TRUE
+    }else{
+      warning_text[[1]] <- "A system already exists with the specified name. However, since it was added by someone else you cannot edit this system. Please choose another name"
+    }
+  }  
+  
+  
+  # check if all required fields were filled
+  if(input$system_name=="")         warning_text[[2]] <- "You must specify a system name"
+  if(input$SYSTEM_eluent_name=="")  warning_text[[3]] <- "You must specify eluents"
+  if(input$SYSTEM_column_name=="")  warning_text[[4]] <- "You must specify a column"
+  
+  
+  # If no warnings then don't output anything  
+  if(all(sapply(warning_text,is.null))) return(NULL)
+  
+  
+  
+  # make warnings into HTML
   warning_text <-   warning_text[    !sapply(warning_text,is.null)     ]
   warning_text <- paste(warning_text,collapse="<br />")
   
   
   div_style <- "color: #b94a48;background-color: #f2dede;border-color: #eed3d7;padding: 8px 35px 8px 14px;margin-bottom: 20px;text-shadow: 0 1px 0 rgba(255,255,255,0.5);border: 1px solid #fbeed5;border-radius: 4px;"
   p_style   <- "margin-bottom:0px"
+  
   return(div(p(HTML(warning_text),style=p_style),style=div_style))
 })
 

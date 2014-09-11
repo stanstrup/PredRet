@@ -55,7 +55,7 @@ navbarPage("",
                                                                                column(3,
                                                                                              wellPanel(
                                                                                                         style="margin-top:60px",
-                                                                                                        checkboxInput("only_own_systems","Only show your own systems?",value=TRUE),
+                                                                                                        #checkboxInput("only_own_systems","Only show your own systems?",value=TRUE),
                                                                                                         uiOutput("system_name_select"),
                                                                                                         bsCollapse(bsCollapsePanel("Show help",includeMarkdown("markdowns/addsys_help.md")))
                                                                                                        
