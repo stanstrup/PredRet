@@ -7,13 +7,16 @@ data_cleaned <- reactive({
   if ((input$upload_go_Button)==0)    return(NULL) # button is pushed. It is 0 before the button is pushed the first time
   
   
-    
+  updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=5) ## start progress
+  
   isolate({
   if (is.null(input$files))    return(NULL) # User has not uploaded a file yet
   
   
   # read data
   temp_data = read.csv(input$files$datapath,stringsAsFactors=F)
+  updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=10)
+  
   
   # Make error messages (1= error that cannot be recovered. 2: warning with message to be displayed)
   errors = list()
@@ -97,6 +100,7 @@ if(any(colnames(temp_data)=="inchi")){
   
 
   # Get inchi from pubchem
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=15)
 if(any(colnames(temp_data)=="inchi")){
   no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
   temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
@@ -113,10 +117,13 @@ if(any(colnames(temp_data)=="inchi")){
 
 
   # Cleanup molecules
+  updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=50)
   temp_data[,"inchi"] = inchi.rem.stereo( temp_data[,"inchi"])   # remove stereochemistry
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=60)
   temp_data[,"inchi"] = inchi.rem.charges(temp_data[,"inchi"])   # remove charges
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=70)
   temp_data[,"inchi"] = inchi.keep.cont(  temp_data[,"inchi"])  # Keep only largest continues part of molecule (that is remove salts)
-  
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=80)
 
 
   # get the time
@@ -158,6 +165,7 @@ if(any(colnames(temp_data)=="system_name")){
   
 
   # Don't allow duplication of data already in the db
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=85)
 if(nrow(isolate(users_data()))>0){
   is_dup = duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]                 ,                    isolate(users_data())[isolate(users_data())[,"generation"]==0,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
   is_dup = is_dup[1:nrow(temp_data)]
@@ -173,12 +181,13 @@ if(nrow(isolate(users_data()))>0){
   }
 }
 
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=95)
 
 if(!is.na(temp_data)){
 temp_data <- cbind.data.frame(temp_data,predicted_rt=as.numeric(NA),ci_lower=as.numeric(NA),ci_upper=as.numeric(NA))
 }
 
-
+updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=100)
   return(list(data=temp_data,errors=errors))
 
 })
