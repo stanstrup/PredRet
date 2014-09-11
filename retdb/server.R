@@ -15,6 +15,10 @@ shinyServer(function(input, output,session) {
   user_logged_in <- reactive({   input$user_logged_in })
   
   
+  ## get user time ##################
+  client_time <- reactive(as.numeric(input$client_time) / 1000) # in s
+  time_zone_offset <- reactive(as.numeric(input$client_time_zone_offset) * 60 ) # in s 
+  
   
   observe({
     

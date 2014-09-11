@@ -12,14 +12,18 @@ navbarPage("",
                       
                         tabPanel('Upload data',
 
-                                                   # Hidden input boxes to save the variable to
+                                                   # Hidden input boxes to save java variable to
                                                    HTML(' <input type="text" id="userID" name="userID" style="display: none;"> '),
                                                    HTML(' <input type="text" id="username" name="username" style="display: none;"> '),
                                                    HTML(' <input type="text" id="user_logged_in" name="user_logged_in" style="display: none;"> '),
                                  
+                                                   HTML('<input type="text" id="client_time" name="client_time" style="display: none;"> '),
+                                                   HTML('<input type="text" id="client_time_zone_offset" name="client_time_zone_offset" style="display: none;"> '),
                                  
-                                                   # include the js code
+                                 
+                                                   # js code to get user info
                                                    includeScript("scripts/get_user_id.js"),
+                                                   includeScript("scripts/user_time.js"),
                                                    
                                  
                                                   pageWithSidebar(

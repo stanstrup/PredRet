@@ -23,6 +23,9 @@ users_data <-  reactive({
   data = as.data.frame(data)
   }
   
+  # Change to local timezone
+  data[,"date added"] <- as.POSIXct(as.numeric(data[,"date added"]), origin = "1970-01-01", tz = "GMT") - time_zone_offset()
+  
   return(data)
 })
 

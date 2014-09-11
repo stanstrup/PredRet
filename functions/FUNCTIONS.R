@@ -371,7 +371,7 @@ log_count <- function(ns){
 
 
 
-get_build_log <- function(ns){
+get_build_log <- function(ns,time_offset=0){
   require(rmongodb)
   require(rmongodb.quick)
   
@@ -400,6 +400,8 @@ get_build_log <- function(ns){
   order        <- order(sysmodel_log[,"time"],decreasing = TRUE)
   sysmodel_log <- sysmodel_log[order,]
   
+  # change to users time zone
+  sysmodel_log[,"time"] <- as.POSIXct(as.numeric(sysmodel_log[,"time"]), origin = "1970-01-01", tz = "GMT") - time_offset
   
   return(sysmodel_log)
 }

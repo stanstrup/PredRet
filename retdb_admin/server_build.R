@@ -51,6 +51,11 @@ output$build_table <- renderDataTable({
   )
   
   
+  # Change to local timezone
+  models_table[,"Latest build time"] <- as.POSIXct(as.numeric(models_table[,"Latest build time"]), origin = "1970-01-01", tz = "GMT") - time_zone_offset()
+  models_table[,"Newest data point"] <- as.POSIXct(as.numeric(models_table[,"Newest data point"]), origin = "1970-01-01", tz = "GMT") - time_zone_offset()
+  
+  
   # Change sysid to sysname
   sys_names = sys_oid2name(as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
   dim(sys_names)=c(length(sys_names)/2,2)
@@ -146,7 +151,7 @@ build_log_settings <- reactive({
 })
 
 
-build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log))
+build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log,time_offset = time_zone_offset()))
 
 output$build_log <- renderDataTable(build_log(),
                                     options=list(iDisplayLength = 10,aoColumnDefs=build_log_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
