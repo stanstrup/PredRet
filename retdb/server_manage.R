@@ -15,7 +15,7 @@ users_data <-  reactive({
   data_was_deleted$done # database deletions are done
   
   data <- get_user_data(ns=ns_rtdata,userID=userID(),generation=0) 
-  data <- data[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
+  #data <- data[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
   
   if(is.null(data)){
   data = matrix(,nrow=0,ncol=6)
@@ -49,8 +49,12 @@ manage_table_settings <- reactive({
 output$MANAGE_data <- renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
   
-  data_to_show = users_data()
-  data_to_show[,"recorded_rt"]      =     round(data_to_show[,"recorded_rt"],digits=2)
+  data_to_show <- users_data()
+  data_to_show <- data_to_show[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
+  
+  data_to_show[,"recorded_rt"]      <-     round(data_to_show[,"recorded_rt"],digits=2)
+  
+  
   
   if(!(nrow(data_to_show)==0)){ # only do something if there is actually data returned from the database.
     # Select rows
