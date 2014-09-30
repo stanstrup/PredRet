@@ -109,3 +109,46 @@ output$PREDICTIONS_data <- renderDataTable({
 }
 ,options=list(iDisplayLength = 15,aoColumnDefs=predict_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
 )
+
+
+
+
+
+
+
+## Statistics table
+predstats <- reactive({
+  if(is.null(predicted_data())) return(NULL)
+  
+predstats <- as.data.frame(matrix(ncol=1,nrow=2))
+colnames(predstats)=c(" ")
+rownames(predstats)=c("Mean prediction error","Median prediction error")
+
+predstats[1,1] <- mean(abs(     predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+predstats[1,1] <- median(abs(     predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+
+return(predstats)
+
+})
+
+
+bold.allrows <- function(x) {
+  #h <- paste('\\textbf{',x,'}', sep ='')
+  h <- paste0('<strong>',x,'</strong>')
+  h
+}
+
+output$pred_stats_table = renderTable({
+                                        if(is.null(predstats())) return(NULL)
+                                        predstats()          
+                                      }
+                                        ,include.colnames=FALSE,floating=FALSE,hline.after=c(  0,    nrow(predstats())   ),     sanitize.rownames.function =  bold.allrows,align=paste0("l",rep("r",ncol(predstats()) )   )
+                                     )
+
+
+
+
+
+
+
+

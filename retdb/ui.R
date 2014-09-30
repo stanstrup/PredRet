@@ -140,6 +140,7 @@ navbarPage("",
                        tabPanel('Get predictions',
                                 fluidPage(
                                             uiOutput("PREDICTIONS_select_system"),
+                                            tableOutput("pred_stats_table"),
                                             div(uiOutput('download_predicted_ui'),style="text-align: right;margin-bottom: 30px;margin-top: 30px"),
                                             dataTableOutput("PREDICTIONS_data"),
                                             div(style="height:200px")
