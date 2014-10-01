@@ -120,12 +120,32 @@ output$PREDICTIONS_data <- renderDataTable({
 predstats <- reactive({
   if(is.null(predicted_data())) return(NULL)
   
-predstats <- as.data.frame(matrix(ncol=1,nrow=2))
+predstats <- as.data.frame(matrix(ncol=1,nrow=10))
 colnames(predstats)=c(" ")
-rownames(predstats)=c("Mean prediction error","Median prediction error")
+rownames(predstats)=c("# Predictions made",
+                      "# Predictions made where experimental RT is unknown",
+                      "Mean prediction error*",
+                      "Median prediction error*",
+                      "95 % percentile prediction error*",
+                      "Max prediction error*",
+                      "Mean width of 95 % CI",
+                      "Median width of 95 % CI",
+                      "95 % percentile of 95 % CI width",
+                      "Max width of 95 % CI")
 
-predstats[1,1] <- mean(abs(     predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
-predstats[1,1] <- median(abs(     predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+
+predstats[1,1] <- nrow(  predicted_data()  )
+predstats[2,1] <- sum(is.na(predicted_data()[,"recorded_rt"]))
+
+predstats[3,1] <- mean(abs(         predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+predstats[4,1] <- median(abs(       predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+predstats[5,1] <- quantile(abs(     predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),probs = 0.95,na.rm = TRUE)
+predstats[6,1] <- max(abs(          predicted_data()[,"recorded_rt"]   -    predicted_data()[,"predicted_rt"]         ),na.rm = TRUE)
+
+predstats[7,1] <- mean(abs(          predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
+predstats[8,1] <- median(abs(        predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
+predstats[9,1] <- quantile(abs(      predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),probs = 0.95,na.rm = TRUE)
+predstats[10,1] <- max(abs(           predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
 
 return(predstats)
 
@@ -142,7 +162,7 @@ output$pred_stats_table = renderTable({
                                         if(is.null(predstats())) return(NULL)
                                         predstats()          
                                       }
-                                        ,include.colnames=FALSE,floating=FALSE,hline.after=c(  0,    nrow(predstats())   ),     sanitize.rownames.function =  bold.allrows,align=paste0("l",rep("r",ncol(predstats()) )   )
+                                        ,digits=cbind(rep(0,nrow(predstats())),c(0,0,2,2,2,2,2,2,2,2)),     include.colnames=FALSE,floating=FALSE,   sanitize.rownames.function =  bold.allrows,           align=paste0("l",rep("r",ncol(predstats()) )   )
                                      )
 
 
@@ -150,5 +170,13 @@ output$pred_stats_table = renderTable({
 
 
 
+output$pred_stats_table_title <- renderUI({
+  if(is.null(predstats())) return(NULL)
+  h4("Prediction statistics")
+})
 
 
+output$pred_stats_table_text <- renderUI({
+                                            if(is.null(predstats())) return(NULL)
+                                            helpText("*Based on compounds for which the experimental RT is known.")
+})
