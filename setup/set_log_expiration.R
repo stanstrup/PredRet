@@ -1,13 +1,30 @@
 ## Setting the log entries to automatically expire.
-## does not work yet. Set expiration manually in some gui like Robomongo.
+
+mongo.index.TTLcreate <- function(mongo, ns, field, index_name, expireAfterSeconds) {
+  
+  indexes = list()
+  key=list()
+  key[[field]] <- 1L
+
+  indexes[["name"]] <- index_name
+  indexes[["expireAfterSeconds"]] <- expireAfterSeconds
+  indexes[["key"]] <- key
+  
+  
+  listCreateIndex <- list(    createIndexes = sub(".*\\.", "", ns), indexes = list(indexes)  )                 
+  
+  bsonCreateIndex <- mongo.bson.from.list(listCreateIndex)
+  mongo.command(mongo, db = gsub("\\..*","",ns), bsonCreateIndex)
+  
+}
+
+
+
+
+
 mongo <- mongo.create()
 
-buf <- mongo.bson.buffer.create()
-mongo.bson.buffer.append(buf, "time", 1L)
-#mongo.bson.buffer.append(buf, "expireAfterSeconds", 60*60*24*6) # expire after 6 days
-key <- mongo.bson.from.buffer(buf)
-
-mongo.index.create(mongo, ns=ns_sysmodels_log, key)
+mongo.index.TTLcreate(mongo=mongo, ns=ns_sysmodels_log, index_name="TTL_time", field="time",expireAfterSeconds=60*60*24*6)  # expire after 6 days
 
 del <- mongo.disconnect(mongo)
 del <- mongo.destroy(mongo) 
