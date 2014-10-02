@@ -101,7 +101,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
 
 get_systems <- function() {
   require(rmongodb)
-  require(rmongodb.quick)
+  
   
   
   # Connect to db
@@ -122,7 +122,7 @@ get_systems <- function() {
   mongo.bson.buffer.append(fields, "system_ref", 1L)
   fields = mongo.bson.from.buffer(fields)
   
-  data_back = mongo.find.all2(mongo, ns=ns,fields=fields)
+  data_back = mongo.find.all(mongo, ns=ns,fields=fields)
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -171,7 +171,7 @@ mongo_del_oid = function(ns,oids)  {
 
 sys_comb_matrix = function(oid1,oid2,ns)  {
   require(rmongodb)
-  require(rmongodb.quick)
+  
   
   
   ## get data for the combination of systems ################
@@ -248,7 +248,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
 get_ns <- function(ns){
 
     mongo <- mongo.create()
-    data_back = mongo.find.all2(mongo, ns=ns)
+    data_back = mongo.find.all(mongo, ns=ns)
     del <- mongo.disconnect(mongo)
     del <- mongo.destroy(mongo)
     
@@ -265,7 +265,7 @@ get_ns <- function(ns){
 
 get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE) {
   require(rmongodb)
-  require(rmongodb.quick)
+  
   
   
   # select fields (think columns)
@@ -299,7 +299,7 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
   # Connect to db
   mongo <- mongo.create()
   ns <- ns_sysmodels
-  data_back = mongo.find.all2(mongo, ns=ns,fields=fields)
+  data_back = mongo.find.all(mongo, ns=ns,fields=fields)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -373,7 +373,7 @@ log_count <- function(ns){
 
 get_build_log <- function(ns,time_offset=0){
   require(rmongodb)
-  require(rmongodb.quick)
+  
   
   mongo <- mongo.create()
   
@@ -415,7 +415,7 @@ set_model_status <- function(sysoid1,sysoid2,status,ns){
   
   mongo <- mongo.create()
 
-  db_models_oids = mongo.find.all2(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
+  db_models_oids = mongo.find.all(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   
@@ -725,7 +725,7 @@ model_db_write <- function(loess_boot,
   buf <- mongo.bson.from.buffer(buf)
   
   
-  db_models_oids = mongo.find.all2(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L))
+  db_models_oids = mongo.find.all(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L))
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   if(any(db_models_oids_hit)){
@@ -1006,29 +1006,31 @@ predict_RT <- function(predict_to_system) {
   # get all rt data in database
   mongo <- mongo.create()
   ns    <- ns_rtdata
-  data_all = mongo.find.all2(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T) # This can probably be done smarter so only the data we need is queried
+  data_all = mongo.find.all(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T) # This can probably be done smarter so only the data we need is queried
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)  
   
   
-  data_all <- data_all[data_all$generation==0,] # only experimental data. predicted data is not used to predict in other systems. Yet...
+  # only experimental data. predicted data is not used to predict in other systems. Yet...
+  data_all <- data_all[data_all$generation==0,]
   
   
-  
-  select <- data_all[,"sys_id"] %in% target_systems # only compound we know in systems where we are able to make models
+  # only compound we know in systems where we are able to make models
+  select <- data_all[,"sys_id"] %in% target_systems 
   data_target <- data_all[select,,drop=F]
   
+    
+  
+  
+  # Run through each unique target inchi
   unique_inchi <- unique(data_target[,"inchi"])
-  
-  
-  
-  
-  
   predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=8))
   colnames(predicted_data)=c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi","generation")
 
   
-  for(i in 1:length(unique_inchi)){    
+  for(i in 1:length(unique_inchi)){ 
+    
+    # Get the data with the current target inchi
     single_inchi_data <-  data_target[unique_inchi[i]==data_target[,"inchi"],,drop=FALSE]
     single_inchi_data <-  data.frame(single_inchi_data,predicted=NA,ci_lower=NA,ci_upper=NA)
     
