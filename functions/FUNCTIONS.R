@@ -86,7 +86,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   
   # Get system name from system ID
   sys_id_data = as.character(data_all[,"sys_id"])
-  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_id_db = unlist(lapply(dbsystems,function(x) x$`_id`)  )
   sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
   
   data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
@@ -324,7 +324,7 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
 sys_oid2name <- function(sys_id_data){
   
   dbsystems <- get_systems()
-  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_id_db = unlist(lapply(dbsystems,function(x) x$`_id`)  )
   sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
   
   system = sys_name[match(sys_id_data,sys_id_db)]
@@ -667,6 +667,7 @@ boot2ci_PI <- function(loess.boot,newdata,alpha=0.05){
 
 
 model_db_write <- function(loess_boot,
+                           xy_mat,
                            ci,
                            newdata,
                            ns_sysmodels,
@@ -704,6 +705,7 @@ model_db_write <- function(loess_boot,
   mongo.bson.buffer.append(buf, "loess_boot", temp)
   
   mongo.bson.buffer.append(buf, "ci", ci)
+  mongo.bson.buffer.append(buf, "xy_mat", xy_mat)
   mongo.bson.buffer.append(buf, "newdata", newdata)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
@@ -960,6 +962,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
     
   
   model_db_write(loess_boot=loess.boot,
+                 xy_mat=comb_matrix$rt,
                  ci=ci,
                  newdata=as.numeric(newdata),
                  ns_sysmodels=ns_sysmodels,
