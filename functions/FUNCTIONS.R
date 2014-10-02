@@ -1025,6 +1025,11 @@ predict_RT <- function(predict_to_system) {
     
   
   
+  
+  
+  
+  
+  
   # Run through each unique target inchi
   unique_inchi <- unique(data_target[,"inchi"])
   predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=8))
@@ -1066,11 +1071,31 @@ predict_RT <- function(predict_to_system) {
     }
     
     
+        
     # We select just the one with the most narrow CI (relative value)
     best_pred <- which.min(single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])
     #best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
     
     
+    
+    
+    
+    # Set limits on the width of the CI interval at the point of prediction
+    # ci_width_limit and ci_width_limit_rel are stored in /settings/predictions.R
+#     ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
+#     ci_width_rel <-     ci_width   /   single_inchi_data$predicted
+#     
+#     select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
+#     
+#     if (!any(select)) next
+#     single_inchi_data <- single_inchi_data[select,]
+    
+    
+    
+    
+    
+    
+    # Add the prediction to the complete table
     predicted_data[i,"name"]         <- single_inchi_data[best_pred,"name"]
     predicted_data[i,"predicted_rt"] <- single_inchi_data[best_pred,"predicted"]
     predicted_data[i,"ci_lower"]     <- single_inchi_data[best_pred,"ci_lower"]
@@ -1092,11 +1117,28 @@ predict_RT <- function(predict_to_system) {
   }
   
   
-  
+  # Remove compounds for which no prediction could be made
+  predicted_data <- predicted_data[        !is.na(predicted_data$predicted_rt)       ,   ]
+    
   predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="")
   predicted_data$username <- as.character(predicted_data$username)
   predicted_data$sys_id <- as.character(predicted_data$sys_id)
   
   
   return(predicted_data)
+}
+
+
+
+
+
+
+
+
+
+## Other functions #####################
+bold.allrows <- function(x) {
+  #h <- paste('\\textbf{',x,'}', sep ='')
+  h <- paste0('<strong>',x,'</strong>')
+  h
 }

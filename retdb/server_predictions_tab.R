@@ -145,18 +145,13 @@ predstats[6,1] <- max(abs(          predicted_data()[,"recorded_rt"]   -    pred
 predstats[7,1] <- mean(abs(          predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
 predstats[8,1] <- median(abs(        predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
 predstats[9,1] <- quantile(abs(      predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),probs = 0.95,na.rm = TRUE)
-predstats[10,1] <- max(abs(           predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
+predstats[10,1] <- max(abs(          predicted_data()[,"ci_upper"]   -    predicted_data()[,"ci_lower"]         ),na.rm = TRUE)
 
 return(predstats)
 
 })
 
 
-bold.allrows <- function(x) {
-  #h <- paste('\\textbf{',x,'}', sep ='')
-  h <- paste0('<strong>',x,'</strong>')
-  h
-}
 
 output$pred_stats_table = renderTable({
                                         if(is.null(predstats())) return(NULL)
