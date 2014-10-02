@@ -77,6 +77,13 @@ for(i in 1:length(sys_models_oid1)){
     status = mongo.update(mongo, ns=ns_rtdata, criteria, objNew=bson_data[[1]],flags=1L)
 
   }
+  
+  
+  # write predictions stats
+  predstats <- pred_stat_make(predicted_data)
+  pred_stat_write(predstats,sys_oid=sys_models_oid1[i],ns=ns_pred_stats)
+  
+  
 }
 
 del <- mongo.disconnect(mongo)

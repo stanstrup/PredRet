@@ -87,6 +87,10 @@ navbarPage("",
                                     wellPanel(
                                       checkboxInput("build_force_recalc_all", "Force re-calculation", value = FALSE),
                                       div(actionButton("build_all","(Re-)build models between ALL systems") ,style="width:180px;margin: 0 auto;")
+                                    ),
+                                    
+                                    wellPanel(
+                                      div(actionButton("purge_predictions","purge ALL predictions") ,style="width:180px;margin: 0 auto;")
                                     )
                              ),
                              

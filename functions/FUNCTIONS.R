@@ -1130,8 +1130,97 @@ predict_RT <- function(predict_to_system) {
 
 
 
+pred_stat_make <- function(predicted_data) {
+
+  
+  predstats <- as.data.frame(matrix(ncol=1,nrow=10))
+  colnames(predstats)=c(" ")
+  rownames(predstats)=c("# Predictions made",
+                        "# Predictions made where experimental RT is unknown",
+                        "Mean prediction error*",
+                        "Median prediction error*",
+                        "95 % percentile prediction error*",
+                        "Max prediction error*",
+                        "Mean width of 95 % CI",
+                        "Median width of 95 % CI",
+                        "95 % percentile of 95 % CI width",
+                        "Max width of 95 % CI")
+  
+  
+  predstats[1,1] <- nrow(  predicted_data  )
+  predstats[2,1] <- sum(is.na(predicted_data[,"recorded_rt"]))
+  
+  predstats[3,1] <- mean(abs(         predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
+  predstats[4,1] <- median(abs(       predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
+  predstats[5,1] <- quantile(abs(     predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),probs = 0.95,na.rm = TRUE)
+  predstats[6,1] <- max(abs(          predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
+  
+  predstats[7,1] <- mean(abs(          predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),na.rm = TRUE)
+  predstats[8,1] <- median(abs(        predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),na.rm = TRUE)
+  predstats[9,1] <- quantile(abs(      predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),probs = 0.95,na.rm = TRUE)
+  predstats[10,1] <- max(abs(          predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),na.rm = TRUE)
+  
+  return(predstats)
+  
+}
 
 
+
+
+
+pred_stat_write <- function(predstats,sys_oid,ns) {
+
+  predstats_list <- as.list(t(predstats))
+  predstats_list <- c(sys_oid,predstats_list)
+  names(predstats_list) <- c("sys_oid",rownames(predstats))
+  
+  criteria <- list(sys_oid=sys_oid)
+  
+  
+  mongo <- mongo.create()
+  
+  status <- mongo.update(mongo, ns, criteria, objNew=predstats_list,mongo.update.upsert)
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+}
+
+
+
+
+pred_stat_get <- function(sys_oid,ns) {
+    
+  query <- list(sys_oid=sys_oid)
+  
+  fields=list()
+  fields[["_id"]]=0L
+  field_names = c("# Predictions made",
+                 "# Predictions made where experimental RT is unknown",
+                 "Mean prediction error*",
+                 "Median prediction error*",
+                 "95 % percentile prediction error*",
+                 "Max prediction error*",
+                 "Mean width of 95 % CI",
+                 "Median width of 95 % CI",
+                 "95 % percentile of 95 % CI width",
+                 "Max width of 95 % CI")
+  
+  for(i in 1:length(field_names)){
+    fields[[field_names[i]]]=1L 
+  }
+  
+    
+  mongo <- mongo.create()
+  
+  pred_stats <- mongo.find.all(mongo, ns, query = query, data.frame = F, mongo.oid2character = TRUE,fields=fields   )
+  pred_stats <- as.matrix(unlist(pred_stats),ncol=1)
+  
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+  
+  return(pred_stats)
+}
 
 
 

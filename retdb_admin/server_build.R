@@ -132,6 +132,22 @@ observe({
 
 
 
+## Purge predictions ################# 
+observe({
+  if(input$purge_predictions==0) return(NULL)  
+  
+  isolate({
+    mongo <- mongo.create()
+    
+    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1))
+    
+    del <- mongo.disconnect(mongo)
+    del <- mongo.destroy(mongo) 
+  })
+})
+
+
+
 
 
 
