@@ -34,7 +34,7 @@
 systems_all = get_systems() # replace with systems_in_db()
 
 # get oids
-systems_all_oids = as.character(unlist(lapply(systems_all,function(x)  as.character.mongo.oid(x$`_id`))))  
+systems_all_oids = as.character(unlist(lapply(systems_all,function(x)  x$`_id`)))
 
 # make all combinations of system oids
 system_combs = t(combn(systems_all_oids,2))

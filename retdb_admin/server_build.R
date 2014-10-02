@@ -90,7 +90,7 @@ observe({
     
     # get oids for selected systems
     sys_names = as.character(lapply(systems(),function(x) x$system_name))
-    sys_oids  = as.character(lapply(systems(),function(x) as.character.mongo.oid(x$`_id`)))
+    sys_oids  = as.character(lapply(systems(),function(x) x$`_id`))
         
     oid1 = sys_oids[input$build_sys1==sys_names]
     oid2 = sys_oids[input$build_sys2==sys_names]
@@ -114,7 +114,7 @@ observe({
   isolate({
     
     # get oids for selected systems
-    sys_oids  = as.character(lapply(systems(),function(x) as.character.mongo.oid(x$`_id`)))
+    sys_oids  = as.character(lapply(systems(),function(x) x$`_id`))
     
     system_combs = t(combn(sys_oids,2))
     system_combs = as.matrix(system_combs)

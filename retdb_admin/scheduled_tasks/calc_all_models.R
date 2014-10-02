@@ -8,7 +8,7 @@ source("../functions/FUNCTIONS.R",local=TRUE)
 
 
 ## Re-calc all models ##################
-sys_oids  = as.character(lapply(get_systems(),function(x) as.character.mongo.oid(x$`_id`)))
+sys_oids  = as.character(lapply(get_systems(),function(x) x$`_id`))
 
 system_combs = t(combn(sys_oids,2))
 system_combs = as.matrix(system_combs)

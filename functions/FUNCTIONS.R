@@ -727,7 +727,7 @@ model_db_write <- function(loess_boot,
   buf <- mongo.bson.from.buffer(buf)
   
   
-  db_models_oids = mongo.find.all(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L))
+  db_models_oids = mongo.find.all(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L),mongo.oid2character = FALSE)
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   if(any(db_models_oids_hit)){

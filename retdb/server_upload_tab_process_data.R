@@ -134,7 +134,7 @@ updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=80)
   
   # get the system ID from select if present. otherwise get from file.
   sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
-  sys_id = unlist(lapply(systems_in_db(),function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_id = unlist(lapply(systems_in_db(),function(x) x$`_id`)  )
   
   if(input$system_upload==""){  
     idx = match(temp_data[,"system_name"],sys_name)
