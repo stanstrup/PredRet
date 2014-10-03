@@ -1,5 +1,6 @@
 ## Basic settings ##################
 source("../settings/mongodb.R",local=TRUE)
+source("../settings/predictions.R",local=TRUE)
 
 
 ## functions ##################
@@ -50,6 +51,7 @@ for(i in 1:length(sys_models_oid1)){
   
   # If there is any new experimental data we predict all data again.
   predicted_data <- predict_RT(sys_models_oid1[i])
+  if(is.null(predicted_data)) next
   
   
   for(i2 in 1:nrow(predicted_data)){

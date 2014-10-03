@@ -65,7 +65,14 @@ navbarPage("",
            ),            
            
            
-           
+           tabPanel('Prediction statistics',
+                    
+                    basicPage(
+                      
+                      dataTableOutput("PREDSTATS_table") 
+                      
+                    )
+           ),         
            
            
            

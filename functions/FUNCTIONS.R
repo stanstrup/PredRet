@@ -1077,18 +1077,18 @@ predict_RT <- function(predict_to_system) {
     #best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
     
     
-    
+    single_inchi_data <- single_inchi_data[best_pred,,drop=F]
     
     
     # Set limits on the width of the CI interval at the point of prediction
     # ci_width_limit and ci_width_limit_rel are stored in /settings/predictions.R
-#     ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
-#     ci_width_rel <-     ci_width   /   single_inchi_data$predicted
-#     
-#     select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
-#     
-#     if (!any(select)) next
-#     single_inchi_data <- single_inchi_data[select,]
+    ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
+    ci_width_rel <-     ci_width   /   single_inchi_data$predicted
+    
+    select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
+    
+    if (!any(select)) next
+    single_inchi_data <- single_inchi_data[select,]
     
     
     
@@ -1096,12 +1096,12 @@ predict_RT <- function(predict_to_system) {
     
     
     # Add the prediction to the complete table
-    predicted_data[i,"name"]         <- single_inchi_data[best_pred,"name"]
-    predicted_data[i,"predicted_rt"] <- single_inchi_data[best_pred,"predicted"]
-    predicted_data[i,"ci_lower"]     <- single_inchi_data[best_pred,"ci_lower"]
-    predicted_data[i,"ci_upper"]     <- single_inchi_data[best_pred,"ci_upper"]
-    predicted_data[i,"pubchem"]      <- single_inchi_data[best_pred,"pubchem"]
-    predicted_data[i,"inchi"]        <- single_inchi_data[best_pred,"inchi"]
+    predicted_data[i,"name"]         <- single_inchi_data[,"name"]
+    predicted_data[i,"predicted_rt"] <- single_inchi_data[,"predicted"]
+    predicted_data[i,"ci_lower"]     <- single_inchi_data[,"ci_lower"]
+    predicted_data[i,"ci_upper"]     <- single_inchi_data[,"ci_upper"]
+    predicted_data[i,"pubchem"]      <- single_inchi_data[,"pubchem"]
+    predicted_data[i,"inchi"]        <- single_inchi_data[,"inchi"]
     
     # Get experimental value if it exists.
     select <- (predicted_data[i,"inchi"] == data_all[,"inchi"])    &   (predict_to_system == data_all[,"sys_id"])
@@ -1119,7 +1119,11 @@ predict_RT <- function(predict_to_system) {
   
   # Remove compounds for which no prediction could be made
   predicted_data <- predicted_data[        !is.na(predicted_data$predicted_rt)       ,   ]
-    
+  
+  # if no predictions could be made at all
+  if(nrow(predicted_data)==0){return(NULL)}
+  
+  
   predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="")
   predicted_data$username <- as.character(predicted_data$username)
   predicted_data$sys_id <- as.character(predicted_data$sys_id)

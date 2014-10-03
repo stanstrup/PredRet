@@ -26,6 +26,7 @@ shinyServer(function(input, output,session) {
     
   ## Basic settings ##################
   source("settings/mongodb.R",local=TRUE)
+  source("settings/predictions.R",local=TRUE)
   
   
   ## functions ##################
@@ -40,6 +41,7 @@ shinyServer(function(input, output,session) {
   ## Tabs ##################
   source("server_explore.R",local=TRUE)
   source("server_modelstats.R",local=TRUE)
+  source("server_predstats.R",local=TRUE)
   source("server_build.R",local=TRUE)
 
    })

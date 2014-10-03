@@ -29,6 +29,7 @@ shinyServer(function(input, output,session) {
     
   ## Basic settings ##################
   source("settings/mongodb.R",local=TRUE)
+  source("settings/predictions.R",local=TRUE)
   
   
   
