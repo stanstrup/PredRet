@@ -1109,11 +1109,11 @@ predict_RT <- function(predict_to_system) {
     models_select <- single_inchi_data[,"sys_id"] == models_oids[,1]           &            predict_to_system == models_oids[,2]
     
     xy_mat <- models[[which(models_select)]]$xy_mat
-    
-    dens <- density(xy_mat[,1], n = 512 * 8,bw=0.03*max(xy_mat[,1]))
+
+    dens <- density(xy_mat[,1], n = 512 * 8,bw=predict_near_x_bw_mult*max(xy_mat[,1]))
     dens_fun <- with(dens, approxfun(x = x, y = y))
     
-    select <- dens_fun(single_inchi_data[,"recorded_rt"]) > 0.01
+    select <- dens_fun(single_inchi_data[,"recorded_rt"]) > predict_near_x_density_lim
     if (!any(select,na.rm = TRUE)) next
     
     select <- which(select)[!is.na(select)] # if it is NA it means it is outside the range so we remove it too. Need to turn it into indeces
