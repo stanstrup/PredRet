@@ -263,38 +263,37 @@ get_ns <- function(ns){
 
 
 
-get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE) {
+get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE) {
   require(rmongodb)
   
   
+  # Select which fields to get
+  query_fields <- c("_id",
+                    "oid_sys1",
+                    "oid_sys2",
+                    "status",
+                    "n_points",
+                    "time",
+                    "newest_entry",
+                    "mean_error_abs",
+                    "median_error_abs",
+                    "q95_error_abs",
+                    "max_error_abs",
+                    "mean_ci_width_abs",
+                    "median_ci_width_abs",
+                    "q95_ci_width_abs",
+                    "max_ci_width_abs")
   
-  # select fields (think columns)
-  fields = mongo.bson.buffer.create()
-  mongo.bson.buffer.append(fields, "_id", 1L)
-  if(include.loess){ mongo.bson.buffer.append(fields, "loess_boot", 1L) }
-  if(include.ci){ mongo.bson.buffer.append(fields, "ci", 1L) }
-  if(include.newdata){ mongo.bson.buffer.append(fields, "newdata", 1L) }
   
-    mongo.bson.buffer.append(fields, "oid_sys1", 1L)
-  mongo.bson.buffer.append(fields, "oid_sys2", 1L)
-  mongo.bson.buffer.append(fields, "status", 1L)
-  mongo.bson.buffer.append(fields, "n_points", 1L)
-  mongo.bson.buffer.append(fields, "time", 1L)
-  mongo.bson.buffer.append(fields, "newest_entry", 1L)
+  if(include.loess){   query_fields <- c(query_fields,"loess_boot") }
+  if(include.ci){      query_fields <- c(query_fields,"ci")         }
+  if(include.newdata){ query_fields <- c(query_fields,"newdata")    }
+  if(include.xy_mat){  query_fields <- c(query_fields,"xy_mat")     }
   
   
-  mongo.bson.buffer.append(fields, "mean_error_abs", 1L)
-  mongo.bson.buffer.append(fields, "median_error_abs", 1L)
-  mongo.bson.buffer.append(fields, "q95_error_abs", 1L)
-  mongo.bson.buffer.append(fields, "max_error_abs", 1L)
-  mongo.bson.buffer.append(fields, "mean_ci_width_abs", 1L)
-  mongo.bson.buffer.append(fields, "median_ci_width_abs", 1L)
-  mongo.bson.buffer.append(fields, "q95_ci_width_abs", 1L)
-  mongo.bson.buffer.append(fields, "max_ci_width_abs", 1L)
+  fields <- as.list(sapply(query_fields,function(x) x=1L))
   
-  fields = mongo.bson.from.buffer(fields)
   
-    
   
   # Connect to db
   mongo <- mongo.create()
@@ -306,9 +305,9 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
   
   # Unserialize models
   if(include.loess){ 
-  data_back = lapply(data_back,function(x) {
-    x$loess_boot=unserialize(x$loess_boot)
-    return(x)
+    data_back = lapply(data_back,function(x) {
+      x$loess_boot=unserialize(x$loess_boot)
+      return(x)
     })
   }
   
@@ -1035,7 +1034,7 @@ predict_RT <- function(predict_to_system) {
   predicted_data = as.data.frame(matrix(nrow=length(unique_inchi),ncol=8))
   colnames(predicted_data)=c("name","recorded_rt","predicted_rt","ci_lower","ci_upper","pubchem","inchi","generation")
 
-  
+
   for(i in 1:length(unique_inchi)){ 
     
     # Get the data with the current target inchi
@@ -1072,12 +1071,21 @@ predict_RT <- function(predict_to_system) {
     
     
         
+    
+    
+    
+    
+    
+    
     # We select just the one with the most narrow CI (relative value)
     best_pred <- which.min(single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])
     #best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
     
-    
     single_inchi_data <- single_inchi_data[best_pred,,drop=F]
+    
+    
+    
+    
     
     
     # Set limits on the width of the CI interval at the point of prediction
@@ -1088,10 +1096,42 @@ predict_RT <- function(predict_to_system) {
     select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
     
     if (!any(select)) next
-    single_inchi_data <- single_inchi_data[select,]
+    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
     
     
     
+    
+    
+    # Throw out predictions based on a recorded_rt with too low number of observations (density) in that RT area.
+    models <- get_models(include.xy_mat=TRUE)
+    
+    models_oids   <- t(sapply(models,function(x) c(x$oid_sys1,x$oid_sys2)))
+    models_select <- single_inchi_data[,"sys_id"] == models_oids[,1]           &            predict_to_system == models_oids[,2]
+    
+    xy_mat <- models[[which(models_select)]]$xy_mat
+    
+    dens <- density(xy_mat[,1], n = 512 * 8,bw=0.03*max(xy_mat[,1]))
+    dens_fun <- with(dens, approxfun(x = x, y = y))
+    
+    select <- dens_fun(single_inchi_data[,"recorded_rt"]) > 0.01
+    if (!any(select,na.rm = TRUE)) next
+    
+    select <- which(select)[!is.na(select)] # if it is NA it means it is outside the range so we remove it too. Need to turn it into indeces
+    
+    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
+    
+    
+    
+#     plot(xy_mat,pch=20)
+#     
+#     plot(xy_mat[,1],dens_fun(xy_mat[,1]),type="p",pch=20,ylim=c(0,max(dens_fun(xy_mat[,1]))))
+#     lines(seq(from=min(xy_mat[,1]),to=max(xy_mat[,1]),by=0.01),dens_fun(seq(from=min(xy_mat[,1]),to=max(xy_mat[,1]),by=0.01)))    
+#     abline(h=0.01)
+
+
+    
+
+
     
     
     
@@ -1118,7 +1158,7 @@ predict_RT <- function(predict_to_system) {
   
   
   # Remove compounds for which no prediction could be made
-  predicted_data <- predicted_data[        !is.na(predicted_data$predicted_rt)       ,   ]
+  predicted_data <- predicted_data[        !is.na(predicted_data$predicted_rt)       ,   ,drop=FALSE]
   
   # if no predictions could be made at all
   if(nrow(predicted_data)==0){return(NULL)}

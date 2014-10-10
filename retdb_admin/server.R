@@ -34,7 +34,7 @@ shinyServer(function(input, output,session) {
 
   
   # some shared reactives ##################
-  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
+  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE ,include.xy_mat=TRUE)})
   
   
     

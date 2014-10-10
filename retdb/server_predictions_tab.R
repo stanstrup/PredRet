@@ -26,10 +26,16 @@ predicted_data <- reactive({
 
 output$PREDICTIONS_select_system <- renderUI({
   
-  sys_models_oid1 <- sapply(models(),function(x) x$oid_sys1)
+  
+  mongo <- mongo.create()
+  prediction_to_oids <- mongo.find.all(mongo=mongo,ns=ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+  
+  
+  sys_models_oid1 <- prediction_to_oids[,"sys_oid"]
   sys_models_oid1_name <-  sys_oid2name(sys_models_oid1)
-  sys_models_oid1_name <- sys_models_oid1_name[!duplicated(sys_models_oid1)]
-  sys_models_oid1 <- sys_models_oid1[!duplicated(sys_models_oid1)]
+  
   
   
   # make list with options and oid as output
