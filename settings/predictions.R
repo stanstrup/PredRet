@@ -6,4 +6,6 @@ predict_near_x_density_lim <- 0.01
 predict_near_x_bw_mult <- 0.03
 
 
+# Limits for suspect values.
+suspect_CI_multiplier <- 2 #(alpha <- 0.01%)
 
