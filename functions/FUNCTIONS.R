@@ -237,7 +237,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   
   
   
-  return(list(rt=rt_matrix,newest_entry = max(c(rt_sys1$time,rt_sys2$time))))
+  return(    list(    rt=rt_matrix,    newest_entry = max(c(rt_sys1$time,rt_sys2$time)),  inchi=unique_inchi      )      )
   
 }
 
@@ -310,6 +310,27 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
       return(x)
     })
   }
+  
+  
+  
+  # convert xy_mat back to data.frame
+  if(include.xy_mat){  
+    data_back = lapply(data_back,function(x) {
+      x$xy_mat=do.call(rbind.data.frame,x$xy_mat)
+      return(x)
+    })
+  }
+  
+  
+  # convert ci back to data.frame
+  if(include.ci){  
+    data_back = lapply(data_back,function(x) {
+      x$ci=do.call(rbind.data.frame,x$ci)
+      return(x)
+    })
+  }
+  
+  
   
   return(data_back)
 }
@@ -452,7 +473,19 @@ set_model_status <- function(sysoid1,sysoid2,status,ns){
 
 
 
-
+rmongodb.robj2data.frame <- function(x){
+  require(stringr)
+ 
+  y <- as.data.frame(x)
+  rownames(y) <- y$attr.row.names
+  y <- subset(y,select = -attr.row.names)
+  y <- subset(y,select = -attr.class)
+  y <- subset(y,select = -R_OBJ)
+  colnames(y) <- str_replace_all(colnames(y),"value.","")
+  
+  
+  return(y)
+}
 
 
 
@@ -703,8 +736,8 @@ model_db_write <- function(loess_boot,
   
   mongo.bson.buffer.append(buf, "loess_boot", temp)
   
-  mongo.bson.buffer.append(buf, "ci", ci)
-  mongo.bson.buffer.append(buf, "xy_mat", xy_mat)
+  mongo.bson.buffer.append(buf, "ci", mongo.bson.from.df(data.frame(pred=ci[,1],lower=ci[,2],upper=ci[,3])))
+  mongo.bson.buffer.append(buf, "xy_mat", mongo.bson.from.df(as.data.frame(xy_mat)))
   mongo.bson.buffer.append(buf, "newdata", newdata)
   mongo.bson.buffer.append(buf, "oid_sys1", sysoid1)
   mongo.bson.buffer.append(buf, "oid_sys2", sysoid2)
@@ -737,14 +770,19 @@ model_db_write <- function(loess_boot,
     mongo.bson.buffer.append(criteria, "_id", oids_to_update)
     criteria <- mongo.bson.from.buffer(criteria)
     
-    success <- mongo.update(mongo, ns_sysmodels, criteria, buf)
-
-
-    
-  }else{
+    mongo.remove(mongo, ns_sysmodels, criteria)
+ }
+  
+  
+  
     success <- mongo.insert(mongo, ns_sysmodels, buf)
-  }
+
+  
   #print(success)
+
+
+
+
 
 
   del <- mongo.disconnect(mongo)
@@ -880,9 +918,11 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   if(!is.null(comb_matrix$rt)){
     del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
     comb_matrix$rt = comb_matrix$rt[!del,,drop=F]
+    comb_matrix$inchi = comb_matrix$inchi[!del,drop=F]
     
     ord = order(comb_matrix$rt[,1])
     comb_matrix$rt = comb_matrix$rt[ord,,drop=F]
+    comb_matrix$inchi = comb_matrix$inchi[ord,drop=F]
   }
   
   if(   is.null(comb_matrix$rt) ){
@@ -933,7 +973,7 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                value=30)
   }
     
-    newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),length.out=500)
+    newdata = seq(from=min(comb_matrix$rt[,1]),to=max(comb_matrix$rt[,1]),length.out=1000)
     #fit=loess.wrapper(comb_matrix$rt[,1,drop=F], comb_matrix$rt[,2,drop=F], span.vals = seq(0.2, 1, by = 0.05), folds = nrow(comb_matrix$rt)) 
     #loess.boot <- boot(comb_matrix$rt,loess.fun,R=1000,newdata=newdata,span=fit$pars$span,parallel="multicore",ncpus=detectCores())
     #ci=boot2ci_PI(loess.boot,newdata,alpha=10^-8) # this crazy alpha value is there till a better solution is found
@@ -958,10 +998,12 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   
   
   predicted_at_orig_x = apply(loess.boot$data,1,function(x) which.min(abs((x[1]-newdata))))
-    
+  
+  xy_mat <- cbind.data.frame(comb_matrix$rt,inchi=as.character(comb_matrix$inchi),stringsAsFactors=F)
+  
   
   model_db_write(loess_boot=loess.boot,
-                 xy_mat=comb_matrix$rt,
+                 xy_mat=xy_mat,
                  ci=ci,
                  newdata=as.numeric(newdata),
                  ns_sysmodels=ns_sysmodels,
