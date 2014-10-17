@@ -121,3 +121,56 @@ final_suspects <- as.numeric(unique(do.call(rbind.data.frame,suspects_initial_cl
 
 
 
+
+
+# Set all to false. this is just to make the new field available. Done ones
+# rtdata <- get_user_data(ns=ns_rtdata)
+# ids <- rtdata$`_id`
+# 
+# mongo <- mongo.create()
+# 
+# for(i in 1:nrow(rtdata)){
+#   
+#   buf <- mongo.bson.buffer.create()
+#   mongo.bson.buffer.append(buf, "_id", mongo.oid.from.string(ids[i]))
+#   criteria <- mongo.bson.from.buffer(buf)
+#   
+#   suspect = list()
+#   suspect[["suspect"]] = FALSE
+#   mongo.update(mongo, ns=ns_rtdata, criteria,   list('$set'=suspect)      )
+#   
+# }
+# 
+# del <- mongo.disconnect(mongo)
+# del <- mongo.destroy(mongo) 
+
+
+
+
+
+# write results to db. all records updated
+mongo <- mongo.create()
+
+for(i in 1:nrow(rtdata)){
+  
+  buf <- mongo.bson.buffer.create()
+  mongo.bson.buffer.append(buf, "_id", mongo.oid.from.string(rtdata[i,"_id"]))
+  criteria <- mongo.bson.from.buffer(buf)
+  
+  
+  suspect = list()
+  
+  if(any(final_suspects==i)){
+  suspect[["suspect"]] = TRUE
+  }else{
+    suspect[["suspect"]] = FALSE
+  }
+  
+  mongo.update(mongo, ns=ns_rtdata, criteria,   list('$set'=suspect)      )
+  
+}
+
+del <- mongo.disconnect(mongo)
+del <- mongo.destroy(mongo) 
+
+

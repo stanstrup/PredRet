@@ -184,7 +184,7 @@ if(nrow(isolate(users_data()))>0){
 updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=95)
 
 if(!is.na(temp_data)){
-temp_data <- cbind.data.frame(temp_data,predicted_rt=as.numeric(NA),ci_lower=as.numeric(NA),ci_upper=as.numeric(NA))
+temp_data <- cbind.data.frame(temp_data,predicted_rt=as.numeric(NA),ci_lower=as.numeric(NA),ci_upper=as.numeric(NA),suspect=FALSE)
 }
 
 updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=100)

@@ -14,8 +14,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   if(    (!is.null(userID))        |              (!is.null(generation))                ){
     buf <- mongo.bson.buffer.create()
     
-    
-    
+        
     if(!is.null(userID)){
       mongo.bson.buffer.append(buf, "userID", userID)
     }
@@ -1058,6 +1057,9 @@ predict_RT <- function(predict_to_system) {
   # only experimental data. predicted data is not used to predict in other systems. Yet...
   data_all <- data_all[data_all$generation==0,]
   
+  # only use non-suspect data for prediction
+  data_all <- data_all[data_all$suspect==FALSE,]
+  
   
   # only compound we know in systems where we are able to make models
   select <- data_all[,"sys_id"] %in% target_systems 
@@ -1206,7 +1208,7 @@ predict_RT <- function(predict_to_system) {
   if(nrow(predicted_data)==0){return(NULL)}
   
   
-  predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="")
+  predicted_data <- cbind.data.frame(sys_id = predict_to_system,predicted_data,time = Sys.time(),userID=as.integer(0),username="",suspect=FALSE)
   predicted_data$username <- as.character(predicted_data$username)
   predicted_data$sys_id <- as.character(predicted_data$sys_id)
   
