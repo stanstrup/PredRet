@@ -297,7 +297,7 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
   # Connect to db
   mongo <- mongo.create()
   ns <- ns_sysmodels
-  data_back = mongo.find.all(mongo, ns=ns,fields=fields)
+  data_back <- mongo.find.all(mongo, ns=ns,fields=fields)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -324,7 +324,7 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
   # convert ci back to data.frame
   if(include.ci){  
     data_back = lapply(data_back,function(x) {
-      x$ci=do.call(rbind.data.frame,x$ci)
+      x$ci=as.data.frame(t(do.call(cbind,x$ci)))
       return(x)
     })
   }
