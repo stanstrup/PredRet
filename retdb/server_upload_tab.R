@@ -60,7 +60,7 @@ data_has_been_written <- reactiveValues()
     
     
   # Convert data.frame to bson
-  bson_data = dataframe2bson(data_cleaned()$data)
+  bson_data = mongo.bson.from.df(data_cleaned()$data)
   
   
   # add to table
