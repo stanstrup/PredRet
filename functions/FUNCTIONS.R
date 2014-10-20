@@ -1039,7 +1039,7 @@ predict_RT <- function(predict_to_system) {
   
     
   # get systems the selection has models to
-  models_extended = get_models(include.loess=FALSE,include.ci = TRUE,include.newdata = TRUE )
+  models_extended = get_models(include.loess=FALSE,include.ci = TRUE,include.newdata = TRUE ,include.xy_mat=TRUE)
   sys_models_oid1 <- sapply(models_extended,function(x) x$oid_sys1)
   sys_models_oid2 <- sapply(models_extended,function(x) x$oid_sys2)
   
@@ -1147,12 +1147,10 @@ predict_RT <- function(predict_to_system) {
     
     
     # Throw out predictions based on a recorded_rt with too low number of observations (density) in that RT area.
-    models <- get_models(include.xy_mat=TRUE)
-    
-    models_oids   <- t(sapply(models,function(x) c(x$oid_sys1,x$oid_sys2)))
+    models_oids   <- t(sapply(models_extended,function(x) c(x$oid_sys1,x$oid_sys2)))
     models_select <- single_inchi_data[,"sys_id"] == models_oids[,1]           &            predict_to_system == models_oids[,2]
     
-    xy_mat <- models[[which(models_select)]]$xy_mat
+    xy_mat <- models_extended[[which(models_select)]]$xy_mat
 
     dens <- density(xy_mat[,1], n = 512 * 8,bw=predict_near_x_bw_mult*max(xy_mat[,1]))
     dens_fun <- with(dens, approxfun(x = x, y = y))
