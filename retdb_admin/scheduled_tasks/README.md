@@ -6,6 +6,6 @@ crontab -e
 and add the following
 
 ```
-*/30 * * * * cd "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks" && Rscript "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks/calc_all_models.R" && Rscript "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks/make_predictions.R"
+*/30 * * * * cd "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks" && Rscript "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks/calc_all_models.R" && Rscript "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks/make_predictions.R" && Rscript "/SHINY_PATH/retpred_shiny/retdb_admin/scheduled_tasks/mark_suspect_values.R"
 ```
 replacing SHINY_PATH appropriately.

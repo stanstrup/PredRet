@@ -1264,9 +1264,8 @@ pred_stat_write <- function(predstats,sys_oid,ns) {
   
   
   mongo <- mongo.create()
-  
-  status <- mongo.update(mongo, ns, criteria, objNew=predstats_list,mongo.update.upsert)
-  
+  mongo.remove(mongo, ns, criteria) # Have to remove first. Cannot get updating to work.
+  status <- mongo.insert(mongo, ns, predstats_list)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
 }
