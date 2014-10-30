@@ -6,4 +6,4 @@ Here you can upload a **csv** file containing your data. The spreadsheet should 
  - **Pubchem**: The pubchem cid of the compound. (*Either pubchem or InChi must be supplied for each compound*)
  - **Inchi**: The InChi of the compound. (*Either pubchem or InChi must be supplied for each compound*)
 
-The system will automatically convert pubchem cids to InChis for unambiguous comparision of molecular structures.
+The system will automatically convert pubchem cids to InChis for unambiguous comparison of molecular structures.
