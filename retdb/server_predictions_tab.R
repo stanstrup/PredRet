@@ -113,7 +113,8 @@ output$PREDICTIONS_data <- renderDataTable({
   return(predicted_data)
   
 }
-,options=list(iDisplayLength = 15,aoColumnDefs=predict_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+,options=list(pageLength = 15,aoColumnDefs=predict_table_settings(), columns=NULL,AutoWidth=FALSE    )
+,escape=FALSE
 )
 
 

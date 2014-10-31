@@ -66,7 +66,8 @@ output$build_table <- renderDataTable({
   
   models_table
   
-},options=list(iDisplayLength = 15,aoColumnDefs=build_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+},options=list(pageLength = 15,aoColumnDefs=build_table_settings(), columns=NULL,AutoWidth=FALSE    )
+,escape=FALSE
 )
 
 
@@ -170,7 +171,8 @@ build_log_settings <- reactive({
 build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log,time_offset = time_zone_offset()))
 
 output$build_log <- renderDataTable(build_log(),
-                                    options=list(iDisplayLength = 10,aoColumnDefs=build_log_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+                                    options=list(pageLength = 10,aoColumnDefs=build_log_settings(), columns=NULL,AutoWidth=FALSE    ),
+                                    escape=FALSE
                                     )
 
 

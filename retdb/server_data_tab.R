@@ -133,7 +133,7 @@ output$DATA_download_table <- renderDataTable({
     
   
   # Make sure Inchi is not too long
-  table_data[,"InChI"] = 
+  table_data[,"InChI"] <- 
     paste0('<div style= "-o-text-overflow: ellipsis; text-overflow: ellipsis;  overflow:hidden;  white-space:nowrap;   width: 38em;">'
            ,table_data[,"InChI"],'</div>')
   
@@ -142,7 +142,8 @@ output$DATA_download_table <- renderDataTable({
   return(table_data)
   
 }
-,options=list(iDisplayLength = 15,aoColumnDefs=DATA_table_settings(), aoColumns=NULL,bAutoWidth=FALSE    )
+,options=list(pageLength = 15,aoColumnDefs=DATA_table_settings(), columns=NULL,AutoWidth=FALSE    )
+,escape=FALSE
 )
 
 
