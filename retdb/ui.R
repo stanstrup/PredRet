@@ -2,6 +2,8 @@ library(shinyBS)
 
 navbarPage("",
              
+           
+           
              tabPanel('Introduction',
                                       fluidPage(
                                        titlePanel("Introduction"),
@@ -10,6 +12,9 @@ navbarPage("",
                       ),
                       
                       
+           
+           
+           
                         tabPanel('Upload data',
 
                                                    # Hidden input boxes to save java variable to
@@ -48,6 +53,10 @@ navbarPage("",
                         ),
                         
                         
+           
+           
+           
+           
                         
                         tabPanel('Add or modify system',
                                                            fluidRow(
@@ -114,10 +123,14 @@ navbarPage("",
                                  ),
              
              
-                       tabPanel('Manage data',
+           
+           
+           
+                       tabPanel('Manage your data',
                                 HTML('<script>document.domain = "predret.org"</script>'),
                                 
                                 fluidPage(
+                                  
                                   
                                   div(style="display:flex",
                                       div(style="width: 300px;",         
@@ -137,6 +150,11 @@ navbarPage("",
                                 ,HTML('<script type="text/javascript" src="http://predret.org/scripts/iframeResizer.contentWindow.min.js"></script>')
                        ),
            
+           
+           
+           
+           
+           
                        tabPanel('Get predictions',
                                 fluidPage(
                                             uiOutput("PREDICTIONS_select_system"),
@@ -151,9 +169,29 @@ navbarPage("",
                                             dataTableOutput("PREDICTIONS_data"),
                                             div(style="height:200px")
                                           )
-             )
+             ),
              
                       
-                        
+                
+           
+           
+           tabPanel('Get all data',
+                    fluidPage(
+                      
+                      tags$head(
+                        tags$style(type="text/css", "select#DATA_select_system { height: 20em; }")
+                      ),
+                      
+                      div(style="margin: 0 auto;text-align: center;",
+                      uiOutput("DATA_select_system")
+                      ),
+                      
+                      div(uiOutput('DATA_download_ui'),style="text-align: right;margin-bottom: 30px;margin-top: 30px"),
+                      dataTableOutput("DATA_download_table"),
+                      div(style="height:200px")
+                    )
+           )
+           
+           
                         
           )

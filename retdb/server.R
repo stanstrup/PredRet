@@ -43,6 +43,7 @@ shinyServer(function(input, output,session) {
   source("server_system_tab.R",local=TRUE)
   source("server_manage.R",local=TRUE)
   source("server_predictions_tab.R",local=TRUE)
+  source("server_data_tab.R",local=TRUE)
   
   
   # some shared reactives ##################
