@@ -1,4 +1,4 @@
-  document.domain = "predret.com";
+  document.domain = "predret.org";
   
   
   var userIDVariableName = parent.userID; 

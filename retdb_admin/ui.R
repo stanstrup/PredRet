@@ -79,7 +79,7 @@ navbarPage("",
            
            
            tabPanel('Build models',
-                    HTML('<script>document.domain = "predret.com"</script>'),
+                    HTML('<script>document.domain = "predret.org"</script>'),
                     fluidRow(progressInit(),
                              column(3,
                                     style="width:310px",
@@ -109,7 +109,7 @@ navbarPage("",
                              
                              
                     )
-                    ,HTML('<script type="text/javascript" src="http://predret.com/scripts/iframeResizer.contentWindow.min.js"></script>')
+                    ,HTML('<script type="text/javascript" src="http://predret.org/scripts/iframeResizer.contentWindow.min.js"></script>')
            )    
            
            
