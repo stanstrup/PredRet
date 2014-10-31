@@ -1,0 +1,14 @@
+Package: predret_shiny
+Version: 0.5
+Date: 2014-10-31
+Title: Prediction of retention time.
+Author: Jan Stanstrup <jan.stanstrup@fmach.it>
+Maintainer: Jan Stanstrup <jan.stanstrup@fmach.it>
+Depends: R (>= 2.14.0), shiny, rmongodb, stringr, monoProc, mgcv, parallel, boot, bisoreg, shinyBS, xlsx, chemhelper, rCharts, shinyIncubator
+Suggests: 
+Imports:
+Enhances: 
+Description: A shiny app for retention time prediction.
+License: GPL (>= 2)
+URL: predret.org
+biocViews: Chromatography, Metabolomics
