@@ -102,7 +102,7 @@ output$DATA_download <- downloadHandler(
 output$DATA_download_ui <- renderUI({
   if(is.null(DATA_data())) return(NULL)
   
-  downloadButton('DATA_download', 'Download predicted data')
+  downloadButton('DATA_download', 'Download data')
   
 })
 
