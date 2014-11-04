@@ -2,7 +2,7 @@
 output$MANAGE_filter_select <- renderUI({
 
   if(!(input$MANAGE_filter_by=="")){
-  selectInput(inputId = 'MANAGE_filter_select',label= 'Select',choices=c("",as.character(unique(users_data()[[input$MANAGE_filter_by]]))),selected="",selectize=TRUE)
+  selectInput(inputId = 'MANAGE_filter_select',label= strong('Select'),choices=c("",as.character(unique(users_data()[[input$MANAGE_filter_by]]))),selected="",selectize=TRUE)
   }
   
 })
@@ -48,20 +48,53 @@ manage_table_settings <- reactive({
 })
 
 
+
+# Get masses.
+masses <- reactive({
+  masses <- sapply(str_split_fixed(users_data()[,"inchi"],"/",3)[,2], function(x) getMass(getMolecule(x))   )
+  return(masses)
+  })
+
+
+
 ## Display the table
 output$MANAGE_data <- renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
   
+  
   data_to_show <- users_data()
   data_to_show <- data_to_show[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
-  
   data_to_show[,"recorded_rt"]      <-     round(data_to_show[,"recorded_rt"],digits=2)
+  select_rows <- rep(TRUE,nrow(data_to_show))
+  
+  
+  
+  # Limit mass range
+  if(!is.na(input$MANAGE_massrange_min) | !is.na(input$MANAGE_massrange_max)){ # so that we only calculate the mass if we need it
+    in_mass_range <- is.between(masses(),input$MANAGE_massrange_min,input$MANAGE_massrange_max)
+    select_rows[!in_mass_range] <- FALSE
+  }
+  
+  
+  # Limit based on exact mass
+  if(!is.na(input$MANAGE_exactmass) & !is.na(input$MANAGE_ppm)){
+  exact_mass_match <- (abs(masses()-input$MANAGE_exactmass)/input$MANAGE_exactmass)*1e6 <  input$MANAGE_ppm
+  select_rows[!exact_mass_match] <- FALSE
+  }
+  
+  
+  # Limit RT range
+  in_RT_range   <-  is.between(data_to_show[,"recorded_rt"],input$MANAGE_rtrange_min,input$MANAGE_rtrange_max)
+  select_rows[!in_RT_range] <- FALSE
+  
+  # limit based on above criteria
+  data_to_show <-     data_to_show[    select_rows       ,,drop=FALSE]
   
   
   
   if(!(nrow(data_to_show)==0)){ # only do something if there is actually data returned from the database.
     # Select rows
-    checked=rep('',nrow(users_data()))
+    checked=rep('',nrow(data_to_show))
     if(!(input$MANAGE_filter_by=="") & !is.null(input$MANAGE_filter_select)){
       if(!(input$MANAGE_filter_select=="")){
         checked[        as.character(data_to_show[[input$MANAGE_filter_by]]) == as.character(input$MANAGE_filter_select)    ]   ='checked="checked"'
@@ -75,7 +108,7 @@ output$MANAGE_data <- renderDataTable({
     
     
     # Add checkbox column
-    addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(users_data()), '">')
+    addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(data_to_show), '">')
     cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","recorded_rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
   }
 }

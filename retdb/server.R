@@ -4,7 +4,8 @@ library(xlsx)
 library(rmongodb)
 library(rmongodb.quick)
 library(chemhelper)
-
+library(Rdisop)
+library(stringr)
 
 shinyServer(function(input, output,session) {
 

@@ -1,0 +1,34 @@
+div#SYSTEM_eluent_name, div#SYSTEM_column_name, div#SYSTEM_ref {
+                 width: 100%;
+}
+
+
+div#selectfilter_container {
+  display:flex;
+  margin-bottom: 20px;
+}
+
+
+p.inputlabel{
+                line-height: 2.7em;
+                width:9em;
+}
+
+
+div.smallnuminput_left{
+                width:90px;
+                padding-right: 20px;
+}
+
+
+div.smallnuminput_right{
+                width:90px;
+                padding-left:  10px;
+}
+
+
+div.white_no_pad_marg{
+                margin: 0px;
+                padding: 0px;
+                background: white;
+}
