@@ -4,26 +4,26 @@
 
 
 div#selectfilter_container {
-  display:flex;
-  margin-bottom: 20px;
+                display: flex;
+                margin-bottom: 20px;
 }
 
 
 p.inputlabel{
                 line-height: 2.7em;
-                width:9em;
+                width: 9em;
 }
 
 
 div.smallnuminput_left{
-                width:90px;
+                width: 90px;
                 padding-right: 20px;
 }
 
 
 div.smallnuminput_right{
-                width:90px;
-                padding-left:  10px;
+                width: 90px;
+                padding-left: 10px;
 }
 
 
