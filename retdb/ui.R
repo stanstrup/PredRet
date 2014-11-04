@@ -174,8 +174,8 @@ navbarPage("",
                                                                         div(style="display:flex",
                                                                             p(class="inputlabel",     strong("Exact mass:")),
                                                                             div(class="smallnuminput_left",     numericInput("MANAGE_exactmass","",value=NULL,step=0.0001,min=0)),
-                                                                            div(p(class="inputlabel",style="width:3em", strong("ppm:"))),
-                                                                            div(class="smallnuminput_right",style="width:57px",     numericInput("MANAGE_ppm","",value=NULL,step=1,min=0)    )
+                                                                            div(style="margin-left: 10px;",p(class="inputlabel",style="width:3em", strong("ppm:"))),
+                                                                            div(class="smallnuminput_right",style="width:57px;padding-left: 0px;",     numericInput("MANAGE_ppm","",value=NULL,step=1,min=0)    )
                                                                         )
                                                                         
                                                                         
