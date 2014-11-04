@@ -1,4 +1,4 @@
-div#SYSTEM_eluent_name, div#SYSTEM_column_name, div#SYSTEM_ref {
+#SYSTEM_eluent_name, #SYSTEM_column_name, #SYSTEM_ref {
                  width: 100%;
 }
 
