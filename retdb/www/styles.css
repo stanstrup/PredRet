@@ -1,5 +1,26 @@
-#SYSTEM_eluent_name, #SYSTEM_column_name, #SYSTEM_ref {
+#system_name, #SYSTEM_eluent_name,#SYSTEM_eluent_pH_name, #SYSTEM_eluent_additive_name, #SYSTEM_column_name, #SYSTEM_column_type_name, #SYSTEM_ref {
                  width: 100%;
+                 height: 27px;
+}
+
+
+
+div.flexpad{
+                display: flex;
+                padding-right: 14px;
+}
+
+
+div.SYSTEM_varname {
+                min-width: 11em;
+                width: 20%;
+                line-height: 3.5em;
+}
+
+
+div.SYSTEM_varselect {
+                min-width: 22em;
+                width: 40%;
 }
 
 

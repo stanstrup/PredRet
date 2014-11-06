@@ -10,55 +10,59 @@ systems_in_db <- reactive({
 
 
 
-## Make UI elements ###########################
-## Drop down menu
+## Make UI elements ############################
+# Drop down menu
 output$system_name_select <- renderUI({
 
   sys_to_show = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))    
   
-  #if(input$only_own_systems){
+  if(input$only_own_systems){
   sys_userid = as.integer(unlist(lapply(systems_in_db(),function(x) x$userID)))
   sys_to_show =   sys_to_show[       sys_userid == userID()       ]
-  #}
+  }
   
 
-  selectInput(inputId = 'system_name_select',label= 'Select existing system',choices=c("",  sys_to_show      ),selected="",selectize=TRUE)
+  selectInput(inputId = 'system_name_select',label= strong('Select existing system (update or use as template)'),choices=c("",  sys_to_show      ),selected="",selectize=TRUE)
 })
 
 
 
-## System name text box
+# System name text box 
 output$system_name <- renderUI({
-  textInput('system_name', label=strong('System name'),value = input$system_name_select)
+  textInput('system_name', label='',value = input$system_name_select)
 })
 
 
 
-## System eluents + modifiers
-output$SYSTEM_eluent_select <- renderUI({
+
+
+
+
+# System column type
+output$SYSTEM_column_type_select <- renderUI({
   if (is.null(input$system_name_select))    return(NULL)
   
   
-  sys_eluent = as.character(unlist(lapply(systems_in_db(),function(x) x$system_eluent)))  
+  sys_column_type = as.character(unlist(lapply(systems_in_db(),function(x) x$system_column_type)))  
   
   # if a system is selected fetch the description
   if(!(input$system_name_select=="")){
     sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
     idx = input$system_name_select==sys_name
-    eluent_shown = sys_eluent[idx]
+    column_type_shown = sys_column_type[idx]
     
   }else{
-    eluent_shown = ""
+    column_type_shown = ""
   }
   
-  selectInput(inputId = 'SYSTEM_eluent_select',label = 'Suggested descriptions', choices = c("",unique(sys_eluent)),selected=eluent_shown,width="100%")
+  selectInput(inputId = 'SYSTEM_column_type_select',label = '', choices = c("",unique(sys_column_type)),selected=column_type_shown,width="100%")
 })
 
 
 
 
-output$SYSTEM_eluent_name <- renderUI({
-    textInput(inputId   = 'SYSTEM_eluent_name', label='New eluents and modifier description',value = input$SYSTEM_eluent_select)
+output$SYSTEM_column_type_name <- renderUI({
+  textInput(inputId   = 'SYSTEM_column_type_name', label='',value = input$SYSTEM_column_type_select)
 })
 
 
@@ -67,7 +71,7 @@ output$SYSTEM_eluent_name <- renderUI({
 
 
 
-## System column
+# System column
 output$SYSTEM_column_select <- renderUI({
   if (is.null(input$system_name_select))    return(NULL)
   
@@ -84,14 +88,14 @@ output$SYSTEM_column_select <- renderUI({
     column_shown = ""
   }
   
-  selectInput(inputId = 'SYSTEM_column_select',label = 'Suggested columns', choices = c("",unique(sys_column)),selected=column_shown,width="100%")
+  selectInput(inputId = 'SYSTEM_column_select',label = '', choices = c("",unique(sys_column)),selected=column_shown,width="100%")
 })
 
 
 
 
 output$SYSTEM_column_name <- renderUI({
-  textInput(inputId   = 'SYSTEM_column_name', label='New column',value = input$SYSTEM_column_select)
+  textInput(inputId   = 'SYSTEM_column_name', label='',value = input$SYSTEM_column_select)
 })
 
 
@@ -101,7 +105,100 @@ output$SYSTEM_column_name <- renderUI({
 
 
 
-## System reference (link or doi)
+# System eluents
+output$SYSTEM_eluent_select <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_eluent = as.character(unlist(lapply(systems_in_db(),function(x) x$system_eluent)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    eluent_shown = sys_eluent[idx]
+    
+  }else{
+    eluent_shown = ""
+  }
+  
+  selectInput(inputId = 'SYSTEM_eluent_select',label = '', choices = c("",unique(sys_eluent)),selected=eluent_shown,width="100%")
+})
+
+
+
+
+output$SYSTEM_eluent_name <- renderUI({
+  textInput(inputId   = 'SYSTEM_eluent_name', label='',value = input$SYSTEM_eluent_select)
+})
+
+
+
+
+
+
+
+# System eluent pH
+output$SYSTEM_eluent_pH_select <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_eluent_pH = as.character(unlist(lapply(systems_in_db(),function(x) x$system_eluent_pH)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    eluent_pH_shown = sys_eluent_pH[idx]
+    
+  }else{
+    eluent_pH_shown = ""
+  }
+  
+  selectInput(inputId = 'SYSTEM_eluent_pH_select',label = '', choices = c("",unique(sys_eluent_pH)),selected=eluent_pH_shown,width="100%")
+})
+
+
+
+
+output$SYSTEM_eluent_pH_name <- renderUI({
+  textInput(inputId   = 'SYSTEM_eluent_pH_name', label='',value = input$SYSTEM_eluent_pH_select)
+})
+
+
+
+
+
+# System eluent additive
+output$SYSTEM_eluent_additive_select <- renderUI({
+  if (is.null(input$system_name_select))    return(NULL)
+  
+  
+  sys_eluent_additive = as.character(unlist(lapply(systems_in_db(),function(x) x$system_eluent_additive)))  
+  
+  # if a system is selected fetch the description
+  if(!(input$system_name_select=="")){
+    sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))  
+    idx = input$system_name_select==sys_name
+    eluent_additive_shown = sys_eluent_additive[idx]
+    
+  }else{
+    eluent_additive_shown = ""
+  }
+  
+  selectInput(inputId = 'SYSTEM_eluent_additive_select',label = '', choices = c("",unique(sys_eluent_additive)),selected=eluent_additive_shown,width="100%")
+})
+
+
+
+
+output$SYSTEM_eluent_additive_name <- renderUI({
+  textInput(inputId   = 'SYSTEM_eluent_additive_name', label='',value = input$SYSTEM_eluent_additive_select)
+})
+
+
+
+# System reference (link or doi)
 output$SYSTEM_ref <- renderUI({
   if (is.null(input$system_name_select))    return(NULL)
   
@@ -127,7 +224,7 @@ output$SYSTEM_ref <- renderUI({
 
 
 
-## Text area with system desc
+# Text area with system desc
 output$system_desc <- renderUI({
   if (is.null(input$system_name_select))    return(NULL)
   
@@ -147,14 +244,21 @@ output$system_desc <- renderUI({
 })
 
 
-## submit button
+# submit button
 output$submit_system <- renderUI({
-  if(is.null(input$system_name)) return(NULL)
-  if(is.null(input$SYSTEM_eluent_name)) return(NULL)
-  if(is.null(input$SYSTEM_column_name)) return(NULL)
-  if(input$system_name=="") return(NULL)
-  if(input$SYSTEM_eluent_name=="") return(NULL)
-  if(input$SYSTEM_column_name=="") return(NULL)
+  if(is.null(input$system_name))                 return(NULL)
+  if(is.null(input$SYSTEM_column_type_name))     return(NULL)
+  if(is.null(input$SYSTEM_column_name))          return(NULL)
+  if(is.null(input$SYSTEM_eluent_name))          return(NULL)
+  if(is.null(input$SYSTEM_eluent_pH_name))       return(NULL)
+  if(is.null(input$SYSTEM_eluent_additive_name)) return(NULL)
+  
+  if(input$system_name=="")                      return(NULL)
+  if(input$SYSTEM_column_type_name=="")          return(NULL)
+  if(input$SYSTEM_column_name=="")               return(NULL)
+  if(input$SYSTEM_eluent_name=="")               return(NULL)
+  if(input$SYSTEM_eluent_pH_name=="")            return(NULL)
+  if(input$SYSTEM_eluent_additive_name=="")      return(NULL)
   
   
 
@@ -183,17 +287,22 @@ output$submit_system <- renderUI({
 
 
 
-##
 
-## submit button warnings
+
+# submit button warnings
 output$submit_system_warnings <- renderUI({
   
   if(is.null(input$system_name)) return(NULL)
   if(is.null(input$SYSTEM_eluent_name)) return(NULL)
+  if(is.null(input$SYSTEM_eluent_pH_name)) return(NULL)
+  if(is.null(input$SYSTEM_eluent_additive_name)) return(NULL)
   if(is.null(input$SYSTEM_column_name)) return(NULL)
+  if(is.null(input$SYSTEM_column_type_name)) return(NULL)
+  
+
   
   
-  warning_text = vector(length = 4,mode="list")
+  warning_text = vector(length = 7,mode="list")
   
   # check if the system name has been used by someone else
   sys_name  <- as.character(sapply(systems_in_db(),function(x) x$system_name))
@@ -209,11 +318,15 @@ output$submit_system_warnings <- renderUI({
   
   
   # check if all required fields were filled
-  if(input$system_name=="")         warning_text[[2]] <- "You must specify a system name"
-  if(input$SYSTEM_eluent_name=="")  warning_text[[3]] <- "You must specify eluents"
-  if(input$SYSTEM_column_name=="")  warning_text[[4]] <- "You must specify a column"
+  if(input$system_name=="")                   warning_text[[2]] <- "You must specify a system name"
+  if(input$SYSTEM_column_type_name=="")       warning_text[[3]] <- "You must specify a column type"
+  if(input$SYSTEM_column_name=="")            warning_text[[4]] <- "You must specify a column"
+  if(input$SYSTEM_eluent_name=="")            warning_text[[5]] <- "You must specify eluents"
+  if(input$SYSTEM_eluent_pH_name=="")         warning_text[[6]] <- "You must specify eluent pH"
+  if(input$SYSTEM_eluent_additive_name=="")   warning_text[[7]] <- "You must specify eluent additives"
   
   
+    
   # If no warnings then don't output anything  
   if(all(sapply(warning_text,is.null))) return(NULL)
   
@@ -249,16 +362,22 @@ system_desc_bson <- reactive({
   if(input$submit_system == 0) return(NULL)
   
   isolate({
-    buf <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append(buf, "time", Sys.time())
-    mongo.bson.buffer.append(buf, "userID", as.integer(userID()))
-    mongo.bson.buffer.append(buf, "username", username())
-    mongo.bson.buffer.append(buf, "system_name", input$system_name)
-    mongo.bson.buffer.append(buf, "system_desc", input$system_desc)
-    mongo.bson.buffer.append(buf, "system_eluent", input$SYSTEM_eluent_name)
-    mongo.bson.buffer.append(buf, "system_column", input$SYSTEM_column_name)
-    mongo.bson.buffer.append(buf, "system_ref", input$SYSTEM_ref)
-    mongo.bson.from.buffer(buf)
+    
+    buf=list()
+    buf[["time"]] <- Sys.time()
+    buf[["userID"]] <- as.integer(userID())
+    buf[["username"]] <- username()
+    buf[["system_name"]] <- input$system_name
+    buf[["system_desc"]] <- input$system_desc
+    buf[["system_eluent"]] <- input$SYSTEM_eluent_name
+    buf[["system_eluent_pH"]] <- input$SYSTEM_eluent_pH_name
+    buf[["system_eluent_additive"]] <- input$SYSTEM_eluent_additive_name    
+    buf[["system_column"]] <- input$SYSTEM_column_name
+    buf[["system_column_type"]] <- input$SYSTEM_column_type_name
+    buf[["system_ref"]] <- input$SYSTEM_ref
+    
+    return(buf)
+    
   })
 })
 
@@ -272,27 +391,25 @@ observe({
   isolate({
     # make db connection
     mongo <- mongo.create()
-
     sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
     
+    
+    
+    
     if(any(sys_name==input$system_name)){ # the system is already in the db
-      idx = input$system_name==sys_name
-      
-#           
-#       validate({
-#       need(   systems_in_db()[[which(idx)]]$userID == userID()   ,message="You can only update systems that you added yourself")
-#       })
-#            
+      idx = (input$system_name==sys_name)
       
       buf <- mongo.bson.buffer.create()
       mongo.bson.buffer.append(buf, "_id", systems_in_db()[[which(idx)]]$`_id`)
       criteria <- mongo.bson.from.buffer(buf)
       
-      mongo.update(mongo, ns_chrom_systems, criteria, system_desc_bson())
-      
+      mongo.update(mongo, ns_chrom_systems, criteria, system_desc_bson()   )
     }else{
-      mongo.insert.batch(mongo, ns_chrom_systems, list(system_desc_bson()))
+      mongo.insert(mongo, ns_chrom_systems, system_desc_bson()    )
     }
+    
+    
+    
     
     
     # Disconnect from db

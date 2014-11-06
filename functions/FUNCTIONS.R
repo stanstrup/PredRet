@@ -117,11 +117,14 @@ get_systems <- function() {
   mongo.bson.buffer.append(fields, "userID", 1L)
   mongo.bson.buffer.append(fields, "username", 1L)
   mongo.bson.buffer.append(fields, "system_eluent", 1L)
+  mongo.bson.buffer.append(fields, "system_eluent_pH", 1L)
+  mongo.bson.buffer.append(fields, "system_eluent_additive", 1L)
   mongo.bson.buffer.append(fields, "system_column", 1L)
+  mongo.bson.buffer.append(fields, "system_column_type", 1L)
   mongo.bson.buffer.append(fields, "system_ref", 1L)
   fields = mongo.bson.from.buffer(fields)
   
-  data_back = mongo.find.all(mongo, ns=ns,fields=fields)
+  data_back = mongo.find.all(mongo, ns=ns,fields=fields,mongo.oid2character = FALSE)
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -343,7 +346,7 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
 sys_oid2name <- function(sys_id_data){
   
   dbsystems <- get_systems()
-  sys_id_db = unlist(lapply(dbsystems,function(x) x$`_id`)  )
+  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
   sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
   
   system = sys_name[match(sys_id_data,sys_id_db)]
