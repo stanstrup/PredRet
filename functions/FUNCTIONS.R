@@ -4,11 +4,7 @@
 get_user_data <- function(ns,userID=NULL,generation=NULL) {
   require(rmongodb)
   
-  # System data to be able to convert sysid to sysname
-  dbsystems <- get_systems()
-  
-  
-  
+    
   
   # Select which items to get
   if(    (!is.null(userID))        |              (!is.null(generation))                ){
@@ -84,11 +80,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   
   
   # Get system name from system ID
-  sys_id_data = as.character(data_all[,"sys_id"])
-  sys_id_db = unlist(lapply(dbsystems,function(x) x$`_id`)  )
-  sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
-  
-  data = cbind.data.frame(data , system = sys_name[match(sys_id_data,sys_id_db)]          ,stringsAsFactors = F)
+  data = cbind.data.frame(data , system = sys_oid2name(data_all[,"sys_id"])          ,stringsAsFactors = F)
   
   
 
