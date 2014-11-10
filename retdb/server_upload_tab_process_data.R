@@ -14,7 +14,7 @@ data_cleaned <- reactive({
   
   
   # read data
-  temp_data = read.csv(input$files$datapath,stringsAsFactors=F)
+  temp_data = read.csv(input$files$datapath,stringsAsFactors=F,encoding="UTF-8")
   updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=10)
   
   
@@ -60,11 +60,11 @@ data_cleaned <- reactive({
   # Check if all relevant columns are present
   if(any(is.na(select))){
     
-    if(   (input$system_upload=="")   &   (     (any(is.na(select[c(1:4)])))   |   (  any(is.na(select[c(1:3,5)]))  )           )                        ){
+    if(   (input$system_upload=="")   &   !(     (all(!is.na(select[c(1:4)])))   |   (  all(!is.na(select[c(1:3,5)]))  )           )                        ){
       errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt", "method" and "pubchem" or "InChI" is required.'     ))
     }
     
-    if(   (!(input$system_upload==""))  &  (      (any(is.na(select[c(1,2,4)])))  |  (any(is.na(select[c(1,2,5)])))      )  ){
+    if(   (!(input$system_upload==""))  &  !(      (all(!is.na(select[c(1,2,4)])))  |  (all(!is.na(select[c(1,2,5)])))      )  ){
       errors$col_miss = list(error=1,msg=paste0('The following column(s) were not found: ',   paste0(cols_to_get[is.na(select)],collapse=", ")  ,'. "compound","rt" and "pubchem" or "InChI" is required.'     ))
     }
     
