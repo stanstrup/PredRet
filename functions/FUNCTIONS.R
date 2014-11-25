@@ -1052,7 +1052,7 @@ predict_RT <- function(predict_to_system) {
 
 query <- list(generation=0L,                     # only experimental data. predicted data is not used to predict in other systems. Yet...
               suspect=FALSE,                     # only use non-suspect data for prediction
-              sys_id=list('$in'=target_systems) # only compound we know in systems where we are able to make models
+              sys_id=list('$in'=c(target_systems,predict_to_system)) # only compound we know in systems where we are able to make models. and the RTs from the predict_to_system system
              )
 
 
@@ -1062,6 +1062,10 @@ query <- list(generation=0L,                     # only experimental data. predi
   
   
   
+# only compound we know in systems where we are able to make models
+select <- data_all[,"sys_id"] %in% target_systems 
+data_target <- data_all[select,,drop=F]
+
   
   
   # Run through each unique target inchi
