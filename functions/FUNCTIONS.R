@@ -1048,25 +1048,17 @@ predict_RT <- function(predict_to_system) {
   # get all rt data in database
   mongo <- mongo.create()
   ns    <- ns_rtdata
-  data_all = mongo.find.all(mongo=mongo, ns=ns,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T) # This can probably be done smarter so only the data we need is queried
+  
+
+query <- list(generation=0L,                     # only experimental data. predicted data is not used to predict in other systems. Yet...
+              suspect=FALSE,                     # only use non-suspect data for prediction
+              sys_id=list('$in'=target_systems) # only compound we know in systems where we are able to make models
+             )
+
+
+  data_all = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)  
-  
-  
-  # only experimental data. predicted data is not used to predict in other systems. Yet...
-  data_all <- data_all[data_all$generation==0,]
-  
-  # only use non-suspect data for prediction
-  data_all <- data_all[data_all$suspect==FALSE,]
-  
-  
-  # only compound we know in systems where we are able to make models
-  select <- data_all[,"sys_id"] %in% target_systems 
-  data_target <- data_all[select,,drop=F]
-  
-    
-  
-  
   
   
   
