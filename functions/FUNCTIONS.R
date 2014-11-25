@@ -173,16 +173,20 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   
   buf <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(buf, "sys_id", oid1)
+  mongo.bson.buffer.append(buf, "generation", 0L) # only experimental data. not predicted is used for the model.
+  mongo.bson.buffer.append(buf, "suspect", FALSE) # Don't use suspect values to calculate the model
   query <- mongo.bson.from.buffer(buf)
   rt_sys1 = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
-  rt_sys1 <- rt_sys1[rt_sys1$generation==0,] # only experimental data. not predicted is used for the model.
+  
   
   
   buf <- mongo.bson.buffer.create()
   mongo.bson.buffer.append(buf, "sys_id", oid2)
+  mongo.bson.buffer.append(buf, "generation", 0L) # only experimental data. not predicted is used for the model.
+  mongo.bson.buffer.append(buf, "suspect", FALSE) # Don't use suspect values to calculate the model
   query <- mongo.bson.from.buffer(buf)
   rt_sys2 = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
-  rt_sys2 <- rt_sys2[rt_sys2$generation==0,] # only experimental data. not predicted is used for the model.
+  
   
   
   del <- mongo.disconnect(mongo)
