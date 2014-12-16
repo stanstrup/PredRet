@@ -1,6 +1,6 @@
 require(boot)
-
-
+require(bisoreg)
+require(monoproc)
 
 loess.fun <- function(in_data,inds,newdata,span){
   require(monoProc)
