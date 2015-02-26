@@ -518,6 +518,7 @@ loess.fun <- function(in_data,inds,newdata,span){
 
 gam.mono.con.fun <- function(in_data,inds,newdata){
   require(mgcv)
+  require(pracma)
   x.star <- in_data[,1][inds]
   y.star <- in_data[,2][inds]
   
