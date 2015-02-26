@@ -1,4 +1,5 @@
 library(mgcv)
+library(pracma)
 
 # get data
 # comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system=="RIKEN"]),oid2 = unique(data$sys_id[data$system=="FEM_long"]),ns=ns_rtdata)
@@ -28,21 +29,26 @@ x.star <- comb_matrix$rt[,1]
 y.star <- comb_matrix$rt[,2]
 
 dat <- data.frame(x=x.star,y=y.star)
+
+
+
 f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
+w  <-  1 -     (abs(f.ug$residuals)/max(abs(f.ug$residuals)))
+w <- sigmoid(w, a = 50, b = 0.9)
+
 sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
 con <- mono.con(sm$xp);   # get constraints
-G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w=y.star*0+1)
+G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w = w   )
 G$Ain <- con$A
 G$bin <- con$b
 G$S <- sm$S
 G$off <- 0
-
-p <- pcls(G);  # fit spline (using s.p. from unconstrained fit)
+p <- pcls(G)
 
 fv<-Predict.matrix(sm,data.frame(x=newdata))%*%p
-
 y_pred <- as.numeric(fv)
 y_pred[y_pred < 0] = 0
+
 
 
 lines(newdata,y_pred)

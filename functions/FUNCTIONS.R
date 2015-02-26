@@ -531,9 +531,11 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   
   dat <- data.frame(x=x.star,y=y.star)
   f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
+  w  <-  1 -     (abs(f.ug$residuals)/max(abs(f.ug$residuals)))
+  w <- sigmoid(w, a = 50, b = 0.9)
   sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
   con <- mono.con(sm$xp);   # get constraints
-  G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w=y.star*0+1)
+  G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w=w)
   G$Ain <- con$A
   G$bin <- con$b
   G$S <- sm$S
