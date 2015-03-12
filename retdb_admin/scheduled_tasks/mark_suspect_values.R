@@ -52,6 +52,7 @@ for(i in 1:nrow(rtdata)){
       # predicted value in this model
       pred_select <- which.min(abs(models[[i2]]$newdata-x_org))
       ci <- models[[i2]]$ci[pred_select,]
+      ci <- as.data.frame(t(sapply(ci,unlist)))
       
       # see if outside CI*suspect_CI_multiplier
       ci_upper_lim <- with(ci,     (upper-pred)*suspect_CI_multiplier+pred        )
@@ -81,7 +82,7 @@ clean_list <- function(list){
 # Remove all NULL and zero length values (here the loop was skipped because the entry system was never used in a model or the entry was never used in a model)
 suspects_initial_clean <- clean_list(suspects_initial)
 suspects_initial_clean <- lapply(suspects_initial_clean,clean_list)
-suspects_initial_clean <- suspects_initial_clean[sapply(suspects_initial_clean,length)>1]
+suspects_initial_clean <- suspects_initial_clean[sapply(suspects_initial_clean,length)>0]
 
 
 #Making each entry data a data.frame
@@ -113,7 +114,8 @@ suspects_initial_clean_counts <- lapply(suspects_initial_clean,function(x) as.ma
 
 
 # Check when the entry is suspect in more than one system combination
-suspects_initial_clean_hit <- sapply(suspects_initial_clean_counts,function(x) any(x>1))
+n <- 0 # at least in one system. less safe and cannot pinpoint which system is to blame
+suspects_initial_clean_hit <- sapply(suspects_initial_clean_counts,function(x) any(x>n))
 
 
 
