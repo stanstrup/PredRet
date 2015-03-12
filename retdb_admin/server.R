@@ -1,4 +1,6 @@
+library(shiny)
 library(rCharts)
+library(shinyIncubator)
 
 shinyServer(function(input, output,session) {
 
