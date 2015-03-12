@@ -32,7 +32,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   # Select which columns/fields to get
   buf <- mongo.bson.buffer.create()
   
-  fields_to_get=c("_id","sys_id","name","pubchem","inchi","time","userID","username","generation")
+  fields_to_get=c("_id","sys_id","name","pubchem","inchi","time","userID","username","generation","suspect")
   
   
   if(!is.null(generation)){
@@ -519,11 +519,12 @@ loess.fun <- function(in_data,inds,newdata,span){
 gam.mono.con.fun <- function(in_data,inds,newdata){
   require(mgcv)
   require(pracma)
+  
   x.star <- in_data[,1][inds]
   y.star <- in_data[,2][inds]
   
-  #inds_saved[[length(inds_saved)+1]] <<- inds
-  #counter[length(counter)+1] <<- length(counter)+1
+#   inds_saved[[length(inds_saved)+1]] <<- inds
+#   counter[length(counter)+1] <<- length(counter)+1
   
   # We need at least 4 unique x-values to do the fit. So we add a small amount of jitter if it is not the case.
   if(length(unique(x.star))<4){
@@ -532,10 +533,22 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   
   dat <- data.frame(x=x.star,y=y.star)
   f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
-  w  <-  1 -     (abs(f.ug$residuals)/max(abs(f.ug$residuals)))
-  w <- sigmoid(w, a = 50, b = 0.9)
+
+
+w <- f.ug$residuals
+# w  <-  1 -     (abs(w)/max(abs(w)))
+#w  <-  1 -     abs(w)   /  max(  in_data[,2]   )
+# w <- sigmoid(w, a = 50, b = quantile(w,0.05))
+# w <- sigmoid(w, a = 50, b = 0.9)
+
+w <- abs(w)   /  max(  in_data[,2]   )
+w <- sigmoid(w, a = -30, b = 0.1)
+
+
   sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
   con <- mono.con(sm$xp);   # get constraints
+
+
   G <- list(X=sm$X,C=matrix(0,0,0),sp=f.ug$sp,p=sm$xp,y=y.star,w=w)
   G$Ain <- con$A
   G$bin <- con$b
@@ -544,6 +557,15 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   
   p <- pcls(G);  # fit spline (using s.p. from unconstrained fit)
   
+
+if(any(is.na(p))){ # some models fail when waited. dunno why
+  G$w <- rep(1,length(G$w))
+  p <- pcls(G);  # fit spline (using s.p. from unconstrained fit)
+}
+
+
+
+
   fv<-Predict.matrix(sm,data.frame(x=newdata))%*%p
   
   
@@ -1050,7 +1072,6 @@ predict_RT <- function(predict_to_system) {
   
   # get all rt data in database
   mongo <- mongo.create()
-  ns    <- ns_rtdata
   
 
 query <- list(generation=0L,                     # only experimental data. predicted data is not used to predict in other systems. Yet...
@@ -1059,10 +1080,11 @@ query <- list(generation=0L,                     # only experimental data. predi
              )
 
 
-  data_all = mongo.find.all(mongo=mongo, ns=ns,query=query,data.frame=T,mongo.oid2character=T)
-  del <- mongo.disconnect(mongo)
-  del <- mongo.destroy(mongo)  
-  
+  data_all = mongo.find.all(mongo=mongo, ns=ns_rtdata,query=query,data.frame=T,mongo.oid2character=T)
+
+
+del <- mongo.disconnect(mongo)
+del <- mongo.destroy(mongo) 
   
   
 # only compound we know in systems where we are able to make models
@@ -1182,21 +1204,38 @@ data_target <- data_all[select,,drop=F]
     predicted_data[i,"ci_upper"]     <- single_inchi_data[,"ci_upper"]
     predicted_data[i,"pubchem"]      <- single_inchi_data[,"pubchem"]
     predicted_data[i,"inchi"]        <- single_inchi_data[,"inchi"]
+    predicted_data[i,"generation"]   <- as.integer(1)
     
+
+
     # Get experimental value if it exists.
     select <- (predicted_data[i,"inchi"] == data_all[,"inchi"])    &   (predict_to_system == data_all[,"sys_id"])
     
+# query <- list(generation = 0L,
+#               sys_id     = predict_to_system,
+#               inchi      = predicted_data[i,"inchi"]
+# )
+# 
+# 
+# rec_rt = mongo.find.all(mongo=mongo, ns=ns_rtdata,query=query,field=list(recorded_rt = 1L,sys_id=1L,inchi=1L,generation=1L),data.frame=T,mongo.oid2character=T)
+
+
+
     if(any(select)){
       predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"recorded_rt"]
     }else{
       predicted_data[i,"recorded_rt"] <- as.numeric(NA)
     }
     
-    predicted_data[i,"generation"] <- as.integer(1)
+    
     
   }
   
-  
+
+
+
+
+
   # Remove compounds for which no prediction could be made
   predicted_data <- predicted_data[        !is.na(predicted_data$predicted_rt)       ,   ,drop=FALSE]
   
