@@ -1142,8 +1142,8 @@ data_target <- data_all[select,,drop=F]
     
     
     # We select just the one with the most narrow CI (relative value)
-    best_pred <- which.min(single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])
-    #best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
+    #best_pred <- which.min(single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])
+    best_pred <- which.min((single_inchi_data[,"ci_upper"]-single_inchi_data[,"ci_lower"])/single_inchi_data[,"predicted"]) # using the relative seems to give worse results
     
     single_inchi_data <- single_inchi_data[best_pred,,drop=F]
     
