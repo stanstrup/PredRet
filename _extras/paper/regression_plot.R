@@ -1,3 +1,5 @@
+library(ggplot2)
+
 library(MASS)
 r2 <- function(x){  
   SSe <- sum((x$resid)^2);  
