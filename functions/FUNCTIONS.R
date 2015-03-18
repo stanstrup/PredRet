@@ -489,6 +489,22 @@ rmongodb.robj2data.frame <- function(x){
 
 
 
+purge_predictions <- function(ns,sys_id=NULL){
+  mongo <- mongo.create()
+  
+  
+  if(is.null(sys_id)){
+    mongo.remove(mongo, ns=ns, criteria = list(generation = 1))
+  }else{
+    mongo.remove(mongo, ns=ns, criteria = list(generation = 1,sys_id=sys_id))
+  }
+  
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+  
+}
+
+
 
 
 ## Functions for prediction #####################
