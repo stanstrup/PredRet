@@ -1,37 +1,31 @@
 ## Functions for database query #####################
 
 
-get_user_data <- function(ns,userID=NULL,generation=NULL) {
+get_user_data <- function(ns,userID=NULL,generation=NULL,suspect=NULL) {
   require(rmongodb)
   
-    
+  
   
   # Select which items to get
-  if(    (!is.null(userID))        |              (!is.null(generation))                ){
-    buf <- mongo.bson.buffer.create()
-    
-        
-    if(!is.null(userID)){
-      mongo.bson.buffer.append(buf, "userID", userID)
-    }
-    
-    if(!is.null(generation)){
-      mongo.bson.buffer.append(buf, "generation", generation)
-    }
-    
-    
-    query <- mongo.bson.from.buffer(buf)
-    
-  }else{
-    query <- mongo.bson.empty()
+  query <- list()    
+  
+  if(!is.null(userID)){
+    query[["userID"]] <- userID
+  }
+  
+  if(!is.null(generation)){
+    query[["generation"]] <- generation
+  }
+  
+
+  if(!is.null(suspect)){
+    query[["suspect"]] <- suspect
   }
   
   
   
-  
   # Select which columns/fields to get
-  buf <- mongo.bson.buffer.create()
-  
+  fields <- list()
   fields_to_get=c("_id","sys_id","name","pubchem","inchi","time","userID","username","generation","suspect")
   
   
@@ -45,12 +39,14 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
     fields_to_get = c(fields_to_get,"recorded_rt",c("predicted_rt","ci_lower","ci_upper"))
   }
   
+  
+  
   for(i in 1:length(fields_to_get)){
-    mongo.bson.buffer.append(buf, fields_to_get[i], 1L)
+    fields[[  fields_to_get[i]  ]]   <- 1L
   }
   
   
-  fields <- mongo.bson.from.buffer(buf)
+  
   
   
   # Read the data
@@ -83,7 +79,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL) {
   data = cbind.data.frame(data , system = sys_oid2name(data_all[,"sys_id"])          ,stringsAsFactors = F)
   
   
-
+  
   
   return(data)
 }
