@@ -97,7 +97,8 @@ navbarPage("",
                                     ),
                                     
                                     wellPanel(
-                                      div(actionButton("purge_predictions","purge ALL predictions") ,style="width:180px;margin: 0 auto;")
+                                      div(actionButton("purge_predictions","purge ALL predictions") ,style="text-align: center;margin: 0 auto;margin-bottom: 15px;"),
+                                      div(actionButton("purge_models","purge ALL models") ,style="text-align: center;margin: 0 auto;")
                                     )
                              ),
                              

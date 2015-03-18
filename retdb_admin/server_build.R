@@ -142,7 +142,18 @@ observe({
 })
 
 
-
+observe({
+  if(input$purge_models==0) return(NULL)  
+  
+  isolate({    
+    mongo <- mongo.create()
+    mongo.drop(mongo, ns=ns_sysmodels)
+    del <- mongo.disconnect(mongo)
+    del <- mongo.destroy(mongo) 
+    
+    })
+  
+})
 
 
 
