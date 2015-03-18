@@ -35,7 +35,7 @@ output$system_upload <- renderUI({
 
 
 ## Clean up the uploaded data and extract the relevant data ###########################
-source("server_upload_tab_process_data.R",local=TRUE)
+source("server/server_upload_tab_process_data.R",local=TRUE)
 
 
 

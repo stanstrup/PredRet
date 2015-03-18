@@ -40,12 +40,12 @@ shinyServer(function(input, output,session) {
   
   
   ## Tabs ##################
-  source("server_upload_tab.R",local=TRUE)
-  source("server_system_tab.R",local=TRUE)
-  source("server_manage.R",local=TRUE)
-  source("server_suspect_values.R",local=TRUE)
-  source("server_predictions_tab.R",local=TRUE)
-  source("server_data_tab.R",local=TRUE)
+  source("server/server_upload_tab.R",local=TRUE)
+  source("server/server_system_tab.R",local=TRUE)
+  source("server/server_manage.R",local=TRUE)
+  source("server/server_suspect_values.R",local=TRUE)
+  source("server/server_predictions_tab.R",local=TRUE)
+  source("server/server_data_tab.R",local=TRUE)
   
   
   # some shared reactives ##################
