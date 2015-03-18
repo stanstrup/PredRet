@@ -21,11 +21,7 @@ mongo <- mongo.create()
 
 
 # We get the time of the last entry in the rt database
-criteria_data_time <- mongo.bson.buffer.create()
-mongo.bson.buffer.append(criteria_data_time, "generation", 0L)
-criteria_data_time <- mongo.bson.from.buffer(criteria_data_time)
-
-data_time <- mongo.find.all(mongo,ns=ns_rtdata,query=criteria_data_time,field=list(time=1L))
+data_time <- mongo.find.all(mongo,ns=ns_rtdata,   query=list(generation = 0L),   field=list(time=1L)    )
 data_time_max <- max(sapply(data_time,function(x) x$time))
 
 
@@ -35,11 +31,7 @@ for(i in 1:length(sys_models_oid2)){
   # We get the time of the latest model that predicts to the system we are interested in
   # we check if:
   # 1) there is new data since last model build.
-  criteria_model_time <- mongo.bson.buffer.create()
-  mongo.bson.buffer.append(criteria_model_time, "oid_sys2", sys_models_oid2[i])
-  criteria_model_time <- mongo.bson.from.buffer(criteria_model_time)
-  model_time <- mongo.find.all(mongo,ns=ns_sysmodels,query=criteria_model_time,field=list(time=1L))
-  
+  model_time     <- mongo.find.all(mongo,ns=ns_sysmodels,query=list(oid_sys2 = sys_models_oid2[i]),field=list(time=1L))
   model_time_max <- max(sapply(model_time,function(x) x$time))
   
   # 2) if there has ever been any data predicted
@@ -50,17 +42,19 @@ for(i in 1:length(sys_models_oid2)){
   
   
   # If there is any new experimental data we predict all data again.
+  purge_predictions(ns=ns_rtdata,sys_id=sys_models_oid2[i]) # purge old predictions
   predicted_data <- predict_RT(sys_models_oid2[i])
   if(is.null(predicted_data)) next
   
   
   for(i2 in 1:nrow(predicted_data)){
     # We check if we already have an identical prediction. If so then we don't rewrite the entry. To avoid updating the date
-    criteria_exists <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append(criteria_exists, "sys_id", sys_models_oid2[i])
-    mongo.bson.buffer.append(criteria_exists, "inchi", predicted_data[i2,"inchi"])
-    mongo.bson.buffer.append(criteria_exists, "predicted_rt", predicted_data[i2,"predicted_rt"])
-    criteria_exists <- mongo.bson.from.buffer(criteria_exists)
+    criteria_exists <- list(
+                             sys_id       = sys_models_oid2[i],
+                             inchi        = predicted_data[i2,"inchi"],
+                             predicted_rt = predicted_data[i2,"predicted_rt"]
+                           )
+    
     
     identical_count <- mongo.count(mongo, ns=ns_rtdata, query = criteria_exists)
     
@@ -70,11 +64,11 @@ for(i in 1:length(sys_models_oid2)){
     # Writing the data.
     bson_data = mongo.bson.from.df(predicted_data[i2,,drop=FALSE])
     
-    criteria <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append(criteria, "sys_id", sys_models_oid2[i])
-    mongo.bson.buffer.append(criteria, "inchi", predicted_data[i2,"inchi"])
-    mongo.bson.buffer.append(criteria, "generation", 1L)
-    criteria <- mongo.bson.from.buffer(criteria)
+    criteria <- list(
+                      sys_id     = sys_models_oid2[i],
+                      inchi      = predicted_data[i2,"inchi"],
+                      generation = 1L
+                    )
 
     status = mongo.update(mongo, ns=ns_rtdata, criteria, objNew=bson_data[[1]],flags=1L)
 
