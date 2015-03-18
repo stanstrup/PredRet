@@ -137,7 +137,7 @@ observe({
 observe({
   if(input$purge_predictions==0) return(NULL)  
   
-  isolate({        purge_predictions(ns=ns_rtdata)      })
+  isolate({        purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats)      })
   
 })
 

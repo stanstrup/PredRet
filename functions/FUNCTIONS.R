@@ -489,14 +489,16 @@ rmongodb.robj2data.frame <- function(x){
 
 
 
-purge_predictions <- function(ns,sys_id=NULL){
+purge_predictions <- function(ns_rtdata,ns_pred_stats,sys_id=NULL){
   mongo <- mongo.create()
   
   
   if(is.null(sys_id)){
-    mongo.remove(mongo, ns=ns, criteria = list(generation = 1))
+    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1))
+    mongo.drop(mongo, ns=ns_pred_stats)
   }else{
-    mongo.remove(mongo, ns=ns, criteria = list(generation = 1,sys_id=sys_id))
+    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1,sys_id=sys_id))
+    mongo.remove(mongo, ns=ns_pred_stats, criteria = list(sys_oid=sys_id))
   }
   
   del <- mongo.disconnect(mongo)

@@ -42,7 +42,7 @@ for(i in 1:length(sys_models_oid2)){
   
   
   # If there is any new experimental data we predict all data again.
-  purge_predictions(ns=ns_rtdata,sys_id=sys_models_oid2[i]) # purge old predictions
+  purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats,sys_id=sys_models_oid2[i]) # purge old predictions
   predicted_data <- predict_RT(sys_models_oid2[i])
   if(is.null(predicted_data)) next
   
