@@ -3,7 +3,7 @@ library(shinyBS)
 navbarPage("",
              
 
-           
+             ## Introduction ################
              tabPanel('Introduction',
                                       fluidPage(
                                         
@@ -19,7 +19,7 @@ navbarPage("",
                       
            
            
-           
+              ## Upload ################
                         tabPanel('Upload data',
 
                                                    # Hidden input boxes to save java variable to
@@ -62,7 +62,7 @@ navbarPage("",
            
            
            
-                        
+           ## Add or modify system ################
                         tabPanel('Add or modify system',
                                                            fluidPage(style="margin: 0 auto;max-width: 800px;",
                                                                                #headerPanel("Add or modify system"),
@@ -148,7 +148,7 @@ navbarPage("",
              
            
            
-           
+           ## Manage your data ################
                        tabPanel('Manage your data',
                                 HTML('<script>document.domain = "predret.org"</script>'),
                                 
@@ -220,6 +220,29 @@ navbarPage("",
            
            
            
+           
+           
+           ## Inspect suspect values ################
+           tabPanel('Inspect suspect values',
+                    
+                    fluidPage(style="margin: 0 auto",
+                              wellPanel( style="margin: 0 auto;margin-top:30px;padding-bottom:0px;max-width: 600px;",
+                                         includeMarkdown("markdowns/suspect_text.md")
+                                       ),
+                              div(downloadButton('download_suspect_Data', 'Download your data'),style="text-align: right;margin-bottom:20px"),
+                              dataTableOutput("SUSPECT_data")
+                      
+                    )
+                    
+           ),
+           
+           
+           
+           
+           
+           
+           
+           ## Get predictions ################
                        tabPanel('Get predictions',
                                 fluidPage(
                                             uiOutput("PREDICTIONS_select_system"),
@@ -239,7 +262,7 @@ navbarPage("",
                       
                 
            
-           
+           ## Get all data ################
            tabPanel('Get all data',
                     fluidPage(
                       
