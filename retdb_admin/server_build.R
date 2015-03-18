@@ -137,14 +137,8 @@ observe({
 observe({
   if(input$purge_predictions==0) return(NULL)  
   
-  isolate({
-    mongo <- mongo.create()
-    
-    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1))
-    
-    del <- mongo.disconnect(mongo)
-    del <- mongo.destroy(mongo) 
-  })
+  isolate({        purge_predictions(ns=ns_rtdata)      })
+  
 })
 
 
