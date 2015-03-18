@@ -7,5 +7,5 @@ predict_near_x_bw_mult <- 0.03
 
 
 # Limits for suspect values.
-suspect_CI_multiplier <- 3
+suspect_CI_multiplier <- 2
 
