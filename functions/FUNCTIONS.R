@@ -373,7 +373,7 @@ log_count <- function(ns){
   require(rmongodb)
   
   mongo <- mongo.create()
-  n = mongo.count(mongo, ns=ns_sysmodels_log )
+  n <- mongo.count(mongo, ns=ns )
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
