@@ -11,7 +11,7 @@ library(PredRetR)
 
 
 ## get data needed ##################
-rtdata <- get_user_data(ns=ns_rtdata,generation=0)
+rtdata <- get_user_data(ns=ns_rtdata,ns_sysmodels=ns_sysmodels,generation=0)
 
 models <- get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
 models_oid_sys1 <- sapply(models,function(x) x$oid_sys1)

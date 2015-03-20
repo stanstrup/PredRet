@@ -11,7 +11,7 @@ library(PredRetR)
 ## Make the predictions ##################
 models <- get_models(ns = ns_sysmodels) # change to models() if running in shiny
 sys_models_oid2 <- sapply(models,function(x) x$oid_sys2)
-sys_models_oid2_name <-  sys_oid2name(sys_models_oid2)
+sys_models_oid2_name <-  sys_oid2name(ns=ns_chrom_systems,sys_models_oid2)
 sys_models_oid2_name <- sys_models_oid2_name[!duplicated(sys_models_oid2)]
 sys_models_oid2 <- sys_models_oid2[!duplicated(sys_models_oid2)]
 
