@@ -35,7 +35,7 @@
 \alias{predict_RT}
 
 % Plotting
-\alias{rCharts}
+\alias{plot_systems}
 
 
 

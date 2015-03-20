@@ -26,7 +26,9 @@ export(log_count, # database queries
        boot2ci,
        boot2ci_PI,
        build_model,
-       predict_RT
+       predict_RT,
+       
+       plot_systems # plotting
 )
 
 
