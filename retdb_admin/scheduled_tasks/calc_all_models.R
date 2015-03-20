@@ -2,13 +2,13 @@
 source("../settings/mongodb.R",local=TRUE)
 
 
-## functions ##################
-source("../functions/FUNCTIONS.R",local=TRUE)
+## packages ##################
+library(PredRetR)
 
 
 
 ## Re-calc all models ##################
-systems <- get_systems()
+systems <- get_systems(ns = ns_chrom_systems)
 
 systems <- lapply(systems,function(x) {
                                           y <- x

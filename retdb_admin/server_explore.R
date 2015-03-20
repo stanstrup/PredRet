@@ -30,7 +30,7 @@ output$chart1 <- renderChart2({
   
   
   
-  models_extended = get_models(include.loess=TRUE,include.ci = TRUE,include.newdata = TRUE )
+  models_extended = get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci = TRUE,include.newdata = TRUE )
   
   
   oids = do.call(rbind,lapply(models_extended,function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))

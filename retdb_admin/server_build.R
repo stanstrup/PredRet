@@ -1,7 +1,7 @@
 
 ## Select boxes ################# 
 
-systems <- reactive({get_systems()})
+systems <- reactive({get_systems(ns=ns_chrom_systems)})
 
 
 output$build_sys1 <- renderUI({

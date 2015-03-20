@@ -6,6 +6,8 @@ library(rmongodb.quick)
 library(chemhelper)
 library(Rdisop)
 library(stringr)
+library(PredRetR)
+
 
 shinyServer(function(input, output,session) {
 
@@ -36,7 +38,7 @@ shinyServer(function(input, output,session) {
   
   ## functions ##################
   source("functions/inputTextarea.R",local=TRUE)
-  source("functions/FUNCTIONS.R",local=TRUE)
+  
   
   
   ## Tabs ##################
@@ -49,7 +51,7 @@ shinyServer(function(input, output,session) {
   
   
   # some shared reactives ##################
-  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
+  models <- reactive({get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
 
   })
 

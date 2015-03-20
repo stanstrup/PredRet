@@ -1,4 +1,12 @@
+library(shiny)
 library(shinyBS)
+library(xlsx)
+library(rmongodb)
+library(rmongodb.quick)
+library(chemhelper)
+library(Rdisop)
+library(stringr)
+library(PredRetR)
 
 navbarPage("",
              

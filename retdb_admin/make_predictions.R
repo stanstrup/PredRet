@@ -31,7 +31,7 @@
 
 
 # Get all systems in the db
-systems_all = get_systems() # replace with systems_in_db()
+systems_all = get_systems(ns=ns_chrom_systems) # replace with systems_in_db()
 
 # get oids
 systems_all_oids = as.character(unlist(lapply(systems_all,function(x)  x$`_id`)))

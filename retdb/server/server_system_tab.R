@@ -3,7 +3,7 @@ systems_in_db <- reactive({
   # Make sure it updates on submission
   input$submit_system
   
-  data_back <- get_systems()
+  data_back <- get_systems(ns=ns_chrom_systems)
   return(data_back)
 })
 

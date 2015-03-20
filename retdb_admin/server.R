@@ -1,6 +1,7 @@
 library(shiny)
 library(rCharts)
 library(shinyIncubator)
+library(PredRetR)
 
 shinyServer(function(input, output,session) {
 
@@ -31,12 +32,9 @@ shinyServer(function(input, output,session) {
   source("settings/predictions.R",local=TRUE)
   
   
-  ## functions ##################
-  source("functions/FUNCTIONS.R",local=TRUE)
-
   
   # some shared reactives ##################
-  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE ,include.xy_mat=TRUE)})
+  models <- reactive({get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE ,include.xy_mat=TRUE)})
   
   
     

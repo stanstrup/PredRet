@@ -1,7 +1,7 @@
 setwd("/srv/shiny-server/shiny.apps/apps/retpred_shiny/retdb_admin/scheduled_tasks")
 source("../settings/mongodb.R",local=TRUE)
 source("../settings/predictions.R",local=TRUE)
-source("../functions/FUNCTIONS.R",local=TRUE)
+library(PredRetR)
 
 purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats) 
 
@@ -23,7 +23,7 @@ setwd("/srv/shiny-server/shiny.apps/apps/retpred_shiny")
 setwd("/home/jan/git_repositories/retpred_shiny/retdb_admin/scheduled_tasks")
 source("../settings/mongodb.R",local=TRUE)
 source("../settings/predictions.R",local=TRUE)
-source("../functions/FUNCTIONS.R",local=TRUE)
+library(PredRetR)
 
 purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats) 
 

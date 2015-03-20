@@ -3,8 +3,8 @@ source("../settings/mongodb.R",local=TRUE)
 source("../settings/predictions.R",local=TRUE)
 
 
-## functions ##################
-source("../functions/FUNCTIONS.R",local=TRUE)
+## packages ##################
+library(PredRetR)
 
 
 
@@ -13,7 +13,7 @@ source("../functions/FUNCTIONS.R",local=TRUE)
 ## get data needed ##################
 rtdata <- get_user_data(ns=ns_rtdata,generation=0)
 
-models <- get_models(include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
+models <- get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
 models_oid_sys1 <- sapply(models,function(x) x$oid_sys1)
 models_oid_sys2 <- sapply(models,function(x) x$oid_sys2)
 

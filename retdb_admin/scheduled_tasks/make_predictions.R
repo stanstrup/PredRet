@@ -3,13 +3,13 @@ source("../settings/mongodb.R",local=TRUE)
 source("../settings/predictions.R",local=TRUE)
 
 
-## functions ##################
-source("../functions/FUNCTIONS.R",local=TRUE)
+## packages ##################
+library(PredRetR)
 
 
 
 ## Make the predictions ##################
-models <- get_models() # change to models() if running in shiny
+models <- get_models(ns = ns_sysmodels) # change to models() if running in shiny
 sys_models_oid2 <- sapply(models,function(x) x$oid_sys2)
 sys_models_oid2_name <-  sys_oid2name(sys_models_oid2)
 sys_models_oid2_name <- sys_models_oid2_name[!duplicated(sys_models_oid2)]
@@ -43,7 +43,17 @@ for(i in 1:length(sys_models_oid2)){
   
   # If there is any new experimental data we predict all data again.
   purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats,sys_id=sys_models_oid2[i]) # purge old predictions
-  predicted_data <- predict_RT(sys_models_oid2[i])
+  predicted_data <- predict_RT(predict_to_system=sys_models_oid2[i],
+                               ns_sysmodels=ns_sysmodels,
+                               ns_rtdata=ns_rtdata,
+                               ci_width_limit=ci_width_limit,
+                               ci_width_limit_rel=ci_width_limit_rel,
+                               predict_near_x_density_lim=predict_near_x_density_lim,
+                               predict_near_x_bw_mult=predict_near_x_bw_mult
+                               )
+  
+  
+  
   if(is.null(predicted_data)) next
   
   
