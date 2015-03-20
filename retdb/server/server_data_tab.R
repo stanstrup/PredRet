@@ -39,7 +39,7 @@ DATA_data <- reactive({
   data_all[,"time"] <- as.POSIXct(as.numeric(data_all[,"time"]), origin = "1970-01-01", tz = "GMT") - time_zone_offset()
   
   data_all <- data_all[c("name","sys_id","username","recorded_rt","pubchem","inchi","time")]
-  data_all[,"sys_id"] <- sys_oid2name(data_all[,"sys_id"])
+  data_all[,"sys_id"] <- sys_oid2name(ns=ns_chrom_systems,data_all[,"sys_id"])
   colnames(data_all) <- c("Name","System","Username","RT","Pubchem","InChI","Time")
   
   
@@ -63,7 +63,7 @@ output$DATA_select_system <- renderUI({
   del <- mongo.destroy(mongo) 
   
   
-  DATA_sys_oids_name <-  sys_oid2name(DATA_sys_oids)
+  DATA_sys_oids_name <-  sys_oid2name(ns=ns_chrom_systems,DATA_sys_oids)
   
   
   

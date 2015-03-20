@@ -93,7 +93,7 @@ get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=F
 }
 
 
-get_build_log <- function(ns,time_offset=0){
+get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
   
   
   mongo <- mongo.create()
@@ -112,7 +112,7 @@ get_build_log <- function(ns,time_offset=0){
   sysmodel_log <- do.call(rbind,sysmodel_log)
   
   # Change sys oids to names  
-  log_sys_names = sys_oid2name(as.character(as.matrix(sysmodel_log[,c("oid_sys1","oid_sys2")])))
+  log_sys_names = sys_oid2name(ns=ns_chrom_systems,as.character(as.matrix(sysmodel_log[,c("oid_sys1","oid_sys2")])))
   dim(log_sys_names) <- c(length(log_sys_names)/2,2)
   sysmodel_log[,c("oid_sys1","oid_sys2")] <- log_sys_names
   

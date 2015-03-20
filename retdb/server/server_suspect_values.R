@@ -3,7 +3,7 @@ suspect_users_data <-  reactive({
   data_has_been_written$done # Update if data written to db
   data_was_deleted$done # database deletions are done
   
-  data <- get_user_data(ns=ns_rtdata,userID=userID(),generation=0L,suspect=TRUE) 
+  data <- get_user_data(ns=ns_rtdata,ns_sysmodels=ns_sysmodels,userID=userID(),generation=0L,suspect=TRUE) 
   
   
   

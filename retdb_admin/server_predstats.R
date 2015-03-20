@@ -15,7 +15,7 @@ output$PREDSTATS_table <- renderDataTable({
   predstats <- do.call(rbind,predstats)
   
   # Change sysid to sysname
-  sys_names       <- sys_oid2name(prediction_to_oids)
+  sys_names       <- sys_oid2name(ns=ns_chrom_systems,prediction_to_oids)
   predstats <- cbind.data.frame(System = sys_names,predstats)
   
   

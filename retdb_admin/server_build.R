@@ -57,7 +57,7 @@ output$build_table <- renderDataTable({
   
   
   # Change sysid to sysname
-  sys_names = sys_oid2name(as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
+  sys_names = sys_oid2name(ns=ns_chrom_systems,as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
   dim(sys_names)=c(length(sys_names)/2,2)
   models_table[,c("Prediction from","Prediction to")] <- sys_names
   
@@ -173,7 +173,7 @@ build_log_settings <- reactive({
 })
 
 
-build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns_sysmodels_log,time_offset = time_zone_offset()))
+build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns=ns_sysmodels_log,ns_chrom_systems=ns_chrom_systems,time_offset = time_zone_offset()))
 
 output$build_log <- renderDataTable(build_log(),
                                     options=list(pageLength = 10,aoColumnDefs=build_log_settings(), columns=NULL,AutoWidth=FALSE    ),

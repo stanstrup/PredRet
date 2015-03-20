@@ -34,7 +34,7 @@ output$PREDICTIONS_select_system <- renderUI({
   
   
   sys_models_oid1 <- prediction_to_oids[,"sys_oid"]
-  sys_models_oid1_name <-  sys_oid2name(sys_models_oid1)
+  sys_models_oid1_name <-  sys_oid2name(ns=ns_chrom_systems,sys_models_oid1)
   
   
   
