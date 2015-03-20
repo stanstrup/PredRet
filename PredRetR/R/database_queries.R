@@ -128,9 +128,9 @@ get_build_log <- function(ns,time_offset=0){
 }
 
 
-sys_oid2name <- function(sys_id_data){
+sys_oid2name <- function(ns,sys_id_data){
   
-  dbsystems <- get_systems()
+  dbsystems <- get_systems(ns)
   sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
   sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
   
@@ -169,7 +169,7 @@ get_systems <- function(ns) {
 }
 
 
-get_user_data <- function(ns,userID=NULL,generation=NULL,suspect=NULL) {  
+get_user_data <- function(ns,ns_sysmodels,userID=NULL,generation=NULL,suspect=NULL) {  
   
   
   # Select which items to get
@@ -242,7 +242,7 @@ get_user_data <- function(ns,userID=NULL,generation=NULL,suspect=NULL) {
   
   
   # Get system name from system ID
-  data = cbind.data.frame(data , system = sys_oid2name(data_all[,"sys_id"])          ,stringsAsFactors = F)
+  data = cbind.data.frame(data , system = sys_oid2name(ns=ns_sysmodels,data_all[,"sys_id"])          ,stringsAsFactors = F)
   
   
   
