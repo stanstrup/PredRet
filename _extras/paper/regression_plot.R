@@ -1,4 +1,9 @@
 library(ggplot2)
+library(PredRetR)
+
+
+source("settings/mongodb.R")
+
 
 library(MASS)
 r2 <- function(x){  
