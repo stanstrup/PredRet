@@ -169,7 +169,7 @@ get_systems <- function(ns) {
 }
 
 
-get_user_data <- function(ns,ns_sysmodels,userID=NULL,generation=NULL,suspect=NULL) {  
+get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspect=NULL) {  
   
   
   # Select which items to get
@@ -242,7 +242,7 @@ get_user_data <- function(ns,ns_sysmodels,userID=NULL,generation=NULL,suspect=NU
   
   
   # Get system name from system ID
-  data = cbind.data.frame(data , system = sys_oid2name(ns=ns_sysmodels,data_all[,"sys_id"])          ,stringsAsFactors = F)
+  data = cbind.data.frame(data , system = sys_oid2name(ns=ns_chrom_systems,data_all[,"sys_id"])          ,stringsAsFactors = F)
   
   
   

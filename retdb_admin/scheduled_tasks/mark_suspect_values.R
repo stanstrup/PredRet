@@ -11,7 +11,7 @@ library(PredRetR)
 
 
 ## get data needed ##################
-rtdata <- get_user_data(ns=ns_rtdata,ns_sysmodels=ns_sysmodels,generation=0)
+rtdata <- get_user_data(ns=ns_rtdata,ns_chrom_systems = ns_chrom_systems,generation=0)
 
 models <- get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
 models_oid_sys1 <- sapply(models,function(x) x$oid_sys1)
@@ -22,7 +22,11 @@ unique_inchi <- as.matrix(table(rtdata$inchi))
 unique_inchi <- rownames(unique_inchi)[unique_inchi>1]
 
 
-
+## Reset suspect list ##################
+# mongo <- mongo.create()
+# mongo.update(mongo, ns=ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
+# del <- mongo.disconnect(mongo)
+# del <- mongo.destroy(mongo)
 
 
 
