@@ -431,7 +431,49 @@ predict_RT <- function(predict_to_system,
       single_inchi_data[i2,"ci_upper"]  <- current_model$ci[close_rt,3]
     }
     
+        
     
+    
+    
+    
+    # Set limits on the width of the CI interval at the point of prediction
+    # ci_width_limit and ci_width_limit_rel are stored in /settings/predictions.R
+    ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
+    ci_width_rel <-     ci_width   /   single_inchi_data$predicted
+    
+    select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
+    
+    if (!any(select)) next
+    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
+    
+    
+    
+    
+    
+    # Throw out predictions based on a recorded_rt with too low number of observations (density) in that RT area.
+    models_oids   <- t(sapply(models_extended,function(x) c(x$oid_sys1,x$oid_sys2)))
+    models_select <-  (models_oids[,1] %in%  single_inchi_data[,"sys_id"])        &            (predict_to_system == models_oids[,2])
+    
+    order <- match(single_inchi_data$sys_id, models_oids[models_select,1]) # when we run through the models we need to do it in the order they appear in single_inchi_data
+    models_select <- which(models_select)[order]
+    
+    
+    select = NULL
+    for(i2 in 1:length(models_select)){
+      xy_mat <- models_extended[[models_select[i2]]]$xy_mat
+      
+      dens <- density(xy_mat[,1], n = 512 * 8,bw=predict_near_x_bw_mult*max(xy_mat[,1]))
+      dens_fun <- with(dens, approxfun(x = x, y = y))
+      
+      select[i2] <- dens_fun(single_inchi_data[i2,"recorded_rt"]) > predict_near_x_density_lim
+    }
+    
+    
+    if (!any(select,na.rm = TRUE)) next
+    
+    select <- which(select) # if it is NA it means it is outside the range so we remove it too. Need to turn it into indeces
+    
+    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
     
     
     
@@ -448,37 +490,6 @@ predict_RT <- function(predict_to_system,
     
     
     
-    
-    
-    # Set limits on the width of the CI interval at the point of prediction
-    # ci_width_limit and ci_width_limit_rel are stored in /settings/predictions.R
-    ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
-    ci_width_rel <-     ci_width   /   single_inchi_data$predicted
-    
-    select <- ci_width < ci_width_limit | ci_width_rel < ci_width_limit_rel
-    
-    if (!any(select)) next
-    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
-    
-    
-    
-    
-    
-    # Throw out predictions based on a recorded_rt with too low number of observations (density) in that RT area.
-    models_oids   <- t(sapply(models_extended,function(x) c(x$oid_sys1,x$oid_sys2)))
-    models_select <- single_inchi_data[,"sys_id"] == models_oids[,1]           &            predict_to_system == models_oids[,2]
-    
-    xy_mat <- models_extended[[which(models_select)]]$xy_mat
-    
-    dens <- density(xy_mat[,1], n = 512 * 8,bw=predict_near_x_bw_mult*max(xy_mat[,1]))
-    dens_fun <- with(dens, approxfun(x = x, y = y))
-    
-    select <- dens_fun(single_inchi_data[,"recorded_rt"]) > predict_near_x_density_lim
-    if (!any(select,na.rm = TRUE)) next
-    
-    select <- which(select)[!is.na(select)] # if it is NA it means it is outside the range so we remove it too. Need to turn it into indeces
-    
-    single_inchi_data <- single_inchi_data[select,,drop=FALSE]
     
     
     
@@ -520,7 +531,7 @@ predict_RT <- function(predict_to_system,
     
     
     if(any(select)){
-      predicted_data[i,"recorded_rt"] <- data_all[which(select)[1],"recorded_rt"]
+      predicted_data[i,"recorded_rt"] <- median(data_all[which(select),"recorded_rt"])
     }else{
       predicted_data[i,"recorded_rt"] <- as.numeric(NA)
     }
