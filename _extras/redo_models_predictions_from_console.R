@@ -20,7 +20,7 @@ setwd("/srv/shiny-server/shiny.apps/apps/retpred_shiny")
 
 
 
-setwd("/home/jan/git_repositories/retpred_shiny/retdb_admin/scheduled_tasks")
+setwd("~/git_repositories/predret_shiny/retdb_admin/scheduled_tasks")
 source("../settings/mongodb.R",local=TRUE)
 source("../settings/predictions.R",local=TRUE)
 library(PredRetR)
@@ -35,7 +35,7 @@ source("calc_all_models.R")
 source("mark_suspect_values.R")
 source("make_predictions.R")
 
-setwd("/home/jan/git_repositories/retpred_shiny")
+setwd("/home/jan/git_repositories/predret_shiny")
 
 
 
