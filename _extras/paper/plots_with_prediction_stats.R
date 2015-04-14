@@ -268,7 +268,7 @@ p7 <- p7 + geom_bar(data = subset(temp, variable %in% c("N_sys")),aes(x = system
 p7 <- p7 + plottheme
 p7 <- p7 + labs(title="Number of RTs and predictions made",fill="",y="# Experimental RTs        # Predictions")
 p7 <- p7 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
-p7 <- p7 + scale_fill_discrete(labels = c("Predictions where experimental RT is unknown","Predictions where experimental RT is known","RTs in database"))
+p7 <- p7 + scale_fill_discrete(labels = c("Predictions where experimental RT is known","Predictions where experimental RT is unknown","RTs in database"))
 
 p7 <- p7 +  scale_y_continuous(breaks=seq(-1000,1000,100),labels = commapos) # make negative scale positive
 p7 <- p7 +  geom_hline(yintercept = 0,colour = "grey90")
