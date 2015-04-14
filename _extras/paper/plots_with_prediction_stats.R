@@ -450,6 +450,15 @@ dev.off()
 
 
 
+cairo_ps("_extras/paper/prediction_stats.eps",width=12, height=15, pointsize=12,bg="white")
+grid.arrange(p7, p10, p6, p5,p9,p8 ,
+             ncol=2, 
+             #main="Prediction statistics"
+             main=""
+)
+dev.off()
+
+
 
 
 
