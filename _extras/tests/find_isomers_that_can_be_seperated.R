@@ -48,7 +48,7 @@ return(y)
 
 
 # read data
-data <- get_user_data(ns_rtdata,generation=1)
+data <- get_user_data(ns=ns_rtdata,ns_chrom_systems=ns_chrom_systems,generation=1)
 
 # get the difference between all masses
 masses <- sapply(str_split_fixed(data[,"inchi"],"/",3)[,2], function(x) getMass(getMolecule(x))   )

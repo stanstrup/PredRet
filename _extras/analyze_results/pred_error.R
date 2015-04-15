@@ -1,3 +1,7 @@
+test <- get_user_data(ns=ns_rtdata,ns_chrom_systems=ns_chrom_systems)
+test <- test[test$generation==1,]
+
+
 ## CI width
 hist((test[,"ci_upper"]-test[,"ci_lower"]),20,ylim=c(0,75))
 hist((test[is.na(test[,"recorded_rt"]),"ci_upper"]-test[is.na(test[,"recorded_rt"]),"ci_lower"]),20,ylim=c(0,75))

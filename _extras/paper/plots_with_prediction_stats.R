@@ -14,7 +14,8 @@ fill_viol<-function(df_gr,df_data,v,gr,width=1){
   
   df_gr_n <- as.numeric(as.factor(as.character(df_gr)))
   
-  quants<-mutate(v,x.l=x-violinwidth/scale_f,x.r=x+violinwidth/scale_f,cuts=cut(y,    quantile(   df_data[df_gr_n==gr]     )  )      ) # add 1/2 width each way to each x value
+  quants<-mutate(v,x.l=x-violinwidth/scale_f,x.r=x+violinwidth/scale_f,cuts=.bincode(y,    quantile(   df_data[df_gr_n==gr]     )  )      ) # add 1/2 width each way to each x value
+  quants$cuts <- as.factor(quants$cuts)
   
   plotquants<-data.frame(x=c(quants$x.l,rev(quants$x.r)),   # left x bottom to top, then right x top to bottom
                          y=c(quants$y,rev(quants$y)),       # double up the y values to match
@@ -86,6 +87,11 @@ ddply(data, .(system), summarise, N         = sum(!is.na(predicted_rt)),        
 
 
 
+mean(data$error_abs,na.rm = T)
+median(data$error_abs,na.rm = T)
+
+mean(data$error_rel,na.rm = T)
+median(data$error_rel,na.rm = T)
 
 
 ## Common theme elements #############################
@@ -292,7 +298,7 @@ plotdata[,"ci_width_rel"] <- plotdata[,"ci_width_rel"]*100
 violin_width=0.8
 
 p8 <- ggplot( plotdata, aes( x = system, y = ci_width_rel ) )
-p8 <- p8 + scale_x_discrete(breaks=levels(data$system), drop=FALSE)
+p8 <- p8 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p8 <- p8 + scale_y_continuous(breaks = seq(0, 100, 2))
 p8 <- p8 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p8 <- p8 + plottheme
