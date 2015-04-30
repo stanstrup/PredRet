@@ -266,6 +266,10 @@ temp2 <- data.frame(system = temp2$system,
 
 temp <- rbind.data.frame(temp,temp2)
 
+temp2 <- dcast(temp,system~variable)
+temp2 <- mutate(temp2,N_ex_N_sys_ratio = N_ex/N_sys)
+
+
 
       
 p7 <- ggplot(temp, aes(x = system, y=value,fill=variable))
