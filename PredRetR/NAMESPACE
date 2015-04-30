@@ -28,7 +28,9 @@ export(log_count, # database queries
        build_model,
        predict_RT,
        
-       plot_systems # plotting
+       plot_systems, # plotting
+       
+       PredRet.env # environment to hold some vars
 )
 
 

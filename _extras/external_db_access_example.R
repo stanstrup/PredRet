@@ -1,6 +1,3 @@
+PredRet.env$predret_local = TRUE
 
-library(rmongodb)
-mongo.create(host = "predret.org", name = "", username = "predret_readonly",
-             password = "readonly", db = "predret")
-
-
+PredRet_connect()
