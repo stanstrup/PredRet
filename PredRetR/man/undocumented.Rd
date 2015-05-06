@@ -1,6 +1,7 @@
 \name{Undocumented}
 
 % database queries
+\alias{PredRet_connect}
 \alias{log_count}
 \alias{get_ns}
 \alias{get_models}
