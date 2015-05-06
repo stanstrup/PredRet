@@ -2,7 +2,7 @@ output$PREDSTATS_table <- renderDataTable({
   
   # Make a table with all relevant data
   mongo <- PredRet_connect()
-  prediction_to_oids <- mongo.find.all(mongo=mongo,ns=ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
+  prediction_to_oids <- mongo.find.all(mongo=mongo,ns=PredRet.env$namespaces$ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
   
@@ -11,11 +11,11 @@ output$PREDSTATS_table <- renderDataTable({
   
   
   
-  predstats       <- lapply(1:length(prediction_to_oids),function(x) t(pred_stat_get(prediction_to_oids[x],ns=ns_pred_stats)))
+  predstats       <- lapply(1:length(prediction_to_oids),function(x) t(pred_stat_get(prediction_to_oids[x])))
   predstats <- do.call(rbind,predstats)
   
   # Change sysid to sysname
-  sys_names       <- sys_oid2name(ns=ns_chrom_systems,prediction_to_oids)
+  sys_names       <- sys_oid2name(prediction_to_oids)
   predstats <- cbind.data.frame(System = sys_names,predstats)
   
   

@@ -65,7 +65,7 @@ data_has_been_written <- reactiveValues()
   
   # add to table
   mongo <- PredRet_connect()
-  wrote = mongo.insert.batch(mongo, ns_rtdata, bson_data)
+  wrote = mongo.insert.batch(mongo, PredRet.env$namespaces$ns_rtdata, bson_data)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -143,7 +143,7 @@ observe({
 #        
 #         mongo <- PredRet_connect()
 #         
-#         data_back = mongo.find.all2(mongo=mongo, ns=ns_rtdata,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
+#         data_back = mongo.find.all2(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata,query=mongo.bson.empty(),data.frame=T,mongo.oid2character=T)
 #         row.names(data_back) <- seq(nrow(data_back))
 #         
 #         del <- mongo.disconnect(mongo)

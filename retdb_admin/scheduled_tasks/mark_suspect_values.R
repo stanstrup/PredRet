@@ -1,19 +1,14 @@
-## Basic settings ##################
-source("../settings/mongodb.R",local=TRUE)
-source("../settings/predictions.R",local=TRUE)
-
-
 ## packages ##################
 library(PredRetR)
 
-
+PredRet.env$predret_local <- TRUE
 
 
 
 ## get data needed ##################
-rtdata <- get_user_data(ns=ns_rtdata,ns_chrom_systems = ns_chrom_systems,generation=0)
+rtdata <- get_user_data(generation=0)
 
-models <- get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
+models <- get_models(include.loess=TRUE,include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
 models_oid_sys1 <- sapply(models,function(x) x$oid_sys1)
 models_oid_sys2 <- sapply(models,function(x) x$oid_sys2)
 
@@ -24,7 +19,7 @@ unique_inchi <- rownames(unique_inchi)[unique_inchi>1]
 
 ## Reset suspect list ##################
 # mongo <- PredRet_connect()
-# mongo.update(mongo, ns=ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
+# mongo.update(mongo, ns=PredRet.env$namespaces$ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
 # del <- mongo.disconnect(mongo)
 # del <- mongo.destroy(mongo)
 
@@ -73,8 +68,8 @@ for(i in 1:length(unique_inchi)){
       ci <- as.data.frame(t(sapply(ci,unlist)))
       
       # see if outside CI*suspect_CI_multiplier
-      ci_upper_lim <- with(ci,     (upper-pred)*suspect_CI_multiplier+pred        )
-      ci_lower_lim <- with(ci,     pred-(pred-lower)*suspect_CI_multiplier        )
+      ci_upper_lim <- with(ci,     (upper-pred)*PredRet.env$suspect$suspect_CI_multiplier+pred        )
+      ci_lower_lim <- with(ci,     pred-(pred-lower)*PredRet.env$suspect$suspect_CI_multiplier        )
       
       
       if(!(y_org>ci_upper_lim | y_org<ci_lower_lim )){
@@ -133,7 +128,7 @@ mongo <- PredRet_connect()
 
 
 # Reset suspect list
-#mongo.update(mongo, ns=ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
+#mongo.update(mongo, ns=PredRet.env$namespaces$ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
 
 
 
@@ -141,11 +136,11 @@ mongo <- PredRet_connect()
 for(i in 1:nrow(suspect)){
   criteria <- list(sys_id=suspect$sysid[i]  ,inchi=suspect$inchi[i] ,generation=0)
   
-  old_suspect <- mongo.find.all(mongo, ns=ns_rtdata, query=criteria,fields=list(suspect = 1L))
+  old_suspect <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_rtdata, query=criteria,fields=list(suspect = 1L))
   old_suspect <- old_suspect[[1]]$suspect
   
   if(!old_suspect){
-  mongo.update(mongo, ns=ns_rtdata, criteria=criteria,  objNew = list(  '$set'=list(suspect=TRUE,time = Sys.time())     )     )
+  mongo.update(mongo, ns=PredRet.env$namespaces$ns_rtdata, criteria=criteria,  objNew = list(  '$set'=list(suspect=TRUE,time = Sys.time())     )     )
   }
   
   

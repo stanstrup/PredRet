@@ -208,7 +208,7 @@ boot2ci_PI <- function(loess.boot,newdata,alpha=0.05){
 
 
 
-build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=FALSE,withProgress=TRUE,session) {
+build_model <- function(oid1,oid2,force=FALSE,withProgress=TRUE,session) {
   
   
   # get Comparision matrix from database
@@ -220,10 +220,10 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                  value=10)
   }
   
-  comb_matrix = sys_comb_matrix(oid1,oid2,ns=ns_rtdata)
+  comb_matrix = sys_comb_matrix(oid1,oid2)
   
   if(is.null(comb_matrix)){
-    wrote_model_log(msg="No RT data found for one or both systems",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    wrote_model_log(msg="No RT data found for one or both systems",sysoid1=oid1,sysoid2=oid2)
     return(NULL)
   }
   
@@ -246,18 +246,18 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
   }
   
   if(   is.null(comb_matrix$rt) ){
-    wrote_model_log(msg="Systems have no compounds in common. No model can be calculated",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    wrote_model_log(msg="Systems have no compounds in common. No model can be calculated",sysoid1=oid1,sysoid2=oid2)
     return(NULL)
   }
   
   if(  nrow(comb_matrix$rt)<10    ){
-    wrote_model_log(msg="Systems have less than 10 compounds in common. No model will be calculated",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+    wrote_model_log(msg="Systems have less than 10 compounds in common. No model will be calculated",sysoid1=oid1,sysoid2=oid2)
     return(NULL)
   }
   
   
   # get info about current models
-  sys_models = get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )
+  sys_models = get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )
   
   sys_models_newest_entry = lapply(sys_models,function(x) x$newest_entry)
   sys_models_n_points = sapply(sys_models,function(x) x$n_points)
@@ -278,14 +278,14 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
       same_nrow = sys_models_n_points[select] == nrow(comb_matrix$rt) 
       
       if(   !(is_newer | !same_nrow)  & !force  ){
-        wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2,ns=ns_sysmodels_log)
+        wrote_model_log(msg="There is no newer data available to build the model. Model will not be re-calculated.",sysoid1=oid1,sysoid2=oid2)
         return(NULL)
       }
     }
   }
   
   # Building the model
-  set_model_status(sysoid1=oid1,sysoid2=oid2,status="calculating",ns=ns_sysmodels)
+  set_model_status(sysoid1=oid1,sysoid2=oid2,status="calculating")
   
   if(withProgress){
     progress$set(message = 'Calculation in progress (progress is not accurately followed)',
@@ -326,8 +326,6 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
                  xy_mat=xy_mat,
                  ci=ci,
                  newdata=as.numeric(newdata),
-                 ns_sysmodels=ns_sysmodels,
-                 ns_sysmodels_log=ns_sysmodels_log,
                  sysoid1=oid1,
                  sysoid2=oid2,
                  newest_entry=comb_matrix$newest_entry,
@@ -350,18 +348,12 @@ build_model <- function(oid1,oid2,ns_sysmodels,ns_rtdata,ns_sysmodels_log,force=
 
 
 
-predict_RT <- function(predict_to_system,
-                       ns_sysmodels,
-                       ns_rtdata,
-                       ci_width_limit,
-                       ci_width_limit_rel,
-                       predict_near_x_density_lim,
-                       predict_near_x_bw_mult) {
+predict_RT <- function(predict_to_system) {
   
   
   
   # get systems the selection has models to
-  models_extended = get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = TRUE,include.newdata = TRUE ,include.xy_mat=TRUE)
+  models_extended = get_models(include.loess=FALSE,include.ci = TRUE,include.newdata = TRUE ,include.xy_mat=TRUE)
   sys_models_oid1 <- sapply(models_extended,function(x) x$oid_sys1)
   sys_models_oid2 <- sapply(models_extended,function(x) x$oid_sys2)
   
@@ -378,7 +370,7 @@ predict_RT <- function(predict_to_system,
   )
   
   
-  data_all = mongo.find.all(mongo=mongo, ns=ns_rtdata,query=query,data.frame=T,mongo.oid2character=T)
+  data_all = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata,query=query,data.frame=T,mongo.oid2character=T)
   
   
   del <- mongo.disconnect(mongo)
@@ -437,11 +429,11 @@ predict_RT <- function(predict_to_system,
     
     
     # Set limits on the width of the CI interval at the point of prediction
-    # ci_width_limit and ci_width_limit_rel are stored in /settings/predictions.R
+    # ci_width_limit and ci_width_limit_rel are stored in the R package
     ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
     ci_width_rel <-     ci_width   /   single_inchi_data$predicted
     
-    select <- ci_width < ci_width_limit & ci_width_rel < ci_width_limit_rel
+    select <- ci_width < PredRet.env$prediction$ci_width_limit & ci_width_rel < PredRet.env$prediction$ci_width_limit_rel
     
     if (!any(select)) next
     single_inchi_data <- single_inchi_data[select,,drop=FALSE]
@@ -462,10 +454,10 @@ predict_RT <- function(predict_to_system,
     for(i2 in 1:length(models_select)){
       xy_mat <- models_extended[[models_select[i2]]]$xy_mat
       
-      dens <- density(xy_mat[,1], n = 512 * 8,bw=predict_near_x_bw_mult*max(xy_mat[,1]))
+      dens <- density(xy_mat[,1], n = 512 * 8,bw=PredRet.env$prediction$predict_near_x_bw_mult*max(xy_mat[,1]))
       dens_fun <- with(dens, approxfun(x = x, y = y))
       
-      select[i2] <- dens_fun(single_inchi_data[i2,"recorded_rt"]) > predict_near_x_density_lim
+      select[i2] <- dens_fun(single_inchi_data[i2,"recorded_rt"]) > PredRet.env$prediction$predict_near_x_density_lim
     }
     
     
@@ -526,7 +518,7 @@ predict_RT <- function(predict_to_system,
     # )
     # 
     # 
-    # rec_rt = mongo.find.all(mongo=mongo, ns=ns_rtdata,query=query,field=list(recorded_rt = 1L,sys_id=1L,inchi=1L,generation=1L),data.frame=T,mongo.oid2character=T)
+    # rec_rt = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata,query=query,field=list(recorded_rt = 1L,sys_id=1L,inchi=1L,generation=1L),data.frame=T,mongo.oid2character=T)
     
     
     

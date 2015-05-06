@@ -20,7 +20,7 @@ output$MODELSTATS_table <- renderDataTable({
   
   
   # Change sysid to sysname
-  sys_names = sys_oid2name(ns=ns_chrom_systems,as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
+  sys_names = sys_oid2name(as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
   dim(sys_names)=c(length(sys_names)/2,2)
   models_table[,c("Prediction from","Prediction to")] <- sys_names
   

@@ -1,14 +1,12 @@
-## Basic settings ##################
-source("../settings/mongodb.R",local=TRUE)
-
-
 ## packages ##################
 library(PredRetR)
+
+PredRet.env$predret_local <- TRUE
 
 
 
 ## Re-calc all models ##################
-systems <- get_systems(ns = ns_chrom_systems)
+systems <- get_systems()
 
 systems <- lapply(systems,function(x) {
                                           y <- x
@@ -34,5 +32,5 @@ for(i in 1:nrow(system_combs)){
   # if different column types don't make models
   if(    systems[system_combs[i,1]==systems$X_id, "system_column_type"]   !=  systems[system_combs[i,2]==systems$X_id, "system_column_type"]       )   next
   
-  build_model(oid1=system_combs[i,1],oid2=system_combs[i,2],ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=FALSE,withProgress=FALSE)
+  build_model(oid1=system_combs[i,1],oid2=system_combs[i,2],force=FALSE,withProgress=FALSE)
 }

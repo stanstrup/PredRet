@@ -1,4 +1,4 @@
-test <- get_user_data(ns=ns_rtdata,ns_chrom_systems=ns_chrom_systems)
+test <- get_user_data()
 test <- test[test$generation==1,]
 
 

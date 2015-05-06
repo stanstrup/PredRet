@@ -14,7 +14,7 @@ mongo_del_oid = function(ns,oids)  {
 }
 
 
-wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
+wrote_model_log <- function(sysoid1,sysoid2,msg){
   
   b <- list(oid_sys1 = sysoid1,
             oid_sys2 = sysoid2,
@@ -23,22 +23,22 @@ wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
   )
   
   mongo <- PredRet_connect()
-  mongo.insert(mongo, ns, b)
+  mongo.insert(mongo, ns=PredRet.env$namespaces$ns_sysmodels_log, b)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
 }
 
 
-purge_predictions <- function(ns_rtdata,ns_pred_stats,sys_id=NULL){
+purge_predictions <- function(sys_id=NULL){
   mongo <- PredRet_connect()
   
   
   if(is.null(sys_id)){
-    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1))
-    mongo.drop(mongo, ns=ns_pred_stats)
+    mongo.remove(mongo, ns=PredRet.env$namespaces$ns_rtdata, criteria = list(generation = 1))
+    mongo.drop(  mongo, ns=PredRet.env$namespaces$ns_pred_stats)
   }else{
-    mongo.remove(mongo, ns=ns_rtdata, criteria = list(generation = 1,sys_id=sys_id))
-    mongo.remove(mongo, ns=ns_pred_stats, criteria = list(sys_oid=sys_id))
+    mongo.remove(mongo, ns=PredRet.env$namespaces$ns_rtdata    , criteria = list(generation = 1,sys_id=sys_id)  )
+    mongo.remove(mongo, ns=PredRet.env$namespaces$ns_pred_stats, criteria = list(sys_oid=sys_id)                )
   }
   
   del <- mongo.disconnect(mongo)
@@ -49,11 +49,11 @@ purge_predictions <- function(ns_rtdata,ns_pred_stats,sys_id=NULL){
 
 
 
-set_model_status <- function(sysoid1,sysoid2,status,ns){
+set_model_status <- function(sysoid1,sysoid2,status){
   
   mongo <- PredRet_connect()
   
-  db_models_oids = mongo.find.all(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
+  db_models_oids = mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields = list(oid_sys1=1L,oid_sys2=1L))
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   
@@ -61,10 +61,10 @@ set_model_status <- function(sysoid1,sysoid2,status,ns){
     oids_to_update = lapply(db_models_oids, function(x) x$`_id`)
     oids_to_update = oids_to_update[[which(db_models_oids_hit)]]
     
-    status <- mongo.update(mongo, ns, criteria = list(`_id` = oids_to_update),   objNew = list("$set"=list("status"=status))            )
+    status <- mongo.update(mongo, ns=PredRet.env$namespaces$ns_sysmodels, criteria = list(`_id` = oids_to_update),   objNew = list("$set"=list("status"=status))            )
     
   }else{
-    status = mongo.insert(mongo, ns,   list(oid_sys1 = sysoid1, oid_sys2 = sysoid2, status = status)     )
+    status = mongo.insert(mongo,  ns=PredRet.env$namespaces$ns_sysmodels,   list(oid_sys1 = sysoid1, oid_sys2 = sysoid2, status = status)     )
   }
   
   
@@ -80,8 +80,6 @@ model_db_write <- function(loess_boot,
                            xy_mat,
                            ci,
                            newdata,
-                           ns_sysmodels,
-                           ns_sysmodels_log,
                            sysoid1,
                            sysoid2,
                            newest_entry,
@@ -137,7 +135,7 @@ model_db_write <- function(loess_boot,
   buf <- mongo.bson.from.buffer(buf)
   
   
-  db_models_oids = mongo.find.all(mongo, ns=ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L),mongo.oid2character = FALSE)
+  db_models_oids = mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields = list("_id"=1L,oid_sys1=1L,oid_sys2=1L),mongo.oid2character = FALSE)
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
   
   if(any(db_models_oids_hit)){
@@ -148,21 +146,21 @@ model_db_write <- function(loess_boot,
     mongo.bson.buffer.append(criteria, "_id", oids_to_update)
     criteria <- mongo.bson.from.buffer(criteria)
     
-    mongo.remove(mongo, ns_sysmodels, criteria)
+    mongo.remove(mongo, PredRet.env$namespaces$ns_sysmodels, criteria)
   }
   
   
   
-  success <- mongo.insert(mongo, ns_sysmodels, buf)
+  success <- mongo.insert(mongo, PredRet.env$namespaces$ns_sysmodels, buf)
   
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
   if(success){
-    wrote_model_log(msg="New model data was successfully written to the database.",sysoid1=sysoid1,sysoid2=sysoid2,ns=ns_sysmodels_log)
+    wrote_model_log(msg="New model data was successfully written to the database.",sysoid1=sysoid1,sysoid2=sysoid2)
   }else{
-    wrote_model_log(msg="Attempt to write new model data to the database failed.",sysoid1=sysoid1,sysoid2=sysoid2,ns=ns_sysmodels_log)
+    wrote_model_log(msg="Attempt to write new model data to the database failed.",sysoid1=sysoid1,sysoid2=sysoid2)
   }
   
   return(success)
@@ -179,7 +177,7 @@ model_db_write <- function(loess_boot,
 
 
 
-pred_stat_write <- function(predstats,sys_oid,ns) {
+pred_stat_write <- function(predstats,sys_oid) {
   
   predstats_list <- as.list(t(predstats))
   predstats_list <- c(sys_oid,predstats_list)
@@ -189,8 +187,8 @@ pred_stat_write <- function(predstats,sys_oid,ns) {
   
   
   mongo <- PredRet_connect()
-  mongo.remove(mongo, ns, criteria) # Have to remove first. Cannot get updating to work.
-  status <- mongo.insert(mongo, ns, predstats_list)
+  mongo.remove(mongo, ns=PredRet.env$namespaces$ns_pred_stats, criteria) # Have to remove first. Cannot get updating to work.
+  status <- mongo.insert(mongo, ns=PredRet.env$namespaces$ns_pred_stats, predstats_list)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
 }

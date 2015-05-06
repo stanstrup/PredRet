@@ -59,10 +59,7 @@ r2 <- function(x){
 
 
 ## Load data and make some stats ############################
-
-source("settings/mongodb.R")
-
-data <- get_user_data(ns=ns_rtdata,ns_chrom_systems=ns_chrom_systems)
+data <- get_user_data()
 
 
 

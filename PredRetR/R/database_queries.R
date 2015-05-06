@@ -12,10 +12,10 @@ PredRet_connect <- function() {
 }
 
 
-log_count <- function(ns){
+log_count <- function(){
   
   mongo <- PredRet_connect()
-  n <- mongo.count(mongo, ns=ns )
+  n <- mongo.count(mongo, ns=PredRet.env$namespaces$ns_sysmodels_log )
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -34,7 +34,7 @@ get_ns <- function(ns){
 }
 
 
-get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE) {
+get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE) {
   
   
   # Select which fields to get
@@ -68,7 +68,7 @@ get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=F
   # Connect to db
   mongo <- PredRet_connect()
   #ns <- ns_sysmodels
-  data_back <- mongo.find.all(mongo, ns=ns,fields=fields)
+  data_back <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields=fields)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -106,7 +106,7 @@ get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=F
 }
 
 
-get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
+get_build_log <- function(time_offset=0){
   
   
   mongo <- PredRet_connect()
@@ -116,7 +116,7 @@ get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
   mongo.bson.buffer.append(fields, "_id", 0L)
   fields = mongo.bson.from.buffer(fields)
   
-  sysmodel_log = mongo.find.all(mongo, ns=ns,fields = fields,limit=200L,sort = list(time=-1L))
+  sysmodel_log = mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels_log,fields = fields,limit=200L,sort = list(time=-1L))
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -125,7 +125,7 @@ get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
   sysmodel_log <- do.call(rbind,sysmodel_log)
   
   # Change sys oids to names  
-  log_sys_names = sys_oid2name(ns=ns_chrom_systems,as.character(as.matrix(sysmodel_log[,c("oid_sys1","oid_sys2")])))
+  log_sys_names = sys_oid2name(as.character(as.matrix(sysmodel_log[,c("oid_sys1","oid_sys2")])))
   dim(log_sys_names) <- c(length(log_sys_names)/2,2)
   sysmodel_log[,c("oid_sys1","oid_sys2")] <- log_sys_names
   
@@ -141,9 +141,9 @@ get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
 }
 
 
-sys_oid2name <- function(ns,sys_id_data){
+sys_oid2name <- function(sys_id_data){
   
-  dbsystems <- get_systems(ns)
+  dbsystems <- get_systems()
   sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
   sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
   
@@ -152,7 +152,7 @@ sys_oid2name <- function(ns,sys_id_data){
 }
 
 
-get_systems <- function(ns) {  
+get_systems <- function() {  
   
   # Connect to db
   mongo <- PredRet_connect()  
@@ -173,7 +173,7 @@ get_systems <- function(ns) {
   mongo.bson.buffer.append(fields, "system_ref", 1L)
   fields = mongo.bson.from.buffer(fields)
   
-  data_back = mongo.find.all(mongo, ns=ns,fields=fields,mongo.oid2character = FALSE)
+  data_back = mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_chrom_systems,fields=fields,mongo.oid2character = FALSE)
   
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -182,7 +182,7 @@ get_systems <- function(ns) {
 }
 
 
-get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspect=NULL) {  
+get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL) {  
   
   
   # Select which items to get
@@ -230,7 +230,7 @@ get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspec
   
   # Read the data
   mongo <- PredRet_connect()
-  data_all = mongo.find.all(mongo=mongo, ns=ns,query = query,fields = fields  ,data.frame=T,mongo.oid2character=T)
+  data_all = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata,query = query,fields = fields  ,data.frame=T,mongo.oid2character=T)
   
   if(is.null(data_all)){
     del <- mongo.disconnect(mongo)
@@ -255,7 +255,7 @@ get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspec
   
   
   # Get system name from system ID
-  data = cbind.data.frame(data , system = sys_oid2name(ns=ns_chrom_systems,data_all[,"sys_id"])          ,stringsAsFactors = F)
+  data = cbind.data.frame(data , system = sys_oid2name(data_all[,"sys_id"])          ,stringsAsFactors = F)
   
   
   
@@ -267,13 +267,13 @@ get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspec
 
 
 
-sys_comb_matrix = function(oid1,oid2,ns)  {
+sys_comb_matrix = function(oid1,oid2)  {
   
   
   ## get data for the combination of systems ################
   mongo <- PredRet_connect()
-  rt_sys1 = mongo.find.all(mongo=mongo, ns=ns, query = list(sys_id = oid1, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
-  rt_sys2 = mongo.find.all(mongo=mongo, ns=ns, query = list(sys_id = oid2, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
+  rt_sys1 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid1, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
+  rt_sys2 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid2, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -326,7 +326,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
 
 
 
-pred_stat_get <- function(sys_oid,ns) {
+pred_stat_get <- function(sys_oid) {
   
   query <- list(sys_oid=sys_oid)
   
@@ -350,7 +350,7 @@ pred_stat_get <- function(sys_oid,ns) {
   
   mongo <- PredRet_connect()
   
-  pred_stats <- mongo.find.all(mongo, ns, query = query, data.frame = F, mongo.oid2character = TRUE,fields=fields   )
+  pred_stats <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_pred_stats, query = query, data.frame = F, mongo.oid2character = TRUE,fields=fields   )
   pred_stats <- as.matrix(unlist(pred_stats),ncol=1)
   
   

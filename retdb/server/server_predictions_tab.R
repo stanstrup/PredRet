@@ -9,7 +9,7 @@ predicted_data <- reactive({
   criteria <- mongo.bson.from.buffer(criteria)
   
   mongo <- PredRet_connect()
-  predicted_data <- mongo.find.all(mongo,ns=ns_rtdata,query=criteria,data.frame = TRUE)
+  predicted_data <- mongo.find.all(mongo,ns=PredRet.env$namespaces$ns_rtdata,query=criteria,data.frame = TRUE)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
@@ -28,13 +28,13 @@ output$PREDICTIONS_select_system <- renderUI({
   
   
   mongo <- PredRet_connect()
-  prediction_to_oids <- mongo.find.all(mongo=mongo,ns=ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
+  prediction_to_oids <- mongo.find.all(mongo=mongo,ns=PredRet.env$namespaces$ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
   
   
   sys_models_oid1 <- prediction_to_oids[,"sys_oid"]
-  sys_models_oid1_name <-  sys_oid2name(ns=ns_chrom_systems,sys_models_oid1)
+  sys_models_oid1_name <-  sys_oid2name(sys_models_oid1)
   
   
   
@@ -128,7 +128,7 @@ predstats <- reactive({
   if(is.null(input$PREDICTIONS_select_system)) return(NULL)
   if(input$PREDICTIONS_select_system == "") return(NULL)
   
-  predstats <- pred_stat_get(sys_oid=input$PREDICTIONS_select_system,ns=ns_pred_stats)
+  predstats <- pred_stat_get(sys_oid=input$PREDICTIONS_select_system)
   
   return(predstats)
   

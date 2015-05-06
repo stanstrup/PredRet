@@ -26,15 +26,10 @@ shinyServer(function(input, output,session) {
       if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
       if(  !(as.logical(is_admin()))  ) return(NULL) # if not admin
      
-    
-  ## Basic settings ##################
-  source("settings/mongodb.R",local=TRUE)
-  source("settings/predictions.R",local=TRUE)
-  
   
   
   # some shared reactives ##################
-  models <- reactive({get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE ,include.xy_mat=TRUE)})
+  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE ,include.xy_mat=TRUE)})
   
   
     

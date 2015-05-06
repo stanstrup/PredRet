@@ -1,10 +1,10 @@
-models_extended = get_models(ns = ns_sysmodels, include.loess = FALSE, 
+models_extended = get_models(include.loess = FALSE, 
                              include.ci = TRUE, include.newdata = TRUE, include.xy_mat = TRUE)
 
 sys_models_oid1 <- sapply(models_extended,function(x) x$oid_sys1)
 sys_models_oid2 <- sapply(models_extended,function(x) x$oid_sys2)
 
-select_model <- which(sys_oid2name(ns=ns_chrom_systems,sys_models_oid1)=="LIFE_old" & sys_oid2name(ns=ns_chrom_systems,sys_models_oid2)=="LIFE_new")
+select_model <- which(sys_oid2name(sys_models_oid1)=="LIFE_old" & sys_oid2name(sys_models_oid2)=="LIFE_new")
 
 
 x <- models_extended[[select_model]]$newdata

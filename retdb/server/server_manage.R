@@ -14,7 +14,7 @@ users_data <-  reactive({
   data_has_been_written$done # Update if data written to db
   data_was_deleted$done # database deletions are done
   
-  data <- get_user_data(ns=ns_rtdata,ns_chrom_systems = ns_chrom_systems,userID=userID(),generation=0) 
+  data <- get_user_data(userID=userID(),generation=0) 
   #data <- data[,                c("name","recorded_rt","system","date added","pubchem","inchi")         ]
   
   if(is.null(data)){
@@ -142,7 +142,7 @@ observe({
     if(length(input$row)==0) return()
     
     to_del = as.numeric(input$row)
-    mongo_del_oid(ns=ns_rtdata,     oids = users_data()[to_del,"_id"]     )
+    mongo_del_oid(ns=PredRet.env$namespaces$ns_rtdata,     oids = users_data()[to_del,"_id"]     )
     data_was_deleted$done <- input$del_data
   })
 }) 

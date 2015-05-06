@@ -1,7 +1,6 @@
 library(boot)
 library(parallel)
-source("settings/mongodb.R")
-
+library(PredRetR)
 
 
 ## Common theme elements #############################
@@ -31,7 +30,7 @@ select_data[3,] <- c("RIKEN","FEM_orbitrap_plasma") #sparse
 select_data[4,] <- c("RIKEN","MTBLS20") #not enough
 
 select_data[5,] <- c("RIKEN","IPB_Halle") #for testing
-select_data[6,] <- c(sys_oid2name(ns=ns_chrom_systems,"53f326f9045fe65526aabcc3"),sys_oid2name(ns=ns_chrom_systems,"5464740bf29f4b93b411a489")) #for testing
+select_data[6,] <- c(sys_oid2name("53f326f9045fe65526aabcc3"),sys_oid2name("5464740bf29f4b93b411a489")) #for testing
 
 letter_name <- unique(as.vector(t(select_data)))
 letter_name <- cbind(letter_name,    LETTERS[1:length(letter_name)])
@@ -45,8 +44,8 @@ p = list()
 for(i in 1:nrow(select_data)){
 
 ## get data 
-data <- get_user_data(ns=ns_rtdata,ns_chrom_systems=ns_chrom_systems)
-comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system==select_data[i,1]]),oid2 = unique(data$sys_id[data$system==select_data[i,2]]),ns=ns_rtdata)
+data <- get_user_data()
+comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system==select_data[i,1]]),oid2 = unique(data$sys_id[data$system==select_data[i,2]]))
 del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
 comb_matrix$rt = comb_matrix$rt[!del,,drop=F]
 comb_matrix$inchi = comb_matrix$inchi[!del,drop=F]

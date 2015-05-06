@@ -1,7 +1,7 @@
 
 ## Select boxes ################# 
 
-systems <- reactive({get_systems(ns=ns_chrom_systems)})
+systems <- reactive({get_systems()})
 
 
 output$build_sys1 <- renderUI({
@@ -57,7 +57,7 @@ output$build_table <- renderDataTable({
   
   
   # Change sysid to sysname
-  sys_names = sys_oid2name(ns=ns_chrom_systems,as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
+  sys_names = sys_oid2name(as.character(as.matrix(models_table[,c("Prediction from","Prediction to")])))
   dim(sys_names)=c(length(sys_names)/2,2)
   models_table[,c("Prediction from","Prediction to")] <- sys_names
   
@@ -97,7 +97,7 @@ observe({
     oid2 = sys_oids[input$build_sys2==sys_names]
     
     
-    build_model(oid1=oid1,oid2=oid2,ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=input$build_force_recalc,session=session) 
+    build_model(oid1=oid1,oid2=oid2,force=input$build_force_recalc,session=session) 
 
   })
 })
@@ -122,7 +122,7 @@ observe({
     system_combs = rbind(system_combs,system_combs[,c(2,1)])
     
     for(i in 1:nrow(system_combs)){
-    build_model(oid1=system_combs[i,1],oid2=system_combs[i,2],ns_sysmodels=ns_sysmodels,ns_rtdata=ns_rtdata,ns_sysmodels_log=ns_sysmodels_log,force=input$build_force_recalc_all,session=session) 
+    build_model(oid1=system_combs[i,1],oid2=system_combs[i,2],force=input$build_force_recalc_all,session=session) 
     }
     
     
@@ -137,7 +137,7 @@ observe({
 observe({
   if(input$purge_predictions==0) return(NULL)  
   
-  isolate({        purge_predictions(ns_rtdata=ns_rtdata,ns_pred_stats=ns_pred_stats)      })
+  isolate({        purge_predictions()      })
   
 })
 
@@ -147,7 +147,7 @@ observe({
   
   isolate({    
     mongo <- PredRet_connect()
-    mongo.drop(mongo, ns=ns_sysmodels)
+    mongo.drop(mongo, ns=PredRet.env$namespaces$ns_sysmodels)
     del <- mongo.disconnect(mongo)
     del <- mongo.destroy(mongo) 
     
@@ -173,7 +173,7 @@ build_log_settings <- reactive({
 })
 
 
-build_log <- reactivePoll(10*1000,session=session,function() log_count(ns=ns_sysmodels_log),function(x) get_build_log(ns=ns_sysmodels_log,ns_chrom_systems=ns_chrom_systems,time_offset = time_zone_offset()))
+build_log <- reactivePoll(10*1000,session=session,function() log_count(),function(x) get_build_log(time_offset = time_zone_offset()))
 
 output$build_log <- renderDataTable(build_log(),
                                     options=list(pageLength = 10,aoColumnDefs=build_log_settings(), columns=NULL,AutoWidth=FALSE    ),

@@ -2,9 +2,9 @@ library(mgcv)
 library(pracma)
 
 ## get data
-data <- get_user_data(ns=ns_rtdata)
-#comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system=="LIFE_new"]),oid2 = unique(data$sys_id[data$system=="LIFE_old"]),ns=ns_rtdata)
-comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system=="RIKEN"]),oid2 = unique(data$sys_id[data$system=="FEM_long"]),ns=ns_rtdata)
+data <- get_user_data()
+#comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system=="LIFE_new"]),oid2 = unique(data$sys_id[data$system=="LIFE_old"]))
+comb_matrix = sys_comb_matrix(oid1 = unique(data$sys_id[data$system=="RIKEN"]),oid2 = unique(data$sys_id[data$system=="FEM_long"]))
 del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
 comb_matrix$rt = comb_matrix$rt[!del,,drop=F]
 comb_matrix$inchi = comb_matrix$inchi[!del,drop=F]

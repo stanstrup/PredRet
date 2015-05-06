@@ -3,7 +3,7 @@ systems_in_db <- reactive({
   # Make sure it updates on submission
   input$submit_system
   
-  data_back <- get_systems(ns=ns_chrom_systems)
+  data_back <- get_systems()
   return(data_back)
 })
 
@@ -403,9 +403,9 @@ observe({
       mongo.bson.buffer.append(buf, "_id", systems_in_db()[[which(idx)]]$`_id`)
       criteria <- mongo.bson.from.buffer(buf)
       
-      mongo.update(mongo, ns_chrom_systems, criteria, system_desc_bson()   )
+      mongo.update(mongo, PredRet.env$namespaces$ns_chrom_systems, criteria, system_desc_bson()   )
     }else{
-      mongo.insert(mongo, ns_chrom_systems, system_desc_bson()    )
+      mongo.insert(mongo, PredRet.env$namespaces$ns_chrom_systems, system_desc_bson()    )
     }
     
     

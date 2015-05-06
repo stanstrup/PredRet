@@ -3,7 +3,7 @@ suspect_users_data <-  reactive({
   data_has_been_written$done # Update if data written to db
   data_was_deleted$done # database deletions are done
   
-  data <- get_user_data(ns=ns_rtdata,ns_sysmodels=ns_sysmodels,userID=userID(),generation=0L,suspect=TRUE) 
+  data <- get_user_data(userID=userID(),generation=0L,suspect=TRUE) 
   
   
   
@@ -16,7 +16,7 @@ suspect_users_data <-  reactive({
   for(i in 1:length(predicted_rt)){
     temp <- mongo.find.all(
                                       mongo=mongo, 
-                                      ns=ns_rtdata,
+                                      ns=PredRet.env$namespaces$ns_rtdata,
                                       query=list(  generation=1L,inchi=data[i,"inchi"]  ,sys_id=data[i,"sys_id"] ),
                                       fields = list(predicted_rt=1L,`_id`=0L),
                                       data.frame=T,

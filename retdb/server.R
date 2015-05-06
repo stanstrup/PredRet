@@ -30,12 +30,7 @@ shinyServer(function(input, output,session) {
     if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
     
     
-  ## Basic settings ##################
-  source("settings/mongodb.R",local=TRUE)
-  source("settings/predictions.R",local=TRUE)
-  
-  
-  
+    
   ## functions ##################
   source("functions/inputTextarea.R",local=TRUE)
   
@@ -51,7 +46,7 @@ shinyServer(function(input, output,session) {
   
   
   # some shared reactives ##################
-  models <- reactive({get_models(ns = ns_sysmodels,include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
+  models <- reactive({get_models(include.loess=FALSE,include.ci = FALSE,include.newdata = FALSE )})
 
   })
 

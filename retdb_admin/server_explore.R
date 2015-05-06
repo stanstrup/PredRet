@@ -1,6 +1,6 @@
 output$explore_sys1 <- renderUI({
   oids = do.call(rbind,lapply(models(),function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
-  sys_name = sys_oid2name(ns=ns_chrom_systems,as.character(oids))
+  sys_name = sys_oid2name(as.character(oids))
   dim(sys_name)=c(length(sys_name)/2,2)  
   sys_name_unique1 = unique(sys_name[,1])
     
@@ -13,7 +13,7 @@ output$explore_sys2 <- renderUI({
   if(input$explore_sys1=="") return(NULL)
   
   oids = do.call(rbind,lapply(models(),function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
-  sys_name = sys_oid2name(ns=ns_chrom_systems,as.character(oids))
+  sys_name = sys_oid2name(as.character(oids))
   dim(sys_name)=c(length(sys_name)/2,2)  
   
   return(selectInput(inputId = 'explore_sys2',label= 'Select second system',     choices=c("",sys_name[  input$explore_sys1==sys_name[,1]    ,2]),     selected="",selectize=TRUE))
@@ -30,11 +30,11 @@ output$chart1 <- renderChart2({
   
   
   
-  models_extended = get_models(ns = ns_sysmodels,include.loess=TRUE,include.ci = TRUE,include.newdata = TRUE )
+  models_extended = get_models(include.loess=TRUE,include.ci = TRUE,include.newdata = TRUE )
   
   
   oids = do.call(rbind,lapply(models_extended,function(x) c(oid_sys1=x$oid_sys1,oid_sys2=x$oid_sys2)))
-  sys_name = sys_oid2name(ns=ns_chrom_systems,as.character(oids))
+  sys_name = sys_oid2name(as.character(oids))
   dim(sys_name)=c(length(sys_name)/2,2)
   
   
@@ -45,7 +45,7 @@ output$chart1 <- renderChart2({
   loess.boot   =   models_extended[[which(model_select)]]$loess_boot
   ci   =   models_extended[[which(model_select)]]$ci
   newdata   =   models_extended[[which(model_select)]]$newdata
-  select_names = sys_oid2name(ns=ns_chrom_systems,colnames(loess.boot$data))
+  select_names = sys_oid2name(colnames(loess.boot$data))
   
   plotdata=list(
     title = paste0('RT (',select_names[2],') vs. RT (',select_names[1],')'),

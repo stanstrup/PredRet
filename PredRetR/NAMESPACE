@@ -30,7 +30,8 @@ export(log_count, # database queries
        
        plot_systems, # plotting
        
-       PredRet.env # environment to hold some vars
+       PredRet.env, # environment to hold some vars
+       PredRet_connect
 )
 
 
