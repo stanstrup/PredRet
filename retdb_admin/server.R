@@ -3,6 +3,8 @@ library(rCharts)
 library(shinyIncubator)
 library(PredRetR)
 
+PredRet.env$predret_local <- TRUE
+
 shinyServer(function(input, output,session) {
 
 

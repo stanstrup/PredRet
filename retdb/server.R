@@ -8,6 +8,8 @@ library(Rdisop)
 library(stringr)
 library(PredRetR)
 
+PredRet.env$predret_local <- TRUE
+
 
 shinyServer(function(input, output,session) {
 
