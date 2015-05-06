@@ -390,7 +390,7 @@ observe({
   
   isolate({
     # make db connection
-    mongo <- mongo.create()
+    mongo <- PredRet_connect()
     sys_name = as.character(unlist(lapply(systems_in_db(),function(x) x$system_name)))
     
     

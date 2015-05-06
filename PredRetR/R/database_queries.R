@@ -14,7 +14,7 @@ PredRet_connect <- function() {
 
 log_count <- function(ns){
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   n <- mongo.count(mongo, ns=ns )
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -25,7 +25,7 @@ log_count <- function(ns){
 
 get_ns <- function(ns){
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   data_back = mongo.find.all(mongo, ns=ns)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -66,7 +66,7 @@ get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=F
   
   
   # Connect to db
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   #ns <- ns_sysmodels
   data_back <- mongo.find.all(mongo, ns=ns,fields=fields)
   del <- mongo.disconnect(mongo)
@@ -109,7 +109,7 @@ get_models <- function(ns,include.loess=FALSE,include.ci=FALSE,include.newdata=F
 get_build_log <- function(ns,ns_chrom_systems,time_offset=0){
   
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   # Get the data
   fields = mongo.bson.buffer.create()
@@ -155,7 +155,7 @@ sys_oid2name <- function(ns,sys_id_data){
 get_systems <- function(ns) {  
   
   # Connect to db
-  mongo <- mongo.create()  
+  mongo <- PredRet_connect()  
   
   # select fields (think columns)
   fields = mongo.bson.buffer.create()
@@ -229,7 +229,7 @@ get_user_data <- function(ns,ns_chrom_systems,userID=NULL,generation=NULL,suspec
   
   
   # Read the data
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   data_all = mongo.find.all(mongo=mongo, ns=ns,query = query,fields = fields  ,data.frame=T,mongo.oid2character=T)
   
   if(is.null(data_all)){
@@ -271,7 +271,7 @@ sys_comb_matrix = function(oid1,oid2,ns)  {
   
   
   ## get data for the combination of systems ################
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   rt_sys1 = mongo.find.all(mongo=mongo, ns=ns, query = list(sys_id = oid1, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
   rt_sys2 = mongo.find.all(mongo=mongo, ns=ns, query = list(sys_id = oid2, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
   del <- mongo.disconnect(mongo)
@@ -348,7 +348,7 @@ pred_stat_get <- function(sys_oid,ns) {
   }
   
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   pred_stats <- mongo.find.all(mongo, ns, query = query, data.frame = F, mongo.oid2character = TRUE,fields=fields   )
   pred_stats <- as.matrix(unlist(pred_stats),ncol=1)

@@ -22,7 +22,7 @@ mongo.index.TTLcreate <- function(mongo, ns, field, index_name, expireAfterSecon
 
 
 
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 
 mongo.index.TTLcreate(mongo=mongo, ns=ns_sysmodels_log, index_name="TTL_time", field="time",expireAfterSeconds=60*60*24*6)  # expire after 6 days
 

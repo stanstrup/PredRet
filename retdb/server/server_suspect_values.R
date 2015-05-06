@@ -11,7 +11,7 @@ suspect_users_data <-  reactive({
   ## Get matching predicted values if possible
   predicted_rt <- rep(as.numeric(NA),length=nrow(data))
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
     
   for(i in 1:length(predicted_rt)){
     temp <- mongo.find.all(

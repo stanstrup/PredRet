@@ -1,7 +1,7 @@
 
 mongo_del_oid = function(ns,oids)  {
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   # loop through rows to delete
   for(i in 1:length(oids)){
@@ -22,7 +22,7 @@ wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
             time     = Sys.time()
   )
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   mongo.insert(mongo, ns, b)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 
@@ -30,7 +30,7 @@ wrote_model_log <- function(sysoid1,sysoid2,msg,ns){
 
 
 purge_predictions <- function(ns_rtdata,ns_pred_stats,sys_id=NULL){
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   
   if(is.null(sys_id)){
@@ -51,7 +51,7 @@ purge_predictions <- function(ns_rtdata,ns_pred_stats,sys_id=NULL){
 
 set_model_status <- function(sysoid1,sysoid2,status,ns){
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   db_models_oids = mongo.find.all(mongo, ns=ns,fields = list(oid_sys1=1L,oid_sys2=1L))
   db_models_oids_hit = unlist(lapply(db_models_oids,function(x) x$oid_sys1==sysoid1 & x$oid_sys2==sysoid2))
@@ -109,7 +109,7 @@ model_db_write <- function(loess_boot,
   
   
   # Make the object to write to the db
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   buf <- mongo.bson.buffer.create()
   
   mongo.bson.buffer.append(buf, "loess_boot", temp)
@@ -188,7 +188,7 @@ pred_stat_write <- function(predstats,sys_oid,ns) {
   criteria <- list(sys_oid=sys_oid)
   
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   mongo.remove(mongo, ns, criteria) # Have to remove first. Cannot get updating to work.
   status <- mongo.insert(mongo, ns, predstats_list)
   del <- mongo.disconnect(mongo)

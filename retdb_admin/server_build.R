@@ -146,7 +146,7 @@ observe({
   if(input$purge_models==0) return(NULL)  
   
   isolate({    
-    mongo <- mongo.create()
+    mongo <- PredRet_connect()
     mongo.drop(mongo, ns=ns_sysmodels)
     del <- mongo.disconnect(mongo)
     del <- mongo.destroy(mongo) 

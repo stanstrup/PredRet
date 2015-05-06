@@ -12,7 +12,7 @@ sys_models_oid2 <- sys_models_oid2[!duplicated(sys_models_oid2)]
 
 
 
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 
 
 # We get the time of the last entry in the rt database

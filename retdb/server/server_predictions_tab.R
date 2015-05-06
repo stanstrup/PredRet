@@ -8,7 +8,7 @@ predicted_data <- reactive({
   mongo.bson.buffer.append(criteria, "generation", 1L)
   criteria <- mongo.bson.from.buffer(criteria)
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   predicted_data <- mongo.find.all(mongo,ns=ns_rtdata,query=criteria,data.frame = TRUE)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
@@ -27,7 +27,7 @@ predicted_data <- reactive({
 output$PREDICTIONS_select_system <- renderUI({
   
   
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   prediction_to_oids <- mongo.find.all(mongo=mongo,ns=ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 

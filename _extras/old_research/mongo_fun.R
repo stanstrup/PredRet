@@ -6,7 +6,7 @@ bson_data = dataframe2bson(data)
 
 
 # add to table
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 mongo.insert.batch(mongo, ns, bson_data)
@@ -19,7 +19,7 @@ del <- mongo.destroy(mongo)
 
 
 ## Read all data back and coerse to data.frame ###########################
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 data_back = mongo.find.all(mongo, ns,data.frame=T)
@@ -33,7 +33,7 @@ del <- mongo.destroy(mongo)
 
 ## Read only some data ###########################
 
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 # make the query. the requirement
@@ -81,7 +81,7 @@ del <- mongo.destroy(mongo)
 
 ## Read only some data, one item at a time ###########################
 
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 # make the query. the requirement
@@ -143,7 +143,7 @@ del <- mongo.destroy(mongo)
 
 
 ## Read only some data, change it and write back in the same place ###########################
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 
@@ -170,7 +170,7 @@ del <- mongo.destroy(mongo)
 
 
 ## See result
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 ns <- "test.rtdata"
 
 # only entries defined in criteria

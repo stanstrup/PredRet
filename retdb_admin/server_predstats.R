@@ -1,7 +1,7 @@
 output$PREDSTATS_table <- renderDataTable({
   
   # Make a table with all relevant data
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   prediction_to_oids <- mongo.find.all(mongo=mongo,ns=ns_pred_stats,fields=list(sys_oid=1L),data.frame=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo) 

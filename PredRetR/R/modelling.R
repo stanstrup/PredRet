@@ -369,7 +369,7 @@ predict_RT <- function(predict_to_system,
   
   
   # get all rt data in database
-  mongo <- mongo.create()
+  mongo <- PredRet_connect()
   
   
   query <- list(generation=0L,                     # only experimental data. predicted data is not used to predict in other systems. Yet...

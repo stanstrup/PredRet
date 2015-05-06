@@ -23,7 +23,7 @@ unique_inchi <- rownames(unique_inchi)[unique_inchi>1]
 
 
 ## Reset suspect list ##################
-# mongo <- mongo.create()
+# mongo <- PredRet_connect()
 # mongo.update(mongo, ns=ns_rtdata, criteria=mongo.bson.empty(),   list('$set'=list(suspect=FALSE))  ,flags=2L    )
 # del <- mongo.disconnect(mongo)
 # del <- mongo.destroy(mongo)
@@ -129,7 +129,7 @@ suspect <- unique(suspect)
 
 
 # db connection
-mongo <- mongo.create()
+mongo <- PredRet_connect()
 
 
 # Reset suspect list
