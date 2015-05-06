@@ -1,5 +1,0 @@
-ns_chrom_systems    = "predret.chrom_systems"
-ns_rtdata           = "predret.rtdata"
-ns_sysmodels        = "predret.sysmodels"
-ns_sysmodels_log    = "predret.sysmodels_log"
-ns_pred_stats       = "predret.pred_stats"
