@@ -1,12 +1,12 @@
 Package: PredRetR
-Version: 0.1
-Date: 2015-03-19
+Version: 0.2
+Date: 2015-05-08
 Title: PredRetR
 Author: Jan Stanstrup <jan.stanstrup@fmach.it>
 Maintainer: Jan Stanstrup <jan.stanstrup@fmach.it>
 Depends: R (>= 2.14.0), rmongodb
-Suggests:
-Imports: stringr, mgcv, pracma, boot, rCharts, parallel, shiny
+Suggests: shiny, rCharts
+Imports: stringr, mgcv, pracma, boot, parallel
 Enhances: 
 Description: Functions for PredRet prediction of retention times.
 License: GPL (>= 2)

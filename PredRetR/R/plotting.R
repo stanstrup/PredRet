@@ -1,6 +1,12 @@
 
 plot_systems <- function(plotdata) {
-  #devtools:::install_github("ramnathv/rCharts")
+  
+  if (!requireNamespace("shiny", quietly = TRUE)) {
+    stop("'rCharts' package needed for this function to work. Please install it using:\ndevtools:::install_github('ramnathv/rCharts')",
+         call. = FALSE)
+  }
+  
+  
   
   
   # Simple R plot ################
@@ -27,10 +33,10 @@ plot_systems <- function(plotdata) {
   
   # hPlot with tooltip ######################
   # Plot the points
-  p <- hPlot(y ~ x, data = plotdata$data, type = "scatter")
+  p <- rCharts::hPlot(y ~ x, data = plotdata$data, type = "scatter")
   
   # fix data format
-  p$params$series[[1]]$data <- toJSONArray(cbind.data.frame(x = plotdata$data$x, y = plotdata$data$y,name = plotdata$data$name,tooltip = plotdata$data$tooltip), json = F)
+  p$params$series[[1]]$data <- rCharts::toJSONArray(cbind.data.frame(x = plotdata$data$x, y = plotdata$data$y,name = plotdata$data$name,tooltip = plotdata$data$tooltip), json = F)
   
   # add tooltip formatter
   p$tooltip(formatter = "#! function() {return(this.point.tooltip);} !#")
@@ -46,7 +52,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['predicted']]), names = F, json = F),
+    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['predicted']]), names = F, json = F),
     type = 'line',
     zIndex = 1,
     marker=list(enabled=F,states=list(hover=list(enabled=F)))
@@ -54,7 +60,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['lower']],plotdata$data[['upper']]), names = F, json = F),
+    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['lower']],plotdata$data[['upper']]), names = F, json = F),
     type = 'arearange',
     fillOpacity = 0.3,
     lineWidth = 0,

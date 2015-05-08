@@ -44,8 +44,8 @@ importFrom(pracma,sigmoid)
 importFrom(parallel,detectCores)
 #importFrom(bisoreg,)
 importFrom(boot,boot.ci,boot)
-importFrom(rCharts,hPlot,toJSONArray,toJSONArray2)
-importFrom(shiny,Progress)
+#importFrom(rCharts,hPlot,toJSONArray,toJSONArray2)
+#importFrom(shiny,Progress)
 
 
 

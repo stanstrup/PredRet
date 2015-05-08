@@ -210,10 +210,15 @@ boot2ci_PI <- function(loess.boot,newdata,alpha=0.05){
 
 build_model <- function(oid1,oid2,force=FALSE,withProgress=TRUE,session) {
   
+  if (!requireNamespace("shiny", quietly = TRUE) & withProgress==TRUE) {
+    stop("'shiny' package needed for this function to work when withProgress==TRUE. Please install it.",
+         call. = FALSE)
+  }
+  
   
   # get Comparision matrix from database
   if(withProgress){
-    progress <- Progress$new(session, min=1, max=100)
+    progress <- shiny::Progress$new(session, min=1, max=100)
     on.exit(progress$close())
     progress$set(message = 'Calculation in progress (progress is not accurately followed)',
                  detail = 'Retrieving database values',
