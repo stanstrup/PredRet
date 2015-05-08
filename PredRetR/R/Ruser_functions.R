@@ -39,5 +39,14 @@ PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspe
   
 
 # Get systems
+PredRet_get_chrom_systems <- function(){
+  sys <- get_systems()
+  for(i in 1:length(sys)) sys[[i]]$`_id`=NULL
+  
+  return(sys)
+}
+
+
+
 # Get models
 
