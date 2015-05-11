@@ -48,6 +48,14 @@ d <- data.frame(from  =   sapply(models,function(x) x$predict_from)    ,
                 )
 
 
+# Attempt to do better ordering
+d$from <- factor(d$from,levels= c("RIKEN","FEM_long","FEM_short","FEM_orbitrap_plasma","FEM_lipids","FEM_orbitrap_urine",
+                                  "MTBLS36","MTBLS38","MTBLS39","LIFE_old","LIFE_new","MTBLS20" )
+                )
+
+d <- d[order(as.numeric(d$from)),]
+
+
 # Make node sizes
 temp <- as.matrix(table(database$system))
 N <- as.numeric(temp)
