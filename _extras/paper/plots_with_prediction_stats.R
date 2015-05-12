@@ -59,7 +59,7 @@ r2 <- function(x){
 
 
 ## Load data and make some stats ############################
-data <- get_user_data()
+data <- PredRet_get_db()
 
 
 
@@ -232,7 +232,7 @@ plot(p3)
 
 
 ## barplot for number of RTs in the database ############################
-temp <- as.data.frame(table(data[data$generation==0,"system"]))
+temp <- as.data.frame(table(data[!data$predicted,"system"]))
 colnames(temp) <- c("system","N")
 
 p4 <- ggplot(temp, aes(x = system, y=N))
@@ -252,7 +252,7 @@ temp$N <- with(temp,N-N_ex)
 temp <- melt(temp[,c("system","N_ex","N")])
 
 
-temp2 <- as.data.frame(table(data[data$generation==0,"system"]))
+temp2 <- as.data.frame(table(data[!data$predicted,"system"]))
 colnames(temp2) <- c("system","N")
 
 temp2 <- data.frame(system = temp2$system,
