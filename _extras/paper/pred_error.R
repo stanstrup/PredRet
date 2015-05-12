@@ -49,32 +49,48 @@ points(test_know[!withinCI,"recorded_rt"],(1:nrow(test_know))[!withinCI], pch=20
 
 
 
-
+# Quercetin family
 test_select <- test[grepl("C21H20O12",test$inchi) & test$system == "FEM_short",]
+xtics <- c(seq(12,14,0.2),seq(19,21,0.2))
+gap=c(13.5,19.3)
+height=250/72
+
+
+# coumaric acid family
+test_select <- test[grepl("C9H8O3",test$inchi) & test$system == "FEM_orbitrap_urine",]
+xtics <- c(seq(6,11,0.2))
+gap=c(12.5,13)
+height=220/72
 
 
 
+
+withinCI <- (test_select[,"ci_lower"] < test_select[,"recorded_rt"] )    &    (test_select[,"ci_upper"] > test_select[,"recorded_rt"] )
+sum(withinCI)/length(withinCI)
+
+
+
+pdf("isomers2.pdf", fonts=c("serif", "Palatino"),width=800/72,height=height, useDingbats=FALSE)
 par(mar=c(5,14,4,2))
 par(bty="n")
 
-gap=c(13.5,19.3)
-
-gap.plot(c(min(test_select[,c("recorded_rt","ci_lower")],na.rm = T),max(test_select[,c("recorded_rt","ci_upper")],na.rm = T)),
+gap.plot(c(floor(min(test_select[,c("recorded_rt","ci_lower")],na.rm = T)),ceiling(max(test_select[,c("recorded_rt","ci_upper")],na.rm = T))),
          c(1,nrow(test_select)),
          gap=gap,
          gap.axis="x",
          type='n',
          xlab='Retention time (min)',
          ylab='',
-         xtics=c(seq(12,14,0.2),seq(19,21,0.2)),
-         xticlab=c(seq(12,14,0.2),seq(19,21,0.2)),
+         ytics=1:nrow(test_select),
+         xtics=xtics,
+         xticlab=xtics,
          yticlab=rep("",nrow(test_select)),
-         ylim=c(0.7,5)
+         ylim=c(0.7,nrow(test_select))
          )
 
 axis(2, at=1:nrow(test_select), labels=test_select[,"name"], las=2, cex.axis=.8)
-abline(v=seq(13.49,13.56,.001), col="white")  # hiding vertical lines
-axis.break(axis=1,breakpos=13.5,style="slash")
+abline(v=seq(min(gap)-0.01,min(gap)+0.06,.001), col="white")  # hiding vertical lines
+axis.break(axis=1,breakpos=min(gap),style="slash")
 
 for(i in 1:nrow(test_select))     abline(h=i,lty=2,col="grey",lwd=0.5)
 
@@ -88,3 +104,4 @@ points(test_select[,"predicted_rt"],1:nrow(test_select), pch=22, cex=1, col="bla
 points(test_select[,"recorded_rt"],1:nrow(test_select), pch=20, cex=1, col="black")
 points(test_select[!withinCI,"recorded_rt"],(1:nrow(test_select))[!withinCI], pch=20, cex=1, col="red")
 
+dev.off()
