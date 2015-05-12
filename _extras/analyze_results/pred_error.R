@@ -1,5 +1,9 @@
-test <- get_user_data()
-test <- test[test$generation==1,]
+library(plotrix)
+library(PredRetR)
+
+
+test <- PredRet_get_db()
+test <- test[test$predicted==TRUE,]
 
 
 ## CI width
@@ -38,3 +42,49 @@ points(test_know[,"predicted_rt"],1:nrow(test_know), pch=22, cex=1, col="black")
 
 points(test_know[,"recorded_rt"],1:nrow(test_know), pch=20, cex=1, col="black")
 points(test_know[!withinCI,"recorded_rt"],(1:nrow(test_know))[!withinCI], pch=20, cex=1, col="red")
+
+
+
+
+
+
+
+
+test_select <- test[grepl("C21H20O12",test$inchi) & test$system == "FEM_short",]
+
+
+
+par(mar=c(5,14,4,2))
+par(bty="n")
+
+gap=c(13.5,19.3)
+
+gap.plot(c(min(test_select[,c("recorded_rt","ci_lower")],na.rm = T),max(test_select[,c("recorded_rt","ci_upper")],na.rm = T)),
+         c(1,nrow(test_select)),
+         gap=gap,
+         gap.axis="x",
+         type='n',
+         xlab='Retention time (min)',
+         ylab='',
+         xtics=c(seq(12,14,0.2),seq(19,21,0.2)),
+         xticlab=c(seq(12,14,0.2),seq(19,21,0.2)),
+         yticlab=rep("",nrow(test_select)),
+         ylim=c(0.7,5)
+         )
+
+axis(2, at=1:nrow(test_select), labels=test_select[,"name"], las=2, cex.axis=.8)
+abline(v=seq(13.49,13.56,.001), col="white")  # hiding vertical lines
+axis.break(axis=1,breakpos=13.5,style="slash")
+
+for(i in 1:nrow(test_select))     abline(h=i,lty=2,col="grey",lwd=0.5)
+
+select <- c("recorded_rt","predicted_rt","ci_lower","ci_upper")
+test_select[, select] <- apply(test_select[, select], 2, function(x) ifelse(x > max(gap), x-diff(gap), x))
+
+
+segments(test_select[,"ci_lower"], 1:nrow(test_select),test_select[,"ci_upper"], 1:nrow(test_select),col=1)
+points(test_select[,"predicted_rt"],1:nrow(test_select), pch=22, cex=1, col="black")
+
+points(test_select[,"recorded_rt"],1:nrow(test_select), pch=20, cex=1, col="black")
+points(test_select[!withinCI,"recorded_rt"],(1:nrow(test_select))[!withinCI], pch=20, cex=1, col="red")
+
