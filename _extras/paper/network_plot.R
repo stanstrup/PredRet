@@ -98,3 +98,11 @@ plot(g,vertex.color="white",margin=c(-0.32,-0.82,-0.22,-0.67),layout=layout.fruc
 g2 <- delete.vertices(g,   connected_v + 1:(length(V(g))-connected_v)    )
 plot(g2,vertex.color="white",margin=c(-0.3,-0.75,-0.2,-0.62),layout=layout.circle)
 plot(g2,vertex.color="white",margin=c(-0.32,-0.82,-0.22,-0.67),layout=layout.fruchterman.reingold(g2, niter=10000, area=5000*vcount(g2)^2))
+
+
+
+# write pdf
+pdf("network_circular_connected.pdf", fonts=c("serif", "Palatino"),width=1000/72,height=1000/72, useDingbats=FALSE)
+plot(g2,vertex.color="white",margin=c(-0.3,-0.75,-0.2,-0.62),layout=layout.circle)
+dev.off()
+
