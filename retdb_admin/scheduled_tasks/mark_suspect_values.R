@@ -121,7 +121,7 @@ suspect <- unique(suspect)
 
 
 
-
+if(!nrow(suspect)==0){
 
 # db connection
 mongo <- PredRet_connect()
@@ -150,3 +150,5 @@ for(i in 1:nrow(suspect)){
 
 del <- mongo.disconnect(mongo)
 del <- mongo.destroy(mongo) 
+
+}
