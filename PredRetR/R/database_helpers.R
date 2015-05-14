@@ -46,7 +46,12 @@ pred_stat_make <- function(predicted_data) {
   predstats[3,1] <- mean(abs(         predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
   predstats[4,1] <- median(abs(       predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
   predstats[5,1] <- quantile(abs(     predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),probs = 0.95,na.rm = TRUE)
+  
+  if(all(is.na(predicted_data[,"recorded_rt"]))){
+  predstats[6,1] <- NA  
+  }else{
   predstats[6,1] <- max(abs(          predicted_data[,"recorded_rt"]   -    predicted_data[,"predicted_rt"]         ),na.rm = TRUE)
+  }
   
   predstats[7,1] <- mean(abs(          predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),na.rm = TRUE)
   predstats[8,1] <- median(abs(        predicted_data[,"ci_upper"]   -    predicted_data[,"ci_lower"]         ),na.rm = TRUE)
