@@ -78,7 +78,7 @@ V(g)$size <- normalize_range(     log(as.numeric(N)[order])     ,10,30)
 
 
 # edge width  
-E(g)$width <- normalize_range(     log(d$common)     ,1,15)
+E(g)$width <- normalize_range(     log(d$common)     ,3,25)
 #E(g)$arrow.width <-  log(d$common) /4
 E(g)$arrow.width <-  0
 
