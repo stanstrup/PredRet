@@ -5,6 +5,7 @@ suspect_users_data <-  reactive({
   
   data <- get_user_data(userID=userID(),generation=0L,suspect=TRUE) 
   
+  if(is.null(data)) return(NULL) # if no data return nothing
   
   
   
@@ -71,6 +72,7 @@ manage_suspect_table_settings <- reactive({
 ## Display the table
 output$SUSPECT_data <- renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
+  if(is.null(suspect_users_data())) return(NULL)
   
   
   data_to_show <- suspect_users_data()
