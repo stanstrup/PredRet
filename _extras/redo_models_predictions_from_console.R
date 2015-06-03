@@ -24,15 +24,10 @@ PredRet.env$predret_local <- TRUE
 
 purge_predictions() 
 
-for(i in 1:10){
-  source("calc_all_models.R")
-  source("mark_suspect_values.R")
-  source("make_predictions.R")
+for(noi in 1:10){
+  source("calc_all_models.R",local = T)
+  source("mark_suspect_values.R",local = T)
+  source("make_predictions.R",local = T)
 }
 
 setwd("/home/jan/git_repositories/predret_shiny")
-
-
-
-
-
