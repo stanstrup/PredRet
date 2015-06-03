@@ -47,7 +47,19 @@ data_cleaned <- reactive({
   # change column names
   colnames(temp_data) = c("name","recorded_rt","system_name","pubchem","inchi")[!is.na(select)]
   
-  
+
+# Make sure there is a pubchem column
+if(!any(colnames(temp_data)=="pubchem")){
+  temp_data = cbind.data.frame(temp_data,pubchem=NA)
+}
+
+# Make sure there is a pubchem inchi
+if(!any(colnames(temp_data)=="inchi")){
+  temp_data = cbind.data.frame(temp_data,inchi=NA)
+}
+
+
+
   # Make sure pubchem id is treated as integer
   if(any(colnames(temp_data)=="pubchem")){
     temp_data[,"pubchem"] = as.integer(temp_data[,"pubchem"])
@@ -84,9 +96,15 @@ data_cleaned <- reactive({
   }
   
   # Delete rows that don't contain pubchem or inchi
-if(any(colnames(temp_data)=="inchi")){
+if(        any(colnames(temp_data)=="inchi")  &   any(colnames(temp_data)=="pubchem")         ){
   no_id = (is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"])) & !grepl("InChI",temp_data[,"inchi"],fixed=T)
-}else{
+}
+
+if(        any(colnames(temp_data)=="inchi")  &   !any(colnames(temp_data)=="pubchem")         ){
+  no_id = !grepl("InChI",temp_data[,"inchi"],fixed=T)
+}
+
+if(        !any(colnames(temp_data)=="inchi")  &   any(colnames(temp_data)=="pubchem")         ){
   no_id = (is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
 }
 
@@ -101,14 +119,16 @@ if(any(colnames(temp_data)=="inchi")){
 
   # Get inchi from pubchem
 updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=15)
-if(any(colnames(temp_data)=="inchi")){
-  no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
-  temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
-}else{
-  temp_data=cbind.data.frame(temp_data,inchi=NA)
-  temp_data[,"inchi"] = pubchem2inchi(    temp_data[,"pubchem"]       )
-}
 
+if(any(colnames(temp_data)=="pubchem")){
+  if(any(colnames(temp_data)=="inchi")){
+    no_inchi = !grepl("InChI",temp_data[,"inchi"],fixed=T)   &    !(is.na(temp_data[,"pubchem"]) | is.nan(temp_data[,"pubchem"]))
+    temp_data[no_inchi,"inchi"] = pubchem2inchi(    temp_data[no_inchi,"pubchem"]       )
+  }else{
+    temp_data=cbind.data.frame(temp_data,inchi=NA)
+    temp_data[,"inchi"] = pubchem2inchi(    temp_data[,"pubchem"]       )
+  }
+}
 
 
 
