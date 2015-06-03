@@ -76,10 +76,15 @@ data$system <- as.factor(data$system)
 stats <- 
 ddply(data, .(system), summarise, N         = sum(!is.na(predicted_rt)),                                      # # predictions
                                   N_ex      = sum(!is.na(predicted_rt) & is.na(recorded_rt))            ,     # # predictions with unknown RT
+                           error_abs_median = median(error_abs[select])        ,                                # abs error
+      error_rel_median = median(error_rel[select])        ,                                # abs error
                                   error_abs = mean(error_abs[select])        ,                                # abs error
                                   error_rel = mean(error_rel[select])        ,                                # rel error
-                                  ci_abs = mean(ci_width_abs[select])        ,                                                       
-                                  ci_rel = mean(ci_width_rel[select])        ,   
+                                  ci_abs = mean(ci_width_abs,na.rm = T)        ,                                                       
+                                  ci_rel = mean(ci_width_rel,na.rm = T)        ,   
+                                  ci_abs_median = median(ci_width_abs,na.rm = T)        ,
+      ci_rel_median = median(ci_width_rel,na.rm = T)        ,
+
       .drop=F)
 
 
@@ -292,8 +297,10 @@ plot(p7)
 
 
 ## Violin plot for ci relative width ############################
-plotdata <- data[data$select,c("system","ci_width_rel")]
+plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width_rel")]
 plotdata[,"ci_width_rel"] <- plotdata[,"ci_width_rel"]*100
+
+
 
 
 violin_width=0.8
@@ -327,8 +334,8 @@ plot(p8)
 
 
 ## Violin plot for ci absolute width ############################
-plotdata <- data[data$select,c("system","ci_width_abs")]
-plotdata[,"ci_width_abs"] <- plotdata[,"ci_width_abs"]
+plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width_abs")]
+
 
 
 violin_width=0.8
