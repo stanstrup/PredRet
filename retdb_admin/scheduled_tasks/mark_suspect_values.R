@@ -68,8 +68,9 @@ for(i in 1:length(unique_inchi)){
       ci <- as.data.frame(t(sapply(ci,unlist)))
       
       # see if outside CI*suspect_CI_multiplier
-      ci_upper_lim <- with(ci,     (upper-pred)*PredRet.env$suspect$suspect_CI_multiplier+pred        )
-      ci_lower_lim <- with(ci,     pred-(pred-lower)*PredRet.env$suspect$suspect_CI_multiplier        )
+      # The max/min trick is used to avoid marking something suspect because the CI is extremely narrow.
+      ci_upper_lim <- with(ci,     max(pred+0.1, pred*1.05,  pred+(upper-pred)*PredRet.env$suspect$suspect_CI_multiplier  )       )
+      ci_lower_lim <- with(ci,     min(pred-0.1, pred*0.95,  pred-(pred-lower)*PredRet.env$suspect$suspect_CI_multiplier  )       )
       
       
       if(!(y_org>ci_upper_lim | y_org<ci_lower_lim )){
