@@ -1,5 +1,6 @@
 # Export all functions
 export(log_count, # database queries
+       system_count,
        get_ns,
        get_models,
        get_build_log,

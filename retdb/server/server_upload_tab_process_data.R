@@ -186,10 +186,17 @@ if(any(colnames(temp_data)=="system_name")){
 
   # Don't allow duplication of data already in the db
 updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=85)
-if(nrow(isolate(users_data()))>0){
-  is_dup = duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]                 ,                    isolate(users_data())[isolate(users_data())[,"generation"]==0,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
-  is_dup = is_dup[1:nrow(temp_data)]
-  temp_data = temp_data[!is_dup,,drop=F]
+
+
+if(                any(sapply(unique(temp_data[,"sys_id"]),system_count) > 0)              ){ # Is there any data for this/these systems?
+  
+  
+  sys_data  <- get_user_data(userID=NULL,generation=0,sys_id = unique(temp_data[,"sys_id"])   )
+  is_dup    <- duplicated(rbind(     temp_data[,c("sys_id","recorded_rt","inchi")]          ,     sys_data[,c("sys_id","recorded_rt","inchi")]        ),fromLast = TRUE)
+  is_dup    <- is_dup[1:nrow(temp_data)]
+  temp_data <- temp_data[!is_dup,,drop=F]
+  
+  
   
   if(any(is_dup)){
     errors$has_dups = list(error=2,msg=paste0('Row(s) ',paste(which(is_dup),collapse=', '),' are duplicates of existing database entries. They have been ignored.'))
@@ -213,3 +220,4 @@ updateProgressBar(session, inputId = "uploadprogress", visible=TRUE, value=100)
 })
 
 })
+

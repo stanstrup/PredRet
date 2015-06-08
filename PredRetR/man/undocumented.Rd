@@ -3,6 +3,7 @@
 % database queries
 \alias{PredRet_connect}
 \alias{log_count}
+\alias{system_count}
 \alias{get_ns}
 \alias{get_models}
 \alias{get_build_log}

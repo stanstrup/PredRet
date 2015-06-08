@@ -24,6 +24,19 @@ log_count <- function(){
 }
 
 
+
+
+system_count <- function(sys_id){
+  
+  mongo <- PredRet_connect()
+  n <- mongo.count(mongo, ns=PredRet.env$namespaces$ns_rtdata ,query=list(sys_id=sys_id))
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  return(n)
+}
+
+
 get_ns <- function(ns){
   
   mongo <- PredRet_connect()
@@ -183,7 +196,7 @@ get_systems <- function() {
 }
 
 
-get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL) {  
+get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL,sys_id=NULL) {  
   
   
   # Select which items to get
@@ -202,6 +215,13 @@ get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL) {
     query[["suspect"]] <- suspect
   }
   
+  if(!is.null(sys_id)){
+    if(length(sys_id)>1){
+      query[["sys_id"]] <- list('$in'=sys_id)
+    }else{
+      query[["sys_id"]] <- sys_id
+    }
+  }
   
   
   # Select which columns/fields to get
