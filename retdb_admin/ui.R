@@ -100,7 +100,14 @@ navbarPage("",
                                     wellPanel(
                                       div(actionButton("purge_predictions","purge ALL predictions") ,style="text-align: center;margin: 0 auto;margin-bottom: 15px;"),
                                       div(actionButton("purge_models","purge ALL models") ,style="text-align: center;margin: 0 auto;")
+                                    ),
+                                    
+                                    wellPanel(
+                                      uiOutput("purge_sys"),
+                                      div(actionButton("purge_sys_button","purge all data for system") ,style="text-align: center;margin: 0 auto;")
                                     )
+                                    
+                                    
                              ),
                              
                              column(7,
