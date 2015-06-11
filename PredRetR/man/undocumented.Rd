@@ -17,6 +17,7 @@
 \alias{mongo_del_oid}
 \alias{wrote_model_log}
 \alias{purge_predictions}
+\alias{purge_system_data}
 \alias{set_model_status}
 \alias{model_db_write}
 \alias{pred_stat_write}

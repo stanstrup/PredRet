@@ -13,6 +13,7 @@ export(log_count, # database queries
        mongo_del_oid, # database operations
        wrote_model_log,
        purge_predictions,
+       purge_system_data,
        set_model_status,
        model_db_write,
        pred_stat_write,
