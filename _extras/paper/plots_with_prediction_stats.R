@@ -310,7 +310,7 @@ p8 <- p8 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p8 <- p8 + scale_y_continuous(breaks = seq(0, 100, 2))
 p8 <- p8 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p8 <- p8 + plottheme
-p8 <- p8 + labs(title="Relative prediction CI width",x="Chromatographic systems", y="CI width (%)",fill="Quartiles")
+p8 <- p8 + labs(title="Relative prediction PI width",x="Chromatographic systems", y="PI width (%)",fill="Quartiles")
 
 p8 <- p8 + geom_violin_quantile_fill(p=p8,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_rel"],width=violin_width)
 p8 <- p8 + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
@@ -345,7 +345,7 @@ p9 <- p9 + scale_x_discrete(breaks=levels(data$system), drop=FALSE)
 p9 <- p9 + scale_y_continuous(breaks = seq(0, 1000, 0.2))
 p9 <- p9 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p9 <- p9 + plottheme
-p9 <- p9 + labs(title="Absolute prediction CI width",x="Chromatographic systems", y="CI width (min)",fill="Quartiles")
+p9 <- p9 + labs(title="Absolute prediction PI width",x="Chromatographic systems", y="PI width (min)",fill="Quartiles")
 
 p9 <- p9 + geom_violin_quantile_fill(p=p9,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_abs"],width=violin_width)
 p9 <- p9 + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
