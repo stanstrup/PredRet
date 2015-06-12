@@ -49,8 +49,12 @@ d <- data.frame(from  =   sapply(models,function(x) x$predict_from)    ,
 
 
 # Attempt to do better ordering
-d$from <- factor(d$from,levels= c("RIKEN","FEM_long","FEM_short","FEM_orbitrap_plasma","FEM_lipids","FEM_orbitrap_urine",
-                                  "MTBLS36","MTBLS38","MTBLS39","LIFE_old","LIFE_new","MTBLS20" )
+d$from <- factor(d$from,levels= c("RIKEN","MTBLS20","LIFE_new","LIFE_old","IPB_Halle","MTBLS87","Cao_HILIC" ,"Eawag_XBridgeC18","UFZ_Phenomenex","UniToyama_Atlantis",
+                                  "FEM_orbitrap_urine","FEM_lipids","FEM_orbitrap_plasma","FEM_short","FEM_long","MPI_Symmetry",
+                                  "MTBLS39",
+                                  "MTBLS38","MTBLS36"
+                                  
+                                  )
                 )
 
 d <- d[order(as.numeric(d$from)),]
@@ -78,7 +82,7 @@ V(g)$size <- normalize_range(     log(as.numeric(N)[order])     ,10,30)
 
 
 # edge width  
-E(g)$width <- normalize_range(     log(d$common)     ,3,25)
+E(g)$width <- normalize_range(     log(d$common)     ,3,20)
 #E(g)$arrow.width <-  log(d$common) /4
 E(g)$arrow.width <-  0
 
