@@ -88,8 +88,11 @@ E(g)$arrow.width <-  0
 
 
 # edge color scale
-color <- normalize01(log(d$common))
-color <- colorRamp(c("green","red"))(   color     )
+color <- normalize01(rank(log(d$common)))
+color <- c(-.4,color)
+color <- normalize01(color)
+color <- colorRamp(c("yellow","pink","blue"))(   color     )
+color <- color[-1,]
 color <- apply(color,1,function(x) rgb(x[1],x[2],x[3],maxColorValue=255))
 E(g)$color <- color
 
