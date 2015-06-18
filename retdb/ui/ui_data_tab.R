@@ -1,10 +1,7 @@
 fluidPage(
   
-  tags$head(
-    tags$style(type="text/css", "select#DATA_select_system { height: 20em; }")
-  ),
-  
-  div(style="margin: 0 auto;text-align: center;",
+
+  div(style="margin: 0 auto;text-align: center;width:300px;",
       uiOutput("DATA_select_system")
   ),
   

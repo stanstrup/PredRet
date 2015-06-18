@@ -1,26 +1,34 @@
-#system_name, #SYSTEM_eluent_name,#SYSTEM_eluent_pH_name, #SYSTEM_eluent_additive_name, #SYSTEM_column_name, #SYSTEM_column_type_name, #SYSTEM_ref {
-                 width: 100%;
-                 height: 27px;
+select#DATA_select_system {
+                height: 20em;
 }
+    
 
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+  width: 100%;
+}
 
 
 div.flexpad{
                 display: flex;
-                padding-right: 14px;
 }
 
 
 div.SYSTEM_varname {
                 min-width: 11em;
                 width: 20%;
-                line-height: 3.5em;
+                line-height: 5em;
 }
 
 
-div.SYSTEM_varselect {
-                min-width: 22em;
+div.SYSTEM_varselect1 {
                 width: 40%;
+                padding-right: 15px;
+}
+
+div.SYSTEM_varselect2 {
+                width: 40%;
+                padding-left: 15px;
 }
 
 
@@ -31,20 +39,18 @@ div#selectfilter_container {
 
 
 p.inputlabel{
-                line-height: 2.7em;
-                width: 9em;
+                line-height: 5em;
+                width: 25%;
 }
 
 
 div.smallnuminput_left{
-                width: 90px;
-                padding-right: 20px;
+                width: 37.5%;
 }
 
 
 div.smallnuminput_right{
-                width: 90px;
-                padding-left: 10px;
+                width: 37.5%;
 }
 
 

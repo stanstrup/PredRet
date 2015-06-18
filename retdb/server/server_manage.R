@@ -36,12 +36,16 @@ users_data <-  reactive({
 
 ## Make settings
 manage_table_settings <- reactive({
-  colwidths <- c("60px","600px", "60px", "150px", "150px", "100px","NA")
-  col.names <- c("Select","Name","RT","System","Date added","Pubchem","InChI")
+  colwidths <- c("0px","600px", "60px", "150px", "150px", "100px","NA")
+  col.names <- c("rownames","Name","RT","System","Date added","Pubchem","InChI")
   aoColumnDefs <- list(NULL)
   for(i in 1:length(col.names)){
-    column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
-    aoColumnDefs[[i]] <- column
+    if(i==1){
+      aoColumnDefs[[i]] <- list(sWidth=colwidths[i], sTitle=col.names[i], visible=FALSE,aTargets=list(i-1))
+    }else{
+      aoColumnDefs[[i]] <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
+    }
+
   }
   
   return(aoColumnDefs)
@@ -58,7 +62,7 @@ masses <- reactive({
 
 
 ## Display the table
-output$MANAGE_data <- renderDataTable({
+output$MANAGE_data <- DT::renderDataTable({
   # if(exists("data_was_deleted")) data_was_deleted()
   
   
@@ -108,8 +112,13 @@ output$MANAGE_data <- renderDataTable({
     
     
     # Add checkbox column
-    addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(data_to_show), '">')
-    cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","recorded_rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
+    #  addCheckBoxes <- paste0('<input type="checkbox" ',' id=' ,'row',1:nrow(data_to_show),' ',checked,' name="row" value="', 1:nrow(data_to_show), '">')
+    # cbind.data.frame(Select=addCheckBoxes,data_to_show[,c("name","recorded_rt","system","date added","pubchem","inchi")]           ,stringsAsFactors = F)
+
+    # Object to return
+    rownames(data_to_show) <- paste0("row",1:nrow(data_to_show))    
+    data_to_show[,c("name","recorded_rt","system","date added","pubchem","inchi")]
+
   }
 }
 
@@ -120,13 +129,15 @@ output$MANAGE_data <- renderDataTable({
 
 
 
-## Show selected rows in terminal
-observe({
-  print(as.numeric(input$row))
-}) 
+## Show selected rows
 
-
-
+output$MANAGE_data_show_selected = renderPrint({
+  s = input$MANAGE_data_rows_selected
+  if (length(s)) {
+    cat('These rows were selected:\n\n')
+    cat(s, sep = '\n')
+  }
+})
 
 
 

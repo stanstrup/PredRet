@@ -1,6 +1,6 @@
 pageWithSidebar(
   headerPanel("Upload data"),
-  sidebarPanel(
+  sidebarPanel(style="max-width: 340px;",
     checkboxInput("only_own_systems_upload","Only show your own systems?",value=TRUE),
     uiOutput("system_upload"),              
     fileInput("files", "File data", multiple=F,accept=c("text/csv")),

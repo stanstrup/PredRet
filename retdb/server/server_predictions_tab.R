@@ -45,7 +45,7 @@ output$PREDICTIONS_select_system <- renderUI({
   opt_list <- as.list(sys_models_oid1)
   names(opt_list) <- sys_models_oid1_name
   
-  selectInput(inputId = 'PREDICTIONS_select_system',label= 'Select system you want retention times for',choices=opt_list,selected="",selectize=TRUE)
+  selectInput(inputId = 'PREDICTIONS_select_system',label= 'Select system you want retention times for',choices=opt_list,selected="",selectize=TRUE,width="300px")
   
 })
 
