@@ -142,6 +142,7 @@ observe({
 })
 
 
+## Purge models ################# 
 observe({
   if(input$purge_models==0) return(NULL)  
   
@@ -154,6 +155,35 @@ observe({
     })
   
 })
+
+
+
+## Purge data from specific system ################# 
+
+output$purge_sys <- renderUI({
+  return(selectInput(inputId = 'purge_sys',label= 'Select system to purge',choices=c("",as.character(lapply(systems(),function(x) x$system_name))),selected="",selectize=TRUE))
+})
+
+
+
+observe({
+  if(input$purge_sys_button==0) return(NULL)  
+  
+  isolate({   
+    if(is.null(input$purge_sys)) return(NULL)
+    if(input$purge_sys=="") return(NULL)
+    
+    # get oid for selected systems
+    sys_names = as.character(lapply(systems(),function(x) x$system_name))
+    sys_oids  = as.character(lapply(systems(),function(x) as.character.mongo.oid(x$`_id`)))
+    oid = sys_oids[input$purge_sys==sys_names]
+    purge_system_data(oid)    
+    })
+  
+})
+
+
+
 
 
 

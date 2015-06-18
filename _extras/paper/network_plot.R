@@ -49,8 +49,12 @@ d <- data.frame(from  =   sapply(models,function(x) x$predict_from)    ,
 
 
 # Attempt to do better ordering
-d$from <- factor(d$from,levels= c("RIKEN","FEM_long","FEM_short","FEM_orbitrap_plasma","FEM_lipids","FEM_orbitrap_urine",
-                                  "MTBLS36","MTBLS38","MTBLS39","LIFE_old","LIFE_new","MTBLS20" )
+d$from <- factor(d$from,levels= c("RIKEN","MTBLS20","LIFE_new","LIFE_old","IPB_Halle","MTBLS87","Cao_HILIC" ,"Eawag_XBridgeC18","UFZ_Phenomenex","UniToyama_Atlantis",
+                                  "FEM_orbitrap_urine","FEM_lipids","FEM_orbitrap_plasma","FEM_short","FEM_long","MPI_Symmetry",
+                                  "MTBLS39",
+                                  "MTBLS38","MTBLS36"
+                                  
+                                  )
                 )
 
 d <- d[order(as.numeric(d$from)),]
@@ -78,14 +82,17 @@ V(g)$size <- normalize_range(     log(as.numeric(N)[order])     ,10,30)
 
 
 # edge width  
-E(g)$width <- normalize_range(     log(d$common)     ,3,25)
+E(g)$width <- normalize_range(     log(d$common)     ,3,20)
 #E(g)$arrow.width <-  log(d$common) /4
 E(g)$arrow.width <-  0
 
 
 # edge color scale
-color <- normalize01(log(d$common))
-color <- colorRamp(c("green","red"))(   color     )
+color <- normalize01(rank(log(d$common)))
+color <- c(-.4,color)
+color <- normalize01(color)
+color <- colorRamp(c("yellow","pink","blue"))(   color     )
+color <- color[-1,]
 color <- apply(color,1,function(x) rgb(x[1],x[2],x[3],maxColorValue=255))
 E(g)$color <- color
 
@@ -105,4 +112,47 @@ plot(g2,vertex.color="white",margin=c(-0.32,-0.82,-0.22,-0.67),layout=layout.fru
 pdf("network_circular_connected.pdf", fonts=c("serif", "Palatino"),width=1000/72,height=1000/72, useDingbats=FALSE)
 plot(g2,vertex.color="white",margin=c(-0.3,-0.75,-0.2,-0.62),layout=layout.circle)
 dev.off()
+
+
+
+
+
+
+# Make a gradient for the plot ###################
+gradient <- cbind.data.frame(count = d$common,color = E(g)$color,stringsAsFactors=FALSE)
+gradient <- gradient[order(gradient$count),]
+gradient <- unique(gradient)
+
+
+col_min <- min(gradient$count)
+col_max <- max(gradient$count)
+
+col_range <- col_min:col_max
+
+
+while(!all(col_range %in% gradient$count)){
+  
+  missing <- min(col_range[!(col_range %in% gradient$count)])
+  missing_lower <- max(gradient$count[gradient$count-missing<0])
+  missing_higher <- min(gradient$count[gradient$count-missing>0])
+  new_cols <- colorRampPalette(c(gradient$color[gradient$count==missing_lower],gradient$color[gradient$count==missing_higher]))(   (missing_higher-missing_lower)-1     )  
+    
+  new_count <- missing_lower:missing_higher
+  new_count <- new_count[-c(1,length(new_count))]
+  
+  gradient <- rbind.data.frame(gradient,cbind.data.frame(count = new_count, color = new_cols))
+  gradient <- gradient[order(gradient$count),]
+}
+
+
+
+
+pdf("gradient.pdf", fonts=c("serif", "Palatino"),width=500/72,height=200/72, useDingbats=FALSE,pointsize = 8)
+plot(gradient$count,seq(1,2,length.out = length(gradient$count)),type="n",log="x",axes=FALSE)
+rect(xleft = gradient$count-0.505 ,  xright= gradient$count+0.505, ybottom=1, ytop =2,col=gradient$color,lwd=0,border=NA)
+labels = seq(min(gradient$count),max(gradient$count),10)
+axis(1,at=labels,labels= labels      )
+dev.off()
+
+
 

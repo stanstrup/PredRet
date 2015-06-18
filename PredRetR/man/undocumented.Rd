@@ -3,6 +3,7 @@
 % database queries
 \alias{PredRet_connect}
 \alias{log_count}
+\alias{system_count}
 \alias{get_ns}
 \alias{get_models}
 \alias{get_build_log}
@@ -16,6 +17,7 @@
 \alias{mongo_del_oid}
 \alias{wrote_model_log}
 \alias{purge_predictions}
+\alias{purge_system_data}
 \alias{set_model_status}
 \alias{model_db_write}
 \alias{pred_stat_write}

@@ -47,6 +47,19 @@ purge_predictions <- function(sys_id=NULL){
 }
 
 
+purge_system_data <- function(sys_id){
+  mongo <- PredRet_connect()
+  
+  mongo.remove(mongo, ns=PredRet.env$namespaces$ns_rtdata    , criteria = list(sys_id=sys_id)  )
+  mongo.remove(mongo, ns=PredRet.env$namespaces$ns_pred_stats, criteria = list(sys_oid=sys_id)                )
+  mongo.remove(mongo, ns=PredRet.env$namespaces$ns_sysmodels,  criteria = list(oid_sys1=sys_id)                )
+  mongo.remove(mongo, ns=PredRet.env$namespaces$ns_sysmodels,  criteria = list(oid_sys2=sys_id)                )
+
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo) 
+  
+}
+
 
 
 set_model_status <- function(sysoid1,sysoid2,status){

@@ -15,8 +15,9 @@ systems <- lapply(systems,function(x) {
                                       }
                   )
 
-systems <- data.frame(do.call(rbind, systems), stringsAsFactors=FALSE)
-systems <- as.data.frame(lapply(systems,unlist), stringsAsFactors=FALSE)
+
+systems <- do.call(rbind.data.frame ,systems)
+systems <- as.data.frame(apply(systems,2,as.character),stringsAsFactors=FALSE)
 
 
 sys_oids  = systems$X_id
