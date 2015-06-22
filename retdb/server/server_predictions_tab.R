@@ -45,7 +45,7 @@ output$PREDICTIONS_select_system <- renderUI({
   opt_list <- as.list(sys_models_oid1)
   names(opt_list) <- sys_models_oid1_name
   
-  selectInput(inputId = 'PREDICTIONS_select_system',label= 'Select system you want retention times for',choices=opt_list,selected="",selectize=TRUE,width="300px")
+  selectInput(inputId = 'PREDICTIONS_select_system',label= 'Select system you want retention times for',choices=opt_list,selected="",selectize=TRUE,width="25em")
   
 })
 
@@ -78,12 +78,13 @@ output$download_predicted_ui <- renderUI({
 
 ## Make settings
 predict_table_settings <- reactive({
-  colwidths <- c("500px", "120px","120px", "120px","120px","120px","NA")
-  col.names <- c("Name","Recorded RT","Predicted RT","CI lower","CI upper","Pubchem","InChI")
+  colwidths <- c("0px"        ,"500px"       , "120px"         ,"120px"          ,"120px"        ,"120px"        ,"120px"      ,"NA")
+  col.names <- c("rownames"   ,"Name"        ,"Recorded RT"    ,"Predicted RT"   ,"CI lower"     ,"CI upper"     ,"Pubchem"    ,"InChI")
+  align <-     c("alignLeft"  ,"alignLeft"   ,"alignRight"      ,"alignRight"      ,"alignRight"   ,"alignRight"   ,"alignRight"  ,"alignLeft")
+  
   aoColumnDefs <- list(NULL)
   for(i in 1:length(col.names)){
-    column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
-    aoColumnDefs[[i]] <- column
+    aoColumnDefs[[i]] <- list(sWidth=colwidths[i], sTitle=col.names[i], sClass=align[i], visible=if(i==1){FALSE}else{TRUE},aTargets=list(i-1))
   }
   
   return(aoColumnDefs)
@@ -114,7 +115,7 @@ output$PREDICTIONS_data <- renderDataTable({
   
 }
 ,options=list(pageLength = 15,aoColumnDefs=predict_table_settings(), columns=NULL,AutoWidth=FALSE    )
-,escape=FALSE
+,escape=FALSE,selection="none",filter="top"
 )
 
 

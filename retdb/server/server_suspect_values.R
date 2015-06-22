@@ -54,12 +54,13 @@ suspect_users_data <-  reactive({
 
 ## Make settings
 manage_suspect_table_settings <- reactive({
-  colwidths <- c("485px", "118px","118px", "150px", "150px", "119px","NA")
-  col.names <- c("Name","Recorded RT","Predicted RT","System","Date added","Pubchem","InChI")
+  colwidths <- c("0px"        ,"485px"      ,"118px"        ,"118px"         , "150px"     ,"160px"       ,"119px"       ,"NA")
+  col.names <- c("rownames"   ,"Name"       ,"Recorded RT"  ,"Predicted RT"  ,"System"     ,"Date added"  ,"Pubchem"     ,"InChI")
+  align <-     c("alignLeft"  ,"alignLeft"  ,"alignRight"   ,"alignRight"    ,"alignLeft"  ,"alignRight"  ,"alignRight"   ,"alignLeft")
+    
   aoColumnDefs <- list(NULL)
   for(i in 1:length(col.names)){
-    column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
-    aoColumnDefs[[i]] <- column
+    aoColumnDefs[[i]] <- list(sWidth=colwidths[i], sTitle=col.names[i], sClass=align[i], visible=if(i==1){FALSE}else{TRUE},aTargets=list(i-1))
   }
   
   return(aoColumnDefs)
@@ -99,7 +100,7 @@ output$SUSPECT_data <- renderDataTable({
 
 
 ,options=list(pageLength = 15,aoColumnDefs=manage_suspect_table_settings(), columns=NULL,AutoWidth=FALSE    )
-,escape=FALSE
+,escape=FALSE,selection="none",filter="top"
 )
 
 

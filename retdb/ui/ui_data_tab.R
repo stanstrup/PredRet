@@ -1,6 +1,5 @@
 fluidPage(
   
-
   div(style="margin: 0 auto;text-align: center;width:300px;",
       uiOutput("DATA_select_system")
   ),

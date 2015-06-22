@@ -112,12 +112,13 @@ output$DATA_download_ui <- renderUI({
 
 ## Make settings
 DATA_table_settings <- reactive({
-  colwidths <- c("30em", "8em","8em", "8em","8em","NA","11em")
-  col.names <- c("Name","System","Username","RT","Pubchem","InChI","Time")
+  colwidths <- c("0em"      ,"30em"     , "8em"      ,"8em"      , "8em"     ,"8em"        ,"NA"           ,"11em")
+  col.names <- c("rownames" ,"Name"     ,"System"    ,"Username" ,"RT"        ,"Pubchem"   ,"InChI"        ,"Time")
+  align <-     c("alignLeft","alignLeft","alignLeft" ,"alignLeft","alignRight","alignRight","alignLeft"   ,"alignRight")
+  
   aoColumnDefs <- list(NULL)
   for(i in 1:length(col.names)){
-    column <- list(sWidth=colwidths[i], sTitle=col.names[i], aTargets=list(i-1))
-    aoColumnDefs[[i]] <- column
+    aoColumnDefs[[i]] <- list(sWidth=colwidths[i], sTitle=col.names[i], sClass=align[i], visible=if(i==1){FALSE}else{TRUE},aTargets=list(i-1))
   }
   
   return(aoColumnDefs)
@@ -143,7 +144,7 @@ output$DATA_download_table <- renderDataTable({
   
 }
 ,options=list(pageLength = 15,aoColumnDefs=DATA_table_settings(), columns=NULL,AutoWidth=FALSE    )
-,escape=FALSE
+,escape=FALSE,selection="none",filter="top"
 )
 
 

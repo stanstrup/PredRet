@@ -59,3 +59,12 @@ div.white_no_pad_marg{
                 padding: 0px;
                 background: white;
 }
+
+
+th.alignRight, td.alignRight{
+                text-align:right;
+}
+
+th.alignLeft, td.alignLeft{
+                text-align:left;
+}
