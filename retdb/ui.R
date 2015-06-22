@@ -7,6 +7,7 @@ library(chemhelper)
 library(Rdisop)
 library(stringr)
 library(PredRetR)
+library(DT)
 
 navbarPage("",
              
