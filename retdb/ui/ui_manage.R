@@ -55,6 +55,6 @@ fluidPage(
   
   
   div(downloadButton('downloadData', 'Download your data'),style="text-align: right;margin-bottom:20px"),
-  dataTableOutput("MANAGE_data"),
-  verbatimTextOutput('MANAGE_data_show_selected')
+  dataTableOutput("MANAGE_data")#,
+#   verbatimTextOutput('MANAGE_data_show_selected')
 )
