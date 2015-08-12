@@ -57,6 +57,12 @@ r2 <- function(x){
 }  
 
 
+## Function to replicate ggplot2's default colors
+ggplotColours <- function(n=6, h=c(0, 360) +15){
+  if ((diff(h)%%360) < 1) h[2] <- h[2] - 360/n
+  hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+}
+
 
 ## Load data and make some stats ############################
 data <- PredRet_get_db()
@@ -292,6 +298,20 @@ plot(p7)
 
 
 
+temp <- mutate(temp,type= ifelse( variable %in% c("N_ex","N") , "# Predictions" ,"# Experimental RTs in database" ) )
+temp$type <- factor(temp$type,levels=c("# Experimental RTs in database","# Predictions"))
+
+
+p11 <- ggplot(temp, aes(x = system, y=value,fill=variable))
+p11 <- p11 + geom_bar(data = subset(temp, variable %in% c("N_ex","N","N_sys")),stat = "identity", position = "stack")
+p11 <- p11 + plottheme
+p11 <- p11 + facet_wrap( ~ type,nrow=2)
+p11 <- p11 + labs(title="Number of RTs and predictions made",fill="",y="")
+p11 <- p11 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
+p11 <- p11 + scale_fill_manual(values = ggplotColours(n=3)[c(2,1,3)], labels = c("Experimental RT is unknown","Experimental RT is known","RTs in database") )
+p11 <- p11 + labs(x="Chromatographic systems")
+
+plot(p11)
 
 
 
@@ -419,6 +439,7 @@ plot( data_sub$recorded_rt,       (data_sub$predicted_rt-data_sub$recorded_rt)/d
 
 ## merge plots ############################
 p7 <- p7   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "A"),size=10)
+#p11 <- p11   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "A"),size=10)
 p10 <- p10 + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "B"),size=10)
 p6 <- p6   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "C"),size=10)
 p5 <- p5   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "D"),size=10)
