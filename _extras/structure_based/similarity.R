@@ -65,23 +65,47 @@ db_support <- lapply(1:nrow(db), function(i){
   })
 
 
-
+# RT weighted by similary
 db$RT_pred <- sapply(db_support,function(x){
-  w <- sigmoid(x$sim, a = 20, b = 0.75)
+  w <- sigmoid(x$sim, a = 50, b = 0.95)
   weighted.mean(x$RT, w,na.rm =T)
   })
 
-db <- mutate(db, error_abs =  abs(RT_pred-recorded_rt) ,  error_rel =   abs(RT_pred-recorded_rt)/recorded_rt  )
+
+# choosing just the RT from the most similar compound
+db$RT_pred2 <- sapply(db_support,function(x){
+  x$RT[which.max(x$sim)]
+})
+
+
+
+db <- mutate(db, error_abs =  abs(RT_pred-recorded_rt) ,  error_rel =   abs(RT_pred-recorded_rt)/recorded_rt, error_rel2 =   abs(RT_pred2-recorded_rt)/recorded_rt  )
 
 
 stats <- 
   ddply(db, .(system), summarise, 
         N                        = sum(!is.na(RT_pred)),
         error_median_abs         = median(    error_abs   ,na.rm = T ),
-        error_median_rel         = median(    error_rel     ,na.rm = T)
+        error_median_rel         = median(    error_rel     ,na.rm = T),
+        error_median_rel2        = median(    error_rel2     ,na.rm = T)
   )
         
 
 
-plot(stats_20_075_extended_tanimoto_with_pred$error_median_rel,stats$error_median_rel)
+plot(stats$error_median_rel,stats$error_median_rel2)
 abline(a=0,b=1)
+
+
+
+
+
+
+
+
+# testing of relationship between w and error
+db$w_sum <- sapply(db_support,function(x){
+  sum(sigmoid(x$sim, a = 50, b = 0.95))
+})
+
+
+plot(db$w_sum,db$error_rel,pch=20)
