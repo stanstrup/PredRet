@@ -457,8 +457,8 @@ p8$scales$scales[[3]]$guide=FALSE
 
 grid.arrange(p7, p10, p6, p5,p9,p8 ,
              ncol=2, 
-             #main="Prediction statistics"
-             main=""
+             #top="Prediction statistics"
+             top=""
 )
 
 
