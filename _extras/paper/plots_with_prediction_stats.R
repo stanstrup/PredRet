@@ -298,6 +298,33 @@ plot(p7)
 
 
 
+temp$variable <- factor(temp$variable,levels = c("N_sys", "N","N_ex"))
+temp <- temp[order(temp$variable),]
+temp3 <- subset(temp, variable %in% c("N_ex","N_sys"))
+temp3$variable <- droplevels(temp3$variable)
+
+
+p12 <- ggplot(temp3, aes(x = system, y=value,fill=variable))
+p12 <- p12 + geom_bar(stat = "identity", position = "stack")
+p12 <- p12 + plottheme
+p12 <- p12 + labs(title="Number of RTs in database and predictions made",fill="",y="# Compounds")
+p12 <- p12 + theme(legend.position=c(0.8,0.95),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
+p12 <- p12 + scale_fill_manual(values = ggplotColours(n=3)[c(2,3)],labels = c("RTs in database","Predicted RTs"))
+
+p12 <- p12 +  scale_y_continuous(breaks=seq(-1000,1000,100))
+p12 <- p12 +  geom_hline(yintercept = 0,colour = "grey90")
+
+p12 <- p12 + labs(x="Chromatographic systems")
+
+plot(p12)
+
+
+
+
+
+
+
+
 temp <- mutate(temp,type= ifelse( variable %in% c("N_ex","N") , "# Predictions" ,"# Experimental RTs in database" ) )
 temp$type <- factor(temp$type,levels=c("# Experimental RTs in database","# Predictions"))
 
@@ -438,7 +465,7 @@ plot( data_sub$recorded_rt,       (data_sub$predicted_rt-data_sub$recorded_rt)/d
 
 
 ## merge plots ############################
-p7 <- p7   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "A"),size=10)
+p12 <- p12   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "A"),size=10)
 #p11 <- p11   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "A"),size=10)
 p10 <- p10 + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "B"),size=10)
 p6 <- p6   + geom_text(aes(x=-Inf, y=Inf,hjust=-0.5, vjust=1.5, label = "C"),size=10)
@@ -455,7 +482,7 @@ p8$scales$scales[[3]]$guide=FALSE
 
 
 
-grid.arrange(p7, p10, p6, p5,p9,p8 ,
+grid.arrange(p12, p10, p6, p5,p9,p8 ,
              ncol=2, 
              #top="Prediction statistics"
              top=""
@@ -475,10 +502,10 @@ Cairo(file="_extras/paper/prediction_stats.png",
 
 
 
-grid.arrange(p7, p10, p6, p5,p9,p8 ,
+grid.arrange(p12, p10, p6, p5,p9,p8 ,
              ncol=2, 
-             #main="Prediction statistics"
-             main=""
+             #top="Prediction statistics"
+             top=""
              )
 dev.off()
 
@@ -486,10 +513,10 @@ dev.off()
 
 
 cairo_ps("_extras/paper/prediction_stats.eps",width=12, height=15, pointsize=12,bg="white")
-grid.arrange(p7, p10, p6, p5,p9,p8 ,
+grid.arrange(p12, p10, p6, p5,p9,p8 ,
              ncol=2, 
              #main="Prediction statistics"
-             main=""
+             top=""
 )
 dev.off()
 
