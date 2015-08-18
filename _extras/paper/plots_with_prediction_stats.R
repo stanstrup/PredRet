@@ -151,9 +151,8 @@ plotdata <- data[data$select,c("system","error_rel")]
 plotdata[,"error_rel"] <- plotdata[,"error_rel"]*100
 
 temp <- plotdata
-temp$system = "ALL DATA"
+temp$system = as.factor("ALL DATA")
 plotdata <- rbind.data.frame(temp,plotdata)
-plotdata$system <- as.factor(plotdata$system)
 
 
 violin_width=0.8
@@ -194,9 +193,8 @@ plot(p5)
 plotdata <- data[data$select,c("system","error_abs")]
 
 temp <- plotdata
-temp$system = "ALL DATA"
+temp$system = as.factor("ALL DATA")
 plotdata <- rbind.data.frame(temp,plotdata)
-plotdata$system <- as.factor(plotdata$system)
 
 violin_width=0.8
 
@@ -359,9 +357,9 @@ plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width
 plotdata[,"ci_width_rel"] <- plotdata[,"ci_width_rel"]*100
 
 temp <- plotdata
-temp$system = "ALL DATA"
+temp$system = as.factor("ALL DATA")
 plotdata <- rbind.data.frame(temp,plotdata)
-plotdata$system <- as.factor(plotdata$system)
+
 
 violin_width=0.8
 
@@ -397,9 +395,8 @@ plot(p8)
 plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width_abs")]
 
 temp <- plotdata
-temp$system = "ALL DATA"
+temp$system = as.factor("ALL DATA")
 plotdata <- rbind.data.frame(temp,plotdata)
-plotdata$system <- as.factor(plotdata$system)
 
 violin_width=0.8
 
