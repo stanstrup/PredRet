@@ -150,11 +150,16 @@ plot(p2)
 plotdata <- data[data$select,c("system","error_rel")]
 plotdata[,"error_rel"] <- plotdata[,"error_rel"]*100
 
+temp <- plotdata
+temp$system = "ALL DATA"
+plotdata <- rbind.data.frame(temp,plotdata)
+plotdata$system <- as.factor(plotdata$system)
+
 
 violin_width=0.8
 
 p5 <- ggplot( plotdata, aes( x = system, y = error_rel ) )
-p5 <- p5 + scale_x_discrete(breaks=levels(data$system), drop=FALSE)
+p5 <- p5 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p5 <- p5 + scale_y_continuous(breaks = seq(0, 100, 2))
 p5 <- p5 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p5 <- p5 + labs(title="Relative prediction errors",x="Chromatographic systems", y="Error (%)",fill="Quartiles")
@@ -187,10 +192,16 @@ plot(p5)
 
 ## Violin plot absolute prediction error ############################
 plotdata <- data[data$select,c("system","error_abs")]
+
+temp <- plotdata
+temp$system = "ALL DATA"
+plotdata <- rbind.data.frame(temp,plotdata)
+plotdata$system <- as.factor(plotdata$system)
+
 violin_width=0.8
 
 p6 <- ggplot( plotdata, aes( x = system, y = error_abs ) )
-p6 <- p6 + scale_x_discrete(breaks=levels(data$system), drop=FALSE)
+p6 <- p6 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p6 <- p6 + scale_y_continuous(breaks = seq(0, 10, 0.1))
 p6 <- p6 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p6 <- p6 + labs(title="Absolute prediction errors", y="Error (min)",fill="Quartiles")
@@ -347,8 +358,10 @@ plot(p11)
 plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width_rel")]
 plotdata[,"ci_width_rel"] <- plotdata[,"ci_width_rel"]*100
 
-
-
+temp <- plotdata
+temp$system = "ALL DATA"
+plotdata <- rbind.data.frame(temp,plotdata)
+plotdata$system <- as.factor(plotdata$system)
 
 violin_width=0.8
 
@@ -383,12 +396,15 @@ plot(p8)
 ## Violin plot for ci absolute width ############################
 plotdata <- data[data$predicted==TRUE & data$suspect==FALSE,c("system","ci_width_abs")]
 
-
+temp <- plotdata
+temp$system = "ALL DATA"
+plotdata <- rbind.data.frame(temp,plotdata)
+plotdata$system <- as.factor(plotdata$system)
 
 violin_width=0.8
 
 p9 <- ggplot( plotdata, aes( x = system, y = ci_width_abs ) )
-p9 <- p9 + scale_x_discrete(breaks=levels(data$system), drop=FALSE)
+p9 <- p9 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p9 <- p9 + scale_y_continuous(breaks = seq(0, 1000, 0.2))
 p9 <- p9 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p9 <- p9 + plottheme
