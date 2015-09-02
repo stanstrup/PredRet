@@ -3,37 +3,12 @@ library(gridExtra)
 library(plyr)
 library(reshape2)
 library(ggplot2)
+library(Rplot.extra)
 
 
 
-## function to create geom_ploygon calls #################################
-#from http://stackoverflow.com/questions/22278951/combining-violin-plot-with-box-plot
-fill_viol<-function(df_gr,df_data,v,gr,width=1){
-  
-  scale_f <- (width^-1)*2
-  
-  df_gr_n <- as.numeric(as.factor(as.character(df_gr)))
-  
-  quants<-mutate(v,x.l=x-violinwidth/scale_f,x.r=x+violinwidth/scale_f,cuts=.bincode(y,    quantile(   df_data[df_gr_n==gr]     )  )      ) # add 1/2 width each way to each x value
-  quants$cuts <- as.factor(quants$cuts)
-  
-  plotquants<-data.frame(x=c(quants$x.l,rev(quants$x.r)),   # left x bottom to top, then right x top to bottom
-                         y=c(quants$y,rev(quants$y)),       # double up the y values to match
-                         id=c(quants$cuts,rev(quants$cuts)))# cut by quantile to create polygon id
-  
-  geom_polygon(aes(x,y,fill= as.factor(id)),data=plotquants) # return the geom_ploygon object
-}
 
 
-geom_violin_quantile_fill <-function(p,df_gr,df_data,width=1){
-  
-  coords<-ggplot_build(p)$data        # use ggbuild to get the outline co-ords
-  d<-coords[[1]]                      # this gets the df in a usable form
-  groups<-unique(d$group)             # get the unique "violin" ids
-  
-  lapply(groups,function(x) fill_viol(df_gr,df_data,d[d$group==x,],x,width=width))
-  
-}
 
 
 
@@ -57,11 +32,7 @@ r2 <- function(x){
 }  
 
 
-## Function to replicate ggplot2's default colors
-ggplotColours <- function(n=6, h=c(0, 360) +15){
-  if ((diff(h)%%360) < 1) h[2] <- h[2] - 360/n
-  hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
-}
+
 
 
 ## Load data and make some stats ############################
@@ -102,22 +73,7 @@ mean(data$error_rel,na.rm = T)
 median(data$error_rel,na.rm = T)
 
 
-## Common theme elements #############################
-plottheme <- list(
-  theme_bw(),
-  theme(axis.title.y = element_text(hjust=0.45,vjust=1,face = "bold")   ),
-  theme(axis.title.x = element_text(vjust=4,face = "bold")    ),
-  theme(axis.text.x  = element_text(colour="black",size = 9,angle=45,vjust=1,hjust=1)   ),
-  theme(panel.grid.major.x = element_blank() , panel.grid.minor.y = element_line(size=0.25,color="white" )    ),
-  theme(panel.border = element_blank()),
-  theme(axis.line = element_line(color = 'black')),
-  theme(plot.title = element_text(face="bold"))
-)
 
-
-
-
-  
   
 
 ## boxplot absolute prediction error ############################
