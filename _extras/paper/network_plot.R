@@ -39,6 +39,7 @@ normalize_range <- function(v, x, y){
 # Pull data from PredRet database. Takes a while
 models <- PredRet_get_models()
 database <- PredRet_get_db(exp_pred = "exp")
+sys_db <- PredRet_get_chrom_systems()
 
 
 # Make edges
@@ -48,16 +49,24 @@ d <- data.frame(from  =   sapply(models,function(x) x$predict_from)    ,
                 )
 
 
-# Attempt to do better ordering
-d$from <- factor(d$from,levels= c("RIKEN","MTBLS20","LIFE_new","LIFE_old","IPB_Halle","MTBLS87","Cao_HILIC" ,"Eawag_XBridgeC18","UFZ_Phenomenex","UniToyama_Atlantis",
-                                  "FEM_orbitrap_urine","FEM_lipids","FEM_orbitrap_plasma","FEM_short","FEM_long","MPI_Symmetry",
-                                  "MTBLS39",
-                                  "MTBLS38","MTBLS36"
-                                  
-                                  )
-                )
 
+# Attempt to do better ordering manually
+# d$from <- factor(d$from,levels= c("RIKEN","MTBLS20","LIFE_new","LIFE_old","IPB_Halle","MTBLS87","Cao_HILIC" ,"Eawag_XBridgeC18","UFZ_Phenomenex","UniToyama_Atlantis",
+#                                   "FEM_orbitrap_urine","FEM_lipids","FEM_orbitrap_plasma","FEM_short","FEM_long","MPI_Symmetry",
+#                                   "MTBLS39",
+#                                   "MTBLS38","MTBLS36"
+#                                   
+#                                   )
+#                 )
+
+#d <- d[order(as.numeric(d$from)),]
+
+
+
+d <- d[order(d$common,decreasing = T),]
+d$from <- factor(d$from,levels=unique(as.vector(as.matrix(t(d[,c("from","to")])))))
 d <- d[order(as.numeric(d$from)),]
+
 
 
 # Make node sizes
@@ -77,14 +86,13 @@ g <- addVertIfNotPresent(g,names(N)[!(names(N) %in% V(g)$name)])
 # Set node size
 order <- match(V(g)$name,names(N))
 V(g)$size <- normalize_range(     log(as.numeric(N)[order])     ,10,30)
-#V(g)$size2 <- normalize_range(     log(as.numeric(N)[order])     ,10,30) *2
 
 
 
 # edge width  
 E(g)$width <- normalize_range(     log(d$common)     ,3,20)
-#E(g)$arrow.width <-  log(d$common) /4
 E(g)$arrow.width <-  0
+E(g)$arrow.size  <-  0
 
 
 # edge color scale
@@ -97,14 +105,58 @@ color <- apply(color,1,function(x) rgb(x[1],x[2],x[3],maxColorValue=255))
 E(g)$color <- color
 
 
+
+# mark hilic
+system_column_type <- data.frame(system_name        = sapply(sys_db,function(x) x$system_name),
+                                 system_column_type = sapply(sys_db,function(x) x$system_column_type),stringsAsFactors = F)
+  
+  to_mark <- subset(system_column_type,system_column_type=="HILIC")[,"system_name"]
+to_mark <- match(to_mark,names(V(g)))
+
+
+
+
+
 # Plot all
-plot(g,vertex.color="white",layout=layout.circle,margin=c(-0.32,-0.82,-0.22,-0.67)) # below, left, over, right
-plot(g,vertex.color="white",margin=c(-0.32,-0.82,-0.22,-0.67),layout=layout.fruchterman.reingold(g, niter=10000, area=5000*vcount(g)^2))
+plot(g,vertex.color="white",
+     layout=layout.circle,
+     margin=c(-0.32,-0.82,-0.22,-0.67), # below, left, over, right
+     mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA
+     )
+
+
+plot(g,
+     vertex.color="white",
+     layout=layout.fruchterman.reingold(g, niter=10000),
+     margin=c(-0.32,-0.82,-0.22,-0.67),
+     mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA)
+
+
 
 # Plot only connected
 g2 <- delete.vertices(g,   connected_v + 1:(length(V(g))-connected_v)    )
-plot(g2,vertex.color="white",margin=c(-0.3,-0.75,-0.2,-0.62),layout=layout.circle)
-plot(g2,vertex.color="white",margin=c(-0.32,-0.82,-0.22,-0.67),layout=layout.fruchterman.reingold(g2, niter=10000, area=5000*vcount(g2)^2))
+
+
+plot(g2,vertex.color="white",
+     layout=layout.circle,
+     margin=c(-0.3,-0.75,-0.2,-0.62),
+     mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA)
+
+
+plot(g2,vertex.color="white",
+     layout=layout.fruchterman.reingold(g2, niter=10000),
+     margin=c(-0.32,-0.82,-0.22,-0.67),
+     mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA)
+     )
+
+
+
+legend(x=-1.3, y=-0.8, c("HILIC"), pch=21,
+       col="#777777", pt.bg="#C5E5E7", pt.cex=3, cex=1.5, bty="n", ncol=1)
+
+
+
+
 
 
 
