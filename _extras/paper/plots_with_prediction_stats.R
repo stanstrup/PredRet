@@ -118,7 +118,7 @@ p5 <- p5 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p5 <- p5 + scale_y_continuous(breaks = seq(0, 100, 2))
 p5 <- p5 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p5 <- p5 + labs(title="Relative prediction errors",x="Chromatographic systems", y="Error (%)",fill="Quartiles")
-p5 <- p5 + plottheme
+p5 <- p5 + theme_bw_nice
 p5 <- p5 + geom_violin_quantile_fill(p=p5,df_gr = plotdata[,"system"],df_data = plotdata[,"error_rel"],width=violin_width)
 p5 <- p5 + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
 # p5 <- p5 + scale_fill_brewer(palette="Reds",        name="Quantile\n",   labels=c("25","50","75","100")    )
@@ -159,7 +159,7 @@ p6 <- p6 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p6 <- p6 + scale_y_continuous(breaks = seq(0, 10, 0.1))
 p6 <- p6 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p6 <- p6 + labs(title="Absolute prediction errors", y="Error (min)",fill="Quartiles")
-p6 <- p6 + plottheme
+p6 <- p6 + theme_bw_nice
 p6 <- p6 + geom_violin_quantile_fill(p=p6,df_gr = plotdata[,"system"],df_data = plotdata[,"error_abs"],width=violin_width)
 p6 <- p6 + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
 # p6 <- p6 + scale_fill_brewer(palette="Reds",        name="Quantile\n",   labels=c("25","50","75","100")    )
@@ -248,7 +248,7 @@ temp2 <- mutate(temp2,N_ex_N_sys_ratio = N_ex/N_sys)
 p7 <- ggplot(temp, aes(x = system, y=value,fill=variable))
 p7 <- p7 + geom_bar(data = subset(temp, variable %in% c("N_ex","N")),stat = "identity", position = "stack")
 p7 <- p7 + geom_bar(data = subset(temp, variable %in% c("N_sys")),aes(x = system, y=-value),stat = "identity")
-p7 <- p7 + plottheme
+p7 <- p7 + theme_bw_nice
 p7 <- p7 + labs(title="Number of RTs and predictions made",fill="",y="# Experimental RTs        # Predictions")
 p7 <- p7 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
 p7 <- p7 + scale_fill_discrete(labels = c("Predictions where experimental RT is known","Predictions where experimental RT is unknown","Experimental RTs in database"))
@@ -263,24 +263,11 @@ plot(p7)
 
 
 
-temp$variable <- factor(temp$variable,levels = c("N_sys", "N","N_ex"))
-temp <- temp[order(temp$variable),]
-temp3 <- subset(temp, variable %in% c("N_ex","N_sys"))
-temp3$variable <- droplevels(temp3$variable)
 
+# Number of compounds and predictions in the database
 
-p12 <- ggplot(temp3, aes(x = system, y=value,fill=variable))
-p12 <- p12 + geom_bar(stat = "identity", position = "stack")
-p12 <- p12 + plottheme
-p12 <- p12 + labs(title="Number of RTs in database and predictions made",fill="",y="# Compounds")
-p12 <- p12 + theme(legend.position=c(0.8,0.95),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
-p12 <- p12 + scale_fill_manual(values = ggplotColours(n=3)[c(2,3)],labels = c("Experimental RTs in database","Predicted RTs"))
-
-p12 <- p12 +  scale_y_continuous(breaks=seq(-1000,1000,100))
-p12 <- p12 +  geom_hline(yintercept = 0,colour = "grey90")
-
-p12 <- p12 + labs(x="Chromatographic systems")
-
+data <- PredRet_get_db()
+p12 <- plot_predret.db.count(data)
 plot(p12)
 
 
@@ -296,7 +283,7 @@ temp$type <- factor(temp$type,levels=c("# Experimental RTs in database","# Predi
 
 p11 <- ggplot(temp, aes(x = system, y=value,fill=variable))
 p11 <- p11 + geom_bar(data = subset(temp, variable %in% c("N_ex","N","N_sys")),stat = "identity", position = "stack")
-p11 <- p11 + plottheme
+p11 <- p11 + theme_bw_nice
 p11 <- p11 + facet_wrap( ~ type,nrow=2)
 p11 <- p11 + labs(title="Number of RTs and predictions made",fill="",y="")
 p11 <- p11 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
@@ -323,7 +310,7 @@ p8 <- ggplot( plotdata, aes( x = system, y = ci_width_rel ) )
 p8 <- p8 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p8 <- p8 + scale_y_continuous(breaks = seq(0, 100, 2))
 p8 <- p8 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
-p8 <- p8 + plottheme
+p8 <- p8 + theme_bw_nice
 p8 <- p8 + labs(title="Relative prediction PI width",x="Chromatographic systems", y="PI width (%)",fill="Quartiles")
 
 p8 <- p8 + geom_violin_quantile_fill(p=p8,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_rel"],width=violin_width)
@@ -360,7 +347,7 @@ p9 <- ggplot( plotdata, aes( x = system, y = ci_width_abs ) )
 p9 <- p9 + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
 p9 <- p9 + scale_y_continuous(breaks = seq(0, 1000, 0.2))
 p9 <- p9 + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
-p9 <- p9 + plottheme
+p9 <- p9 + theme_bw_nice
 p9 <- p9 + labs(title="Absolute prediction PI width",x="Chromatographic systems", y="PI width (min)",fill="Quartiles")
 
 p9 <- p9 + geom_violin_quantile_fill(p=p9,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_abs"],width=violin_width)
@@ -401,7 +388,7 @@ df <- data.frame(x = data_sub$recorded_rt,y = data_sub$predicted_rt, down = data
 p10 <- ggplot(df, aes(x = x, y = y, ymin = down, ymax = up,label=text) )
 p10 <- p10 + geom_ribbon(fill = 'grey80', alpha = 1)
 p10 <- p10 +   geom_point(color = 'black', linetype = 'dashed')
-p10 <- p10 + plottheme
+p10 <- p10 + theme_bw_nice
 # p <- p + scale_x_log10() 
 # p <- p + scale_y_log10(limits = c(0.1,max(df[,"y"]))) 
 # p <- p + annotation_logticks()

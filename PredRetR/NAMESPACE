@@ -37,22 +37,27 @@ export(log_count, # database queries
        
        PredRet_get_db,
        PredRet_get_chrom_systems,
-       PredRet_get_models
+       PredRet_get_models,
+       
+       plot_predret.db.count # plots
 )
 
 
 # Import all packages listed as Imports or Depends
 import(rmongodb)
+import(ggplot2)
 
 importFrom(stringr,str_replace_all)
 importFrom(mgcv,gam,smoothCon,mono.con,pcls,Predict.matrix,s)
 importFrom(pracma,sigmoid)
 importFrom(parallel,detectCores)
-#importFrom(bisoreg,)
+#importFrom(bisoreg)
 importFrom(boot,boot.ci,boot)
 #importFrom(rCharts,hPlot,toJSONArray,toJSONArray2)
 #importFrom(shiny,Progress)
-
+importFrom(plyr,mutate,ddply,summarise,.)
+importFrom(reshape2,melt)
+importFrom(Rplot.extra,ggplotColours,theme_bw_nice,geom_violin_quantile_fill)
 
 
 
