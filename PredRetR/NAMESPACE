@@ -39,7 +39,13 @@ export(log_count, # database queries
        PredRet_get_chrom_systems,
        PredRet_get_models,
        
-       plot_predret.db.count # plots
+       PredRet_plot.db.count,   # plots
+       PredRet_plot.pred.cor,
+       PredRet_plot.pred.error.abs,
+       PredRet_plot.pred.error.rel,
+       PredRet_plot.pred.pi.abs,
+       PredRet_plot.pred.pi.rel
+       
 )
 
 

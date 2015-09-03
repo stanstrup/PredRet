@@ -1,14 +1,14 @@
-\name{plot_predret.db.count}
-\alias{plot_predret.db.count}
+\name{PredRet_plot.pred.pi.abs}
+\alias{PredRet_plot.pred.pi.abs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-  Plot number of compounds and number of predictions for each system.
+  Absolute prediction interval
 }
 \description{
-  Plot number of compounds and number of predictions for each system.
+  Plot violin plot of absolute prediction interval for each chromatographic system in the database.
 }
 \usage{
- plot_predret.db.count(data = PredRet_get_db())
+ PredRet_plot.pred.pi.abs(data = PredRet_get_db())
 }
 %- maybe also 'usage' for other objects documented here.
 
@@ -29,7 +29,7 @@ A ggplot2 object.
 \examples{
 \dontrun{
 data <- PredRet_get_db()
-p    <- plot_predret.db.count(data = data)
+p    <- PredRet_plot.pred.pi.abs(data = data)
 plot(p)
 }
 
