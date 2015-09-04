@@ -440,13 +440,16 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-PredRet_plot.model.fit <- function(models   = PredRet_get_models(),
-                                   database = PredRet_get_db(exp_pred = "exp"),
-                                   from,
-                                   to               ){
+PredRet_plot.model.fit <- function(from,to,
+                                   database = PredRet_get_db(exp_pred = "exp")
+                                   ){
   
   
   x <- pred <- upper <- lower <- y <- NULL  # making package check happy
+  
+  
+  # query data
+  models   = PredRet_get_models(from,to)
   
   
   # Select the right model
@@ -498,8 +501,6 @@ PredRet_plot.model.fit <- function(models   = PredRet_get_models(),
   p <- p + theme(axis.title.x = element_text(vjust=0,face = "bold",size=16)    )
   p <- p + theme(axis.title.y = element_text(size=16)    )
   p <- p + labs(x=paste0("RT for ",from," (min)"),y=paste0("RT for ",to," (min)"))
-  plot(p)
-  
   
   return(p)
 }
