@@ -65,7 +65,7 @@ importFrom(boot,boot.ci,boot)
 #importFrom(shiny,Progress)
 importFrom(plyr,mutate,ddply,summarise,.)
 importFrom(reshape2,melt)
-importFrom(Rplot.extra,ggplotColours,theme_bw_nice,geom_violin_quantile_fill,addVertIfNotPresent)
+importFrom(Rplot.extra,ggplotColours,theme_bw_nice,geom_violin_quantile_fill,addVertIfNotPresent,interpolate_gradient)
 importFrom(data.massageR,normalize01,normalize_range)
 
 

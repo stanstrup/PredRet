@@ -26,7 +26,7 @@ PredRet_plot.db.graph(database = PredRet_get_db(exp_pred = "exp"),
   }
 
 \value{
-The db network graph is plotted and the edge list returned.
+The db network graph is plotted and a list contanining the edge list and the graph is returned.
 
 }
 

@@ -359,9 +359,9 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
   
   
   
-  # make the plot
-  margin <- c(-0.2,-0.2,-0.2,-0.2)
   
+# Setting some plot settings
+  margin <- rep(-0.2,4)
 
   if(only_connected){
     g <- delete.vertices(g,   connected_v + 1:(length(V(g))-connected_v)    )
@@ -374,6 +374,22 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
     layout <- layout.fruchterman.reingold(g, niter=10000)
   }
   
+
+  
+  # make gradient
+  gradient <- cbind.data.frame(scale = d$common,color = E(g)$color,stringsAsFactors=FALSE)
+  gradient <- gradient[order(gradient$scale),]
+  gradient <- unique(gradient)
+  gradient <- interpolate_gradient(gradient)
+  
+  
+  
+  
+  # make the plot
+  def.par <- par(no.readonly = TRUE) # save default, for resetting...
+  graphics::layout(matrix(c(1,2), 2, 1, byrow = TRUE),  heights=c(7,1)  )
+  
+  
   par(xpd = TRUE)
   plot(g,vertex.color="white",
        layout=layout,
@@ -381,13 +397,32 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
        mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA)
   
   
-  
-  
-  legend(x=-1.5, y=-0.8, c("HILIC"), pch=21,
+  legend(x=-1.2, y=-1, c("HILIC"), pch=21,
          col="#777777", pt.bg="#C5E5E7", pt.cex=3, cex=1.5, bty="n", ncol=1)
   
   
-  return(d)
+  
+  par(mar=c(3,10,0,10))  
+  plot(gradient$scale,seq(1,2,length.out = length(gradient$scale)),type="n",log="x",axes=FALSE,ylab="",xlab="")
+  rect(xleft = gradient$scale-0.505 ,  xright= gradient$scale+0.505, ybottom=1, ytop =2,col=gradient$color,lwd=0,border=NA)
+  labels = seq(min(gradient$scale),max(gradient$scale),10)
+  axis(1,at=labels,labels= labels      )
+  
+  
+  
+  par(def.par)  #- reset to default
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return(list(d = d,g = g))
 }
 
   
