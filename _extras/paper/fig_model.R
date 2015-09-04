@@ -6,6 +6,8 @@ library(Rplot.extra)
 library(gridExtra)
 library(Cairo)
 
+# This scripts re-calculates the models to show what the initial model looks like
+
 
 
 ## Data for figures #############################

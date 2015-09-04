@@ -166,6 +166,18 @@ sys_oid2name <- function(sys_id_data){
 }
 
 
+name2sys_oid <- function(sys_name_data){
+  
+  dbsystems <- get_systems()
+  sys_id_db = unlist(lapply(dbsystems,function(x) as.character.mongo.oid(x$`_id`))  )
+  sys_name = as.character(unlist(lapply(dbsystems,function(x) x$system_name)))  
+  
+  system = sys_id_db[match(sys_name_data,sys_name)]
+  return(system)
+}
+
+
+
 get_systems <- function() {  
   
   # Connect to db
@@ -288,13 +300,16 @@ get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL,sys_id=NULL) 
 
 
 
-sys_comb_matrix = function(oid1,oid2)  {
+sys_comb_matrix = function(oid1,oid2,include.suspect=FALSE)  {
   
   
   ## get data for the combination of systems ################
+  
+  
+  
   mongo <- PredRet_connect()
-  rt_sys1 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid1, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
-  rt_sys2 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid2, generation = 0L, suspect = FALSE)      ,data.frame=T,mongo.oid2character=T)
+  rt_sys1 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid1, generation = 0L, suspect = if(include.suspect){list('$in'=c(TRUE,FALSE))}else{FALSE}      )      ,data.frame=T,mongo.oid2character=T)
+  rt_sys2 = mongo.find.all(mongo=mongo, ns=PredRet.env$namespaces$ns_rtdata, query = list(sys_id = oid2, generation = 0L, suspect = if(include.suspect){list('$in'=c(TRUE,FALSE))}else{FALSE}      )      ,data.frame=T,mongo.oid2character=T)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
