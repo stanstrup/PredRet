@@ -262,3 +262,134 @@ PredRet_plot.pred.pi.rel <- function(data = PredRet_get_db()){
   return(p)
 }    
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+
+
+
+
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
+                                  models = PredRet_get_models(),
+                                  sys_db = PredRet_get_chrom_systems(),
+                                  circular = TRUE,
+                                  only_connected = TRUE              ){
+  
+  
+  
+  
+  
+  # Make edges
+  d <- data.frame(from  =   sapply(models,function(x) x$predict_from)    ,
+                  to    =   sapply(models,function(x) x$predict_to)      ,
+                  common=   sapply(models,function(x) x$stats["n_points"])
+  )
+  
+  
+  
+  # Attempt to do better ordering manually
+  # d$from <- factor(d$from,levels= c("RIKEN","MTBLS20","LIFE_new","LIFE_old","IPB_Halle","MTBLS87","Cao_HILIC" ,"Eawag_XBridgeC18","UFZ_Phenomenex","UniToyama_Atlantis",
+  #                                   "FEM_orbitrap_urine","FEM_lipids","FEM_orbitrap_plasma","FEM_short","FEM_long","MPI_Symmetry",
+  #                                   "MTBLS39",
+  #                                   "MTBLS38","MTBLS36"
+  #                                   
+  #                                   )
+  #                 )
+  
+  #d <- d[order(as.numeric(d$from)),]
+  
+  
+  # Some sorting to attempt to make it look better
+  d      <- d[order(d$common,decreasing = T),]
+  d$from <- factor(d$from,levels=unique(as.vector(as.matrix(t(d[,c("from","to")])))))
+  d      <- d[order(as.numeric(d$from)),]
+  
+  
+  
+  # Make node sizes
+  temp     <- as.matrix(table(database$system))
+  N        <- as.numeric(temp)
+  names(N) <- rownames(temp)
+  
+  
+  
+  # create graph
+  g           <- graph.data.frame(d, directed=T)
+  connected_v <- length((V(g)))
+  g           <- addVertIfNotPresent(g,names(N)[!(names(N) %in% V(g)$name)]) 
+  
+  
+  
+  # Set node size
+  order     <- match(V(g)$name,names(N))
+  V(g)$size <- normalize_range(     log(as.numeric(N)[order])     ,10,30)
+  
+  
+  
+  # edge width  
+  E(g)$width       <- normalize_range(     log(d$common)     ,3,20)
+  E(g)$arrow.width <-  0
+  E(g)$arrow.size  <-  0
+  
+  
+  
+  # edge color scale
+  color <- normalize01(rank(log(d$common)))
+  color <- c(-.4,color)
+  color <- normalize01(color)
+  color <- colorRamp(c("yellow","pink","blue"))(   color     )
+  color <- color[-1,]
+  color <- apply(color,1,function(x) rgb(x[1],x[2],x[3],maxColorValue=255))
+  E(g)$color <- color
+  
+  
+  
+  # mark hilic
+  system_column_type <- data.frame(system_name        = sapply(sys_db,function(x) x$system_name),
+                                   system_column_type = sapply(sys_db,function(x) x$system_column_type),stringsAsFactors = F)
+  
+  to_mark <- subset(system_column_type,system_column_type=="HILIC")[,"system_name"]
+  to_mark <- match(to_mark,names(V(g)))
+  
+  
+  
+  # make the plot
+  margin <- c(-0.2,-0.2,-0.2,-0.2)
+  
+
+  if(only_connected){
+    g <- delete.vertices(g,   connected_v + 1:(length(V(g))-connected_v)    )
+  }
+  
+  
+  if(circular){
+    layout <- layout.circle
+  }else{
+    layout <- layout.fruchterman.reingold(g, niter=10000)
+  }
+  
+  par(xpd = TRUE)
+  plot(g,vertex.color="white",
+       layout=layout,
+       margin=margin,
+       mark.groups=list(to_mark), mark.col="#C5E5E7", mark.border=NA)
+  
+  
+  
+  
+  legend(x=-1.5, y=-0.8, c("HILIC"), pch=21,
+         col="#777777", pt.bg="#C5E5E7", pt.cex=3, cex=1.5, bty="n", ncol=1)
+  
+  
+  return(d)
+}
+
+  
+  
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
