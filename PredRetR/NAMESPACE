@@ -38,6 +38,7 @@ export(log_count, # database queries
        PredRet_get_db,
        PredRet_get_chrom_systems,
        PredRet_get_models,
+       PredRet_list_models,
        
        PredRet_plot.db.count,   # plots
        PredRet_plot.pred.cor,

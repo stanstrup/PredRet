@@ -88,3 +88,34 @@ PredRet_get_models <- function(from=NULL,to=NULL){
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+PredRet_list_models <- function(){
+  
+  # Select which fields to get
+  fields       <- c("oid_sys1",
+                    "oid_sys2")
+  fields <- as.list(sapply(fields,function(x) x=1L))
+  
+  # Connect to db
+  mongo <- PredRet_connect()
+  data_back <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields=fields)
+  del <- mongo.disconnect(mongo)
+  del <- mongo.destroy(mongo)
+  
+  data_back <- lapply(data_back,unlist)
+  data_back <- as.data.frame(do.call(rbind,data_back),stringsAsFactors = FALSE)
+  data_back <- data_back[,c("oid_sys1","oid_sys2")]
+  colnames(data_back) <- c("to","from")
+  
+  data_back <- apply(data_back, 2, sys_oid2name)
+  
+  
+  return(data_back)
+  
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
