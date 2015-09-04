@@ -1,3 +1,5 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 PredRet_connect <- function() {
   
   if(!PredRet.env$predret_local){
@@ -12,6 +14,11 @@ PredRet_connect <- function() {
   return(mongo)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 log_count <- function(){
   
@@ -23,8 +30,11 @@ log_count <- function(){
   return(n)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 system_count <- function(sys_id){
   
@@ -36,6 +46,11 @@ system_count <- function(sys_id){
   return(n)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 get_ns <- function(ns){
   
@@ -47,6 +62,11 @@ get_ns <- function(ns){
   return(data_back)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE,from_oid=NULL,to_oid=NULL) {
   
@@ -120,6 +140,11 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
   return(data_back)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 get_build_log <- function(time_offset=0){
   
@@ -155,6 +180,11 @@ get_build_log <- function(time_offset=0){
   return(sysmodel_log)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 sys_oid2name <- function(sys_id_data){
   
@@ -166,6 +196,11 @@ sys_oid2name <- function(sys_id_data){
   return(system)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 name2sys_oid <- function(sys_name_data){
   
@@ -177,7 +212,11 @@ name2sys_oid <- function(sys_name_data){
   return(system)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 get_systems <- function() {  
   
@@ -208,6 +247,11 @@ get_systems <- function() {
   return(data_back)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL,sys_id=NULL) {  
   
@@ -297,9 +341,11 @@ get_user_data <- function(userID=NULL,generation=NULL,suspect=NULL,sys_id=NULL) 
   return(data)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 sys_comb_matrix = function(oid1,oid2,include.suspect=FALSE)  {
   
@@ -359,9 +405,11 @@ sys_comb_matrix = function(oid1,oid2,include.suspect=FALSE)  {
   
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 pred_stat_get <- function(sys_oid) {
   
@@ -396,3 +444,5 @@ pred_stat_get <- function(sys_oid) {
   
   return(pred_stats)
 }
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

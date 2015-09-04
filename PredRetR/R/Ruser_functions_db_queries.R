@@ -1,3 +1,5 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspect = TRUE,systems = NULL){
  
   # Convert to get_user_data options
@@ -36,8 +38,11 @@ PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspe
   return(data)
 }
   
-  
-  
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #  
 
 # Get systems
 PredRet_get_chrom_systems <- function(){
@@ -50,7 +55,11 @@ PredRet_get_chrom_systems <- function(){
   return(sys)
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Get models
 PredRet_get_models <- function(from=NULL,to=NULL){
@@ -76,3 +85,6 @@ PredRet_get_models <- function(from=NULL,to=NULL){
   return(models)
   
 }
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
