@@ -52,8 +52,8 @@ PredRet_get_chrom_systems <- function(){
 
 
 # Get models
-PredRet_get_models <- function(){
-  models <- get_models(include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE)
+PredRet_get_models <- function(from=NULL,to=NULL){
+  models <- get_models(include.ci=TRUE,include.newdata=TRUE,include.xy_mat=TRUE,from_oid=if(is.null(from)){NULL}else{name2sys_oid(from)},to_oid=if(is.null(from)){NULL}else{name2sys_oid(to)})
   
   for(i in 1:length(models)){
     
