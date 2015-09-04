@@ -49,7 +49,7 @@ for(i in 1:nrow(select_data)){
   
   
   
-
+  
   p[[i]] <- ggplot()
   p[[i]] <- p[[i]] + geom_ribbon(data=ci, aes(x = newdata, y = med, ymin = low, ymax = up),fill = 'grey80', alpha = 1)
   p[[i]] <- p[[i]] + geom_line(data=ci, aes(x = newdata, y = med, ymin = low, ymax = up),color = 'black')
@@ -59,9 +59,7 @@ for(i in 1:nrow(select_data)){
   p[[i]] <- p[[i]] + theme(axis.title.x = element_text(vjust=0,face = "bold",size=16)    )
   p[[i]] <- p[[i]] + theme(axis.title.y = element_text(size=16)    )
   p[[i]] <- p[[i]] + labs(x=paste0("RT for ",select_data[i,1]," (min)"),y=paste0("RT for ",select_data[i,2]," (min)"))
-    p[[i]]
-  
-  
+  plot(p[[i]])
 }
 
 
