@@ -8,10 +8,14 @@
   Get PredRet modeling data
 }
 \usage{
-  PredRet_get_models()
+  PredRet_get_models(from=NULL,to=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{from}{String containing the name of the chromatographic system to model FROM. If NULL all models are pulled.}
+  \item{to}{String containing the name of the chromatographic system to model TO. If NULL all models are pulled.}
 
+  }
 
 \value{
  \strong{A list for model containing:}
