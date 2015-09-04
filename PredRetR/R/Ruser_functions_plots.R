@@ -426,5 +426,98 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
 }
 
   
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+
+
+
+
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+PredRet_plot.model.fit <- function(models   = PredRet_get_models(),
+                                   database = PredRet_get_db(exp_pred = "exp"),
+                                   from,
+                                   to               ){
   
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  
+  x <- pred <- upper <- lower <- y <- NULL  # making package check happy
+  
+  
+  # Select the right model
+  db_from_to <-  data.frame(predict_from = sapply(models,function(x) x$predict_from)  , predict_to = sapply(models,function(x) x$predict_to)  )
+  select     <-  which(db_from_to$predict_from == from & db_from_to$predict_to == to)
+  
+  
+  
+  # Get all the compounds they have in common
+  comb_matrix       <- sys_comb_matrix(oid1 = name2sys_oid(from),oid2 = name2sys_oid(to)    ,include.suspect=TRUE)
+  del = as.vector(apply(comb_matrix$rt,1,function(x) any(is.na(x))))
+  comb_matrix$rt    <- comb_matrix$rt[!del,,drop=F]
+  comb_matrix$inchi <- comb_matrix$inchi[!del,drop=F]
+  
+  ord = order(comb_matrix$rt[,1])
+  comb_matrix$rt = comb_matrix$rt[ord,,drop=F]
+  comb_matrix$inchi = comb_matrix$inchi[ord,drop=F]
+  
+  
+  
+  # make a data.frame with the cis
+  ci <- models[[select]]$model_fit
+  ci <- as.data.frame(lapply(ci,unlist))
+  
+  
+  
+  # get the points used to fit the model
+  model_points           <-   models[[select]]$model_points[,c(1,2)]
+  colnames(model_points) <-   c("x","y")
+  
+  
+  
+  # get the points that was not used in the model
+  select <- !(   comb_matrix$inchi %in% as.character(models[[select]]$model_points$inchi)    )
+  comb_matrix$inchi <- comb_matrix$inchi[select]
+  comb_matrix$rt <- as.data.frame(comb_matrix$rt[select,])
+  colnames(comb_matrix$rt) <-   c("x","y")
+  
+  
+  
+  # do the plot
+  p <- ggplot()
+  p <- p + geom_ribbon(data=ci, aes(x = x, y = pred, ymin = lower, ymax = upper),fill = 'grey80', alpha = 1)
+  p <- p + geom_line(data=ci, aes(x = x, y = pred, ymin = lower, ymax = upper),color = 'black',size=1)
+  p <- p + geom_point(data=model_points,aes(x=x,y=y),color = 'black')
+  p <- p + geom_point(data=comb_matrix$rt,aes(x=x,y=y),color = 'red')
+  p <- p + theme_bw_nice
+  p <- p + theme(axis.text.x  = element_text(angle=0,hjust=0.5)   )
+  p <- p + theme(axis.title.x = element_text(vjust=0,face = "bold",size=16)    )
+  p <- p + theme(axis.title.y = element_text(size=16)    )
+  p <- p + labs(x=paste0("RT for ",from," (min)"),y=paste0("RT for ",to," (min)"))
+  plot(p)
+  
+  
+  return(p)
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

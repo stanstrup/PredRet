@@ -45,7 +45,8 @@ export(log_count, # database queries
        PredRet_plot.pred.error.rel,
        PredRet_plot.pred.pi.abs,
        PredRet_plot.pred.pi.rel,
-       PredRet_plot.db.graph
+       PredRet_plot.db.graph,
+       PredRet_plot.model.fit
        
 )
 
