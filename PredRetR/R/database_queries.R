@@ -48,11 +48,11 @@ get_ns <- function(ns){
 }
 
 
-get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE) {
+get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALSE,include.xy_mat=FALSE,from_oid=NULL,to_oid=NULL) {
   
   
   # Select which fields to get
-  query_fields <- c("_id",
+  fields       <- c("_id",
                     "oid_sys1",
                     "oid_sys2",
                     "status",
@@ -69,20 +69,21 @@ get_models <- function(include.loess=FALSE,include.ci=FALSE,include.newdata=FALS
                     "max_ci_width_abs")
   
   
-  if(include.loess){   query_fields <- c(query_fields,"loess_boot") }
-  if(include.ci){      query_fields <- c(query_fields,"ci")         }
-  if(include.newdata){ query_fields <- c(query_fields,"newdata")    }
-  if(include.xy_mat){  query_fields <- c(query_fields,"xy_mat")     }
+  if(include.loess){   fields <- c(fields,"loess_boot") }
+  if(include.ci){      fields <- c(fields,"ci")         }
+  if(include.newdata){ fields <- c(fields,"newdata")    }
+  if(include.xy_mat){  fields <- c(fields,"xy_mat")     }
+  fields <- as.list(sapply(fields,function(x) x=1L))
   
   
-  fields <- as.list(sapply(query_fields,function(x) x=1L))
   
+  query <- list()
+  if(  !is.null(from_oid) & !is.null(to_oid)    )  {   query <- c(query,list(oid_sys1=from_oid,oid_sys2=to_oid)) }
   
   
   # Connect to db
   mongo <- PredRet_connect()
-  #ns <- ns_sysmodels
-  data_back <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields=fields)
+  data_back <- mongo.find.all(mongo, ns=PredRet.env$namespaces$ns_sysmodels,fields=fields,query = query)
   del <- mongo.disconnect(mongo)
   del <- mongo.destroy(mongo)
   
