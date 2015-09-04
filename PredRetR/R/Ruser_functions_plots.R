@@ -440,15 +440,13 @@ PredRet_plot.db.graph <- function(database = PredRet_get_db(exp_pred = "exp"),
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-PredRet_plot.model.fit <- function(from,to,
-                                   database = PredRet_get_db(exp_pred = "exp")
-                                   ){
-  
+PredRet_plot.model.fit <- function(from,to){
   
   x <- pred <- upper <- lower <- y <- NULL  # making package check happy
   
   
   # query data
+  database = PredRet_get_db(exp_pred = "exp",systems = c(to,from))
   models   = PredRet_get_models(from,to)
   
   
