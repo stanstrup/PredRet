@@ -10,7 +10,8 @@
 \usage{
   PredRet_get_db(userID          = NULL,
                  exp_pred        = c("exp","pred"), 
-                 include_suspect = TRUE
+                 include_suspect = TRUE,
+                 systems = NULL
                  )
 }
 %- maybe also 'usage' for other objects documented here.
@@ -18,6 +19,7 @@
   \item{userID}{Select specific user to get retention times for. Defaults to all data.}
   \item{exp_pred}{Get experimental ("exp") and/or predicted (pred) retention times only.}
   \item{include_suspect}{Include values marked as suspect.}
+  \item{systems}{Character vector containing the names of the chromatographic system to get data for.}
 }
 
 \value{

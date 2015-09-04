@@ -1,4 +1,4 @@
-PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspect = TRUE){
+PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspect = TRUE,systems = NULL){
  
   # Convert to get_user_data options
   if(all(exp_pred == c("exp","pred"))) generation <- NULL
@@ -7,7 +7,8 @@ PredRet_get_db <- function(userID=NULL,exp_pred = c("exp","pred"), include_suspe
   
   data <- get_user_data(userID     = userID,
                         generation = generation,
-                        suspect    =   if(include_suspect){NULL}else{FALSE}
+                        suspect    =   if(include_suspect){NULL}else{FALSE},
+                        sys_id = if(is.null(systems)){NULL}else{name2sys_oid(systems)}
                         ) 
   
   # Select only daat useful to the user
