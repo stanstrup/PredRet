@@ -8,7 +8,7 @@
   Plot the model fit between two chromatographic systems.
 }
 \usage{
- PredRet_plot.model.fit(   from,to,database = PredRet_get_db(exp_pred = "exp")    )
+ PredRet_plot.model.fit(   from,to  )
 }
 %- maybe also 'usage' for other objects documented here.
 
@@ -16,11 +16,10 @@
 \arguments{
   \item{from}{String containing the name of the chromatographic system to model FROM. If NULL all models are pulled.}
   \item{to}{String containing the name of the chromatographic system to model TO. If NULL all models are pulled.}
-  \item{database}{The database data.frame as written by \code{\link{PredRet_get_db}}}
   }
 
 \value{
-A ggplot2 object.
+A ggplot2 object. Red dots are compounds that were marked as suspicious (not necessarily in the displayed model).
 
 }
 
