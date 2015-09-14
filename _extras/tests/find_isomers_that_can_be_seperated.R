@@ -1,7 +1,6 @@
 library(stringr)
 library(Rdisop)
-library(chemhelper)
-
+library(massageR)
 
 
 # function to collapse groups
@@ -115,8 +114,8 @@ isomer_list_no_overlap <- lapply(isomer_list_no_overlap, function(x){
 
 isomer_list_no_overlap <- lapply(isomer_list_no_overlap,function(comp_group){
   
-  g <- edges2diff.mat(comp_group$ci_lower, comp_group$ci_upper)
-  letter_notation <- diff.mat2letter.not(g)
+  g <- edges2diff_mat(comp_group$ci_lower, comp_group$ci_upper)
+  letter_notation <- diff_mat2letter_not(g)
   cbind(comp_group,letter_notation)
   
   })
