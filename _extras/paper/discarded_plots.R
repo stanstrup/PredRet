@@ -128,7 +128,7 @@ temp2 <- mutate(temp2,N_ex_N_sys_ratio = N_ex/N_sys)
 p7 <- ggplot(temp, aes(x = system, y=value,fill=variable))
 p7 <- p7 + geom_bar(data = subset(temp, variable %in% c("N_ex","N")),stat = "identity", position = "stack")
 p7 <- p7 + geom_bar(data = subset(temp, variable %in% c("N_sys")),aes(x = system, y=-value),stat = "identity")
-p7 <- p7 + theme_bw_nice
+p7 <- p7 + theme_bw_nice + theme_common
 p7 <- p7 + labs(title="Number of RTs and predictions made",fill="",y="# Experimental RTs        # Predictions")
 p7 <- p7 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
 p7 <- p7 + scale_fill_discrete(labels = c("Predictions where experimental RT is known","Predictions where experimental RT is unknown","Experimental RTs in database"))
@@ -154,7 +154,7 @@ temp$type <- factor(temp$type,levels=c("# Experimental RTs in database","# Predi
 
 p11 <- ggplot(temp, aes(x = system, y=value,fill=variable))
 p11 <- p11 + geom_bar(data = subset(temp, variable %in% c("N_ex","N","N_sys")),stat = "identity", position = "stack")
-p11 <- p11 + theme_bw_nice
+p11 <- p11 + theme_bw_nice + theme_common
 p11 <- p11 + facet_wrap( ~ type,nrow=2)
 p11 <- p11 + labs(title="Number of RTs and predictions made",fill="",y="")
 p11 <- p11 + theme(legend.position=c(0.85,0.37),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
