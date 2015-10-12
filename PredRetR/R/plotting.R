@@ -1,7 +1,7 @@
 
 plot_systems <- function(plotdata) {
   
-  if (!requireNamespace("shiny", quietly = TRUE)) {
+  if (!requireNamespace("rCharts", quietly = TRUE)) {
     stop("'rCharts' package needed for this function to work. Please install it using:\ndevtools:::install_github('ramnathv/rCharts')",
          call. = FALSE)
   }
