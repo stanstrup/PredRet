@@ -56,7 +56,7 @@ for(i in 1:nrow(select_data)){
   p[[i]] <- p[[i]] + geom_ribbon(data=ci, aes(x = newdata, y = med, ymin = low, ymax = up),fill = 'grey80', alpha = 1)
   p[[i]] <- p[[i]] + geom_line(data=ci, aes(x = newdata, y = med, ymin = low, ymax = up),color = 'black')
   p[[i]] <- p[[i]] + geom_point(data=as.data.frame(comb_matrix$rt),aes(x=x,y=y),color = 'black')
-  p[[i]] <- p[[i]] + theme_bw_nice
+  p[[i]] <- p[[i]] + theme_bw_nice + theme_common
   p[[i]] <- p[[i]] + theme(axis.text.x  = element_text(angle=0,hjust=0.5)   )
   p[[i]] <- p[[i]] + theme(axis.title.x = element_text(vjust=0,face = "bold",size=16)    )
   p[[i]] <- p[[i]] + theme(axis.title.y = element_text(size=16)    )

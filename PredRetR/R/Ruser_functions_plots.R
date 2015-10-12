@@ -1,4 +1,19 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+theme_common <- list(
+  theme(axis.title.y = element_text(hjust=0.45,vjust=1)   ),
+  theme(axis.title.x = element_text(vjust=4)    ),
+  theme(axis.text.x  = element_text(angle=45,vjust=1,hjust=1)   ),
+  theme(panel.grid.major.x = element_blank() , panel.grid.minor.y = element_line(size=0.25,color="white" )    ),
+  theme(panel.border = element_blank()),
+  theme(axis.line = element_line(color = 'black')),
+  theme(plot.title = element_text(face="bold"))
+)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 db.errors <- function(data){
   predicted_rt <- recorded_rt <- ci_upper <- ci_lower <- NULL # making package check happy
   
@@ -61,7 +76,7 @@ PredRet_plot.db.count <- function(data = PredRet_get_db()){
   # Do the plotting
   p <- ggplot(temp, aes(x = system, y=value,fill=variable))
   p <- p + geom_bar(stat = "identity", position = "stack")
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + labs(title="Number of RTs in database and predictions made",fill="",y="# Compounds")
   p <- p + theme(legend.position=c(0.8,0.95),legend.direction="vertical",legend.justification=c(1,1),legend.background = element_rect(fill="transparent"))
   p <- p + scale_fill_manual(values = ggplotColours(n=3)[c(2,3)],labels = c("Experimental RTs in database","Predicted RTs"))
@@ -99,7 +114,7 @@ PredRet_plot.pred.cor <- function(data = PredRet_get_db()){
   p <- ggplot(df, aes(x = x, y = y, ymin = down, ymax = up,label=text) )
   p <- p + geom_ribbon(fill = 'grey80', alpha = 1)
   p <- p +   geom_point(color = 'black', linetype = 'dashed')
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + geom_abline(data=data.frame(a = coef(reg_model)[1],b = coef(reg_model)[2]), aes(intercept=a, slope=b),color="black")
   p <- p + annotate("text",x=0,y=30,hjust=-0.2,vjust=0,label= paste0("R^{2}==",round(summary(reg_model)$r.squared,4) ),parse = TRUE         )
   p <- p + labs( x = "Experimental RTs", y = "Predicted RTs",title="Regression curve for predicted RT vs. experimental RT")
@@ -130,7 +145,7 @@ PredRet_plot.pred.error.abs <- function(data = PredRet_get_db()){
   p <- p + scale_y_continuous(breaks = seq(0, 10, 0.1))
   p <- p + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
   p <- p + labs(title="Absolute prediction errors", y="Error (min)",fill="Quartiles")
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + geom_violin_quantile_fill(p=p,df_gr = plotdata[,"system"],df_data = plotdata[,"error_abs"],width=violin_width)
   p <- p + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
   p <- p + geom_boxplot( outlier.size = 1,width=0, size=0) 
@@ -171,7 +186,7 @@ PredRet_plot.pred.error.rel <- function(data = PredRet_get_db()){
   p <- p + scale_y_continuous(breaks = seq(0, 100, 2))
   p <- p + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
   p <- p + labs(title="Relative prediction errors",x="Chromatographic systems", y="Error (%)",fill="Quartiles")
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + geom_violin_quantile_fill(p=p,df_gr = plotdata[,"system"],df_data = plotdata[,"error_rel"],width=violin_width)
   p <- p + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
   p <- p + geom_boxplot( outlier.size = 1,width=0, size=0) 
@@ -206,7 +221,7 @@ PredRet_plot.pred.pi.abs <- function(data = PredRet_get_db()){
   p <- p + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
   p <- p + scale_y_continuous(breaks = seq(0, 1000, 0.2))
   p <- p + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + labs(title="Absolute prediction PI width",x="Chromatographic systems", y="PI width (min)",fill="Quartiles")
   p <- p + geom_violin_quantile_fill(p=p,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_abs"],width=violin_width)
   p <- p + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
@@ -245,7 +260,7 @@ PredRet_plot.pred.pi.rel <- function(data = PredRet_get_db()){
   p <- p + scale_x_discrete(breaks=levels(plotdata$system), drop=FALSE)
   p <- p + scale_y_continuous(breaks = seq(0, 100, 2))
   p <- p + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + labs(title="Relative prediction PI width",x="Chromatographic systems", y="PI width (%)",fill="Quartiles")
   p <- p + geom_violin_quantile_fill(p=p,df_gr = plotdata[,"system"],df_data = plotdata[,"ci_width_rel"],width=violin_width)
   p <- p + scale_fill_manual(values = c("lightgrey","darkgrey","darkgrey","lightgrey"),labels = c("25", "50", "75","100"))
@@ -494,7 +509,7 @@ PredRet_plot.model.fit <- function(from,to){
   p <- p + geom_line(data=ci, aes(x = x, y = pred, ymin = lower, ymax = upper),color = 'black',size=1)
   p <- p + geom_point(data=model_points,aes(x=x,y=y),color = 'black')
   p <- p + geom_point(data=comb_matrix$rt,aes(x=x,y=y),color = 'red')
-  p <- p + theme_bw_nice
+  p <- p + theme_bw_nice + theme_common
   p <- p + theme(axis.text.x  = element_text(angle=0,hjust=0.5)   )
   p <- p + theme(axis.title.x = element_text(vjust=0,face = "bold",size=16)    )
   p <- p + theme(axis.title.y = element_text(size=16)    )
@@ -504,19 +519,6 @@ PredRet_plot.model.fit <- function(from,to){
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
