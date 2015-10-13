@@ -3,6 +3,7 @@ library(PredRetR)
 library(chemhelper)
 library(plyr)
 library(pracma)
+library(obabel2R)
 
 
 fp.sim.matrix_partial <- function(fps, f, method='tanimoto'){
