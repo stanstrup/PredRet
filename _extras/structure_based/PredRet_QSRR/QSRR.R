@@ -76,15 +76,17 @@ camb_dataset <- dataset %>% do(camb_dataset = SplitSet(.$name, select(.,starts_w
 
 
 
-
-
-registerDoMC(cores = 3)
-
-
+#registerDoMC(cores = 3) # doesn't work for windows
+library(doParallel) 
+library(caret)
 library(kernlab)
+
+cl <- makePSOCKcluster(6)
+registerDoParallel(cl)
+
+
 method <- "svmRadial"
-tune.grid <- expand.grid(.sigma = expGrid(-8, 4, 2,
-                                          2), .C = c(1e-04, 0.001, 0.01, 0.1, 1, 10, 100))
+tune.grid <- expand.grid(.sigma = expGrid(-8, 4, 2,2), .C = c(1e-04, 0.001, 0.01, 0.1, 1, 10, 100))
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
                tuneGrid = tune.grid, trControl = camb_dataset$trControl)
 saveRDS(model, file = paste(method, ".rds", sep = ""))
@@ -104,8 +106,53 @@ saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 library(gbm)
 method <- "gbm"
-tune.grid <- expand.grid(n.trees = c(500, 1000), interaction.depth = c(25),
-                         shrinkage = c(0.01, 0.02, 0.04, 0.08),n.minobsinnode = 10)
+tune.grid <- expand.grid(n.trees = c(500, 1000), interaction.depth = c(25), shrinkage = c(0.01, 0.02, 0.04, 0.08),n.minobsinnode = 10)
+model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
+               tuneGrid = tune.grid, trControl = camb_dataset$trControl)
+saveRDS(model, file = paste(method, ".rds", sep = ""))
+
+
+
+method <- "pls"
+model <- train(camb_dataset$x.train, camb_dataset$y.train, method,tuneLength = 15,
+               tune.grid = NULL, trControl = camb_dataset$trControl,preProcess = c("center","scale"))
+saveRDS(model, file = paste(method, ".rds", sep = ""))
+
+
+
+
+
+method <- "nnet"
+tune.grid <- expand.grid(.decay = c(5e-6,5e-5,5e-4,5e-3), .size = seq(1,5,1))
+model <- train(x = camb_dataset$x.train,
+               y= camb_dataset$y.train,
+               method=method,
+               tuneGrid = tune.grid, 
+               trControl = camb_dataset$trControl
+               )
+
+saveRDS(model, file = paste(method, ".rds", sep = ""))
+
+
+
+
+
+method <- "mlpWeightDecay"
+tune.grid <- expand.grid(decay = c(5e-6,5e-5,5e-4,5e-3,5e-3), size = seq(1,8,1))
+model <- train(x = camb_dataset$x.train,
+               y= camb_dataset$y.train,
+               method=method,
+               tuneGrid = tune.grid, 
+               trControl = camb_dataset$trControl
+)
+
+saveRDS(model, file = paste(method, ".rds", sep = ""))
+
+
+
+
+method <- "svmPoly"
+tune.grid <- expand.grid(degree=2, scale=c(0.001,0.005,0.01,0.05),C = c(1e-05,1e-04, 0.001, 0.01, 0.1,0.5))
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
                tuneGrid = tune.grid, trControl = camb_dataset$trControl)
 saveRDS(model, file = paste(method, ".rds", sep = ""))
@@ -113,6 +160,22 @@ saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
 
+
+
+method <- "neuralnet"
+tune.grid <- expand.grid(.layer1=c(7), .layer2=c(1:5), .layer3=c(1:5))
+model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
+               tuneGrid = tune.grid, trControl = camb_dataset$trControl)
+saveRDS(model, file = paste(method, ".rds", sep = ""))
+
+
+
+
+
+
+
+
+stopCluster(cl)
 
 
 
@@ -157,13 +220,18 @@ all.models <- list()
 all.models[[length(all.models) + 1]] <- readRDS("gbm.rds")
 all.models[[length(all.models) + 1]] <- readRDS("svmRadial.rds")
 all.models[[length(all.models) + 1]] <- readRDS("rf.rds")
+all.models[[length(all.models) + 1]] <- readRDS("pls.rds")
+all.models[[length(all.models) + 1]] <- readRDS("nnet.rds")
+all.models[[length(all.models) + 1]] <- readRDS("mlpWeightDecay.rds")
+all.models[[length(all.models) + 1]] <- readRDS("svmPoly.rds")
+all.models[[length(all.models) + 1]] <- readRDS("neuralnet.rds")
 # sort the models from lowest to highest RMSE
 names(all.models) <- sapply(all.models, function(x) x$method)
 sort(sapply(all.models, function(x) min(as.vector(na.omit(x$results$RMSE)))))
 
 # means tell another story
-sort(apply(preds - camb_dataset$y.holdout,2,median ))
-sort(apply(preds - camb_dataset$y.holdout,2,mean ))
+sort(apply(abs(preds - camb_dataset$y.holdout),2,median ))
+sort(apply(abs(preds - camb_dataset$y.holdout),2,mean ))
 
 
 
@@ -180,8 +248,7 @@ linear$error
 
 
 
-tune.grid <- expand.grid(.mtry = seq(1, length(all.models),
-                                     1))
+tune.grid <- expand.grid(.mtry = seq(1, length(all.models),1))
 nonlinear <- caretStack(all.models, method = "rf",
                         trControl = trainControl(method = "cv"), tune.grid = tune.grid)
 
@@ -190,6 +257,7 @@ saveRDS(nonlinear, file = "nonlinear.rds")
 nonlinear$error
 
 
+library(pbapply)
 
 preds <- data.frame(sapply(all.models, predict, newdata = camb_dataset$x.holdout))
 preds$ENS_greedy <- predict(greedy, newdata = camb_dataset$x.holdout)
@@ -200,8 +268,8 @@ sort(sqrt(colMeans((preds - camb_dataset$y.holdout)^2)))
 
 
 # means tell another story
-sort(apply(preds - camb_dataset$y.holdout,2,median ))
-sort(apply(preds - camb_dataset$y.holdout,2,mean ))
+sort(apply(abs(preds - camb_dataset$y.holdout),2,median ))
+sort(apply(abs(preds - camb_dataset$y.holdout),2,mean ))
 
 
 
