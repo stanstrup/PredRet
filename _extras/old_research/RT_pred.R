@@ -7,6 +7,7 @@ library(bisoreg) # use it to uptimize span automatically. though it always seems
 library(ChemmineR)
 library(rpubchem)
 library(limma)
+library(obabel2R)
 
 
 

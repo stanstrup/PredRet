@@ -1,3 +1,7 @@
+library(obabel2R)
+library(PredRetR)
+
+
 HMdata <- readRDS("/media/jan/storage/FEM/Other_projects/Luca/database/HMdata.RData")
 
 

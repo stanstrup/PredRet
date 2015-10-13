@@ -1,3 +1,6 @@
+library(obabel2R)
+
+
 # Auto-translate
 
 pubchem=CTSgetR('isoleucine',from='Chemical Name',to='PubChem CID')
