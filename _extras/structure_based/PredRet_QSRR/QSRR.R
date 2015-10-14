@@ -1,29 +1,38 @@
+
+# Change working directory ------------------------------------------------
 setwd("_extras/structure_based/PredRet_QSRR/")
 
+
+# Load some libraries -----------------------------------------------------
+library(plyr)
+library(dplyr)
 library(camb)
 library(impute)
-library(doMC)
+#library(doMC) # not on windows
 library(PredRetR)
 library(obabel2R)
 library(ChemmineR)
-library(dplyr)
 library(tidyr)
 library(Rplot.extra)
+library(magrittr)
+library(doParallel) 
+library(caret)
+library(pbapply)
 
 
-
-
+# Get the data from PredRet and write SDF file ----------------------------
 dataset <-   PredRet_get_db(exp_pred = "exp",include_suspect = TRUE)
 sdf <- inchi2sdf(dataset$inchi)
 write.SDF(sdf, file="PredRet.sdf")
 rm(sdf)
 
+
+
+# Use camb to standardize molecules ---------------------------------------
 StandardiseMolecules(structures.file="PredRet.sdf",
                     standardised.file="PredRet_std.sdf",
                     removed.file="PredRet_rem.sdf",
                     properties.file = "properties.csv")
-
-
 
 
 properties <- read.table("properties.csv", header=TRUE, sep="\t")
@@ -33,10 +42,13 @@ rm(properties)
 
 
 
+# Density of the target variable ------------------------------------------
 DensityResponse(dataset$recorded_rt) + xlab("RT Target Distribution")
 
 
 
+
+# Calculate descriptors with camb/Padel -----------------------------------
 descriptors <- GeneratePadelDescriptors(standardised.file = "PredRet_std.sdf",
                                         types = "2D", threads = 3)
 descriptors <- RemoveStandardisedPrefix(descriptors)
@@ -59,13 +71,14 @@ rm(descriptors)
 
 
 
+
+# Select only one CS for this testing -------------------------------------
 dataset <- dataset %>% filter(system=="LIFE_old")
 
 
 
 
-
-
+# Make a list of the dataset containing the data and tuning parame --------
 camb_dataset <- dataset %>% do(camb_dataset = SplitSet(.$name, select(.,starts_with("desc_")), .$recorded_rt, percentage = 20)) %>% 
                 unlist(recursive = FALSE,use.names=FALSE) %>%  unlist(recursive = FALSE) %>% 
                 RemoveNearZeroVarianceFeatures(frequencyCutoff = 30) %>% 
@@ -76,11 +89,11 @@ camb_dataset <- dataset %>% do(camb_dataset = SplitSet(.$name, select(.,starts_w
 
 
 
-#registerDoMC(cores = 3) # doesn't work for windows
-library(doParallel) 
-library(caret)
-library(kernlab)
 
+
+# Run a large number of models --------------------------------------------
+
+#registerDoMC(cores = 3) # doesn't work for windows
 cl <- makePSOCKcluster(6)
 registerDoParallel(cl)
 
@@ -92,10 +105,6 @@ model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
 saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
-
-
-
-library(randomForest)
 method <- "rf"
 tune.grid <- expand.grid(.mtry = seq(5, 100, 5))
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
@@ -103,8 +112,6 @@ model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
 saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
-
-library(gbm)
 method <- "gbm"
 tune.grid <- expand.grid(n.trees = c(500, 1000), interaction.depth = c(25), shrinkage = c(0.01, 0.02, 0.04, 0.08),n.minobsinnode = 10)
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
@@ -112,14 +119,10 @@ model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
 saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
-
 method <- "pls"
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,tuneLength = 15,
                tune.grid = NULL, trControl = camb_dataset$trControl,preProcess = c("center","scale"))
 saveRDS(model, file = paste(method, ".rds", sep = ""))
-
-
-
 
 
 method <- "nnet"
@@ -132,9 +135,6 @@ model <- train(x = camb_dataset$x.train,
                )
 
 saveRDS(model, file = paste(method, ".rds", sep = ""))
-
-
-
 
 
 method <- "mlpWeightDecay"
@@ -150,16 +150,11 @@ saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
 
-
 method <- "svmPoly"
 tune.grid <- expand.grid(degree=2, scale=c(0.001,0.005,0.01,0.05),C = c(1e-05,1e-04, 0.001, 0.01, 0.1,0.5))
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
                tuneGrid = tune.grid, trControl = camb_dataset$trControl)
 saveRDS(model, file = paste(method, ".rds", sep = ""))
-
-
-
-
 
 
 method <- "neuralnet"
@@ -169,23 +164,18 @@ model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
 saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
-
-
-
-
-
-
 stopCluster(cl)
 
 
 
+
+# Plot parameter effect on RMSE (last model) ------------------------------
 plot(model, metric = "RMSE")
-print(RMSE_CV(model, digits = 3))
 
 
 
 
-
+# predict RT for holdout compounds and plot correlation -------------------
 holdout.predictions <- as.vector(predict(model$finalModel,
                                          newdata = camb_dataset$x.holdout))
 
@@ -203,19 +193,7 @@ CorrelationPlot(pred = holdout.predictions, obs = camb_dataset$y.holdout,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Make a list of all the models -------------------------------------------
 all.models <- list()
 all.models[[length(all.models) + 1]] <- readRDS("gbm.rds")
 all.models[[length(all.models) + 1]] <- readRDS("svmRadial.rds")
@@ -225,56 +203,50 @@ all.models[[length(all.models) + 1]] <- readRDS("nnet.rds")
 all.models[[length(all.models) + 1]] <- readRDS("mlpWeightDecay.rds")
 all.models[[length(all.models) + 1]] <- readRDS("svmPoly.rds")
 all.models[[length(all.models) + 1]] <- readRDS("neuralnet.rds")
+
 # sort the models from lowest to highest RMSE
 names(all.models) <- sapply(all.models, function(x) x$method)
 sort(sapply(all.models, function(x) min(as.vector(na.omit(x$results$RMSE)))))
 
-# means tell another story
-sort(apply(abs(preds - camb_dataset$y.holdout),2,median ))
-sort(apply(abs(preds - camb_dataset$y.holdout),2,mean ))
 
 
 
+# Create Ensemble models --------------------------------------------------
 greedy <- caretEnsemble(all.models, iter = 1000)
 sort(greedy$weights, decreasing = TRUE)
 saveRDS(greedy, file = "greedy.rds")
-greedy$error
-
 
 
 linear <- caretStack(all.models, method = "glm", trControl = trainControl(method = "cv"))
 saveRDS(linear, file = "linear.rds")
-linear$error
-
 
 
 tune.grid <- expand.grid(.mtry = seq(1, length(all.models),1))
 nonlinear <- caretStack(all.models, method = "rf",
                         trControl = trainControl(method = "cv"), tune.grid = tune.grid)
-
-
 saveRDS(nonlinear, file = "nonlinear.rds")
-nonlinear$error
 
 
-library(pbapply)
 
+
+
+# Make predictions for all the models -------------------------------------
 preds <- data.frame(sapply(all.models, predict, newdata = camb_dataset$x.holdout))
 preds$ENS_greedy <- predict(greedy, newdata = camb_dataset$x.holdout)
 preds$ENS_linear <- predict(linear, newdata = camb_dataset$x.holdout)
 preds$ENS_nonlinear <- predict(nonlinear, newdata = camb_dataset$x.holdout)
+
+
+
+# Show the performance of each model --------------------------------------
 sort(sqrt(colMeans((preds - camb_dataset$y.holdout)^2)))
-
-
-
-# means tell another story
 sort(apply(abs(preds - camb_dataset$y.holdout),2,median ))
 sort(apply(abs(preds - camb_dataset$y.holdout),2,mean ))
 
 
 
 
-
+# Plot the accuracy of each model for each compound in a violin plot ------
 plotdata <- cbind.data.frame(id = as.character(camb_dataset$ids[camb_dataset$holdout.indexes])  , abs(preds-camb_dataset$y.holdout)) %>% 
   gather("method","error_abs",-id)
 
@@ -296,7 +268,7 @@ violin_width=0.8
 
 p <- ggplot( plotdata, aes( x = method, y = error_abs ) )
 p <- p + scale_x_discrete(breaks=levels(plotdata$method), drop=FALSE)
-p <- p + scale_y_continuous(breaks = seq(0, 10, 0.1))
+p <- p + scale_y_continuous(breaks = seq(0, 10, 0.1),limits=c(0,2))
 p <- p + geom_violin(trim=TRUE, fill='black', color="black",adjust=0.3,scale="width",size=0,width=violin_width)
 p <- p + labs(title="Absolute prediction errors", y="Error",fill="Quartiles")
 p <- p + theme_bw_nice + theme_common
@@ -314,3 +286,44 @@ p <- p + theme(legend.position=c(1,1),legend.justification=c(1,1),
 
 p <- p + labs(x="Method")
 p
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Variable importance for gbm and optimizing new model --------------------
+model_select <- all.models[[1]]
+model_select %>% varImp
+model_select %>% varImp %>% plot(20)
+
+var_select <- model_select %>% varImp %$% importance %>% add_rownames("variable") %>%  filter(Overall>5) %>% select_("variable") %>% 
+              as.matrix %>% as.character
+
+
+camb_dataset_var_select <- dataset %>% do(camb_dataset = SplitSet(.$name, dplyr::select(.,one_of(var_select)), .$recorded_rt, percentage = 20)) %>% 
+                          unlist(recursive = FALSE,use.names=FALSE) %>%  unlist(recursive = FALSE) %>% 
+                          GetCVTrainControl(folds = 5)
+
+
+
+
+method <- "gbm"
+tune.grid <- expand.grid(n.trees = c(200,300,400,500), interaction.depth = c(15,25,30), shrinkage = c(0.01,0.02, 0.04, 0.08),n.minobsinnode = c(10))
+model <- train(camb_dataset_var_select$x.train, camb_dataset_var_select$y.train, method,
+               tuneGrid = tune.grid, trControl = camb_dataset_var_select$trControl)
+
+
+plot(model)
+
+
+
+min(all.models[[1]]$results$RMSE) # whole model from before
+min(model$results$RMSE) # select variable model
