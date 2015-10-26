@@ -1,5 +1,6 @@
 setwd("_extras/structure_based/PredRet_QSRR/")
 
+library(plyr)
 library(dplyr)
 library(tidyr)
 library(Rplot.extra)
@@ -10,6 +11,32 @@ library(qdapTools)
 
 
 #load("dataset_all.RData")
+
+
+
+
+
+system_desc <- dataset %>% 
+                group_by(system,inchi) %>% 
+                summarise( recorded_rt = median(recorded_rt)) %>% 
+                spread(inchi,recorded_rt)
+
+# table(apply(select(system_desc,-system),2,function(x) sum(!is.na(x))))
+colnames(system_desc) <- c("system",paste0("desc_comp_",1:(ncol(system_desc)-1)))
+  
+dataset <- left_join(dataset,system_desc,by="system")
+
+
+camb_dataset <- dataset %>% 
+                do(camb_dataset = SplitSet(.$name, dplyr::select(.,starts_with("desc_")), .$recorded_rt, percentage = 20)) %>% 
+                unlist(recursive = FALSE,use.names=FALSE) %>%  unlist(recursive = FALSE) %>% 
+                GetCVTrainControl(folds = 5)
+
+
+
+
+
+
 
 
 
@@ -40,11 +67,9 @@ plot(model, metric = "RMSE")
 preds <- predict(model,newdata = camb_dataset$x.holdout)
 
 plotdata <- cbind.data.frame(id = as.character(camb_dataset$ids[camb_dataset$holdout.indexes]),
-                             system = camb_dataset$x.holdout$system , 
+                             system = dataset$system[camb_dataset$holdout.indexes] , 
                              error_abs = abs(preds-camb_dataset$y.holdout)
-                             ) %>% 
-            mutate(system = as.factor(lookup(system,unique(data.frame(as.numeric(as.factor(dataset$system)),dataset$system)))))
-
+                             )
 
 
 theme_common <- list(
