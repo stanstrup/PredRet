@@ -1,0 +1,6 @@
+_extras/structure_based/PredRet_QSRR/PredRet.sdf filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based/PredRet_QSRR/PredRet_std.sdf filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based/PredRet_QSRR/dataset_all_with_pred.RData filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based/PredRet_QSRR/descriptors.rds filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based/PredRet_QSRR/models.rds filter=lfs diff=lfs merge=lfs -text
+
