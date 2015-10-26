@@ -80,6 +80,7 @@ dataset <- dataset %>% filter(system=="LIFE_old")
 
 # Make a list of the dataset containing the data and tuning parame --------
 camb_dataset <- dataset %>% do(camb_dataset = SplitSet(.$name, select(.,starts_with("desc_")), .$recorded_rt, percentage = 20)) %>% 
+                #dataset %>% do(camb_dataset = SplitSet(.$name, dplyr::select(.,one_of(var_select)), .$recorded_rt, percentage = 20)) %>% 
                 unlist(recursive = FALSE,use.names=FALSE) %>%  unlist(recursive = FALSE) %>% 
                 RemoveNearZeroVarianceFeatures(frequencyCutoff = 30) %>% 
                 RemoveHighlyCorrelatedFeatures(correlationCutoff = 0.95) %>% 
@@ -113,7 +114,7 @@ saveRDS(model, file = paste(method, ".rds", sep = ""))
 
 
 method <- "gbm"
-tune.grid <- expand.grid(n.trees = c(500, 1000), interaction.depth = c(25), shrinkage = c(0.01, 0.02, 0.04, 0.08),n.minobsinnode = 10)
+tune.grid <- expand.grid(n.trees = c(200,300,400,500), interaction.depth = c(15,25,30), shrinkage = c(0.01,0.02, 0.04, 0.08),n.minobsinnode = c(10))
 model <- train(camb_dataset$x.train, camb_dataset$y.train, method,
                tuneGrid = tune.grid, trControl = camb_dataset$trControl)
 saveRDS(model, file = paste(method, ".rds", sep = ""))
