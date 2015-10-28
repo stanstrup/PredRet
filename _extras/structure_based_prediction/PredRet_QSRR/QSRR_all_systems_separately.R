@@ -1,5 +1,5 @@
 # Change working dir ------------------------------------------------------
-setwd("_extras/structure_based/PredRet_QSRR/")
+setwd("_extras/structure_based_prediction/PredRet_QSRR/")
 
 
 # Load packages -----------------------------------------------------------
