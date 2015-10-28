@@ -43,7 +43,8 @@
 % Environment to store variables in
 \alias{PredRet.env}
 
-
+% shiny widgets
+\alias{inputTextarea}
 
 
 

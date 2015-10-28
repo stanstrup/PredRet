@@ -36,11 +36,7 @@ shinyServer(function(input, output,session) {
     
     
     
-  ## functions ##################
-  source("functions/inputTextarea.R",local=TRUE)
-  
-  
-  
+ 
   ## Tabs ##################
   source("server/server_upload_tab.R",local=TRUE)
   source("server/server_system_tab.R",local=TRUE)

@@ -47,7 +47,9 @@ export(log_count, # database queries
        PredRet_plot.pred.pi.abs,
        PredRet_plot.pred.pi.rel,
        PredRet_plot.db.graph,
-       PredRet_plot.model.fit
+       PredRet_plot.model.fit,
+       
+       inputTextarea # shiny widgets
        
 )
 
@@ -56,6 +58,7 @@ export(log_count, # database queries
 import(rmongodb)
 import(ggplot2)
 import(igraph)
+import(shiny)
 
 importFrom(stringr,str_replace_all)
 importFrom(mgcv,gam,smoothCon,mono.con,pcls,Predict.matrix,s)
@@ -68,7 +71,7 @@ importFrom(boot,boot.ci,boot)
 importFrom(plyr,mutate,ddply,summarise,.)
 importFrom(reshape2,melt)
 importFrom(Rplot.extra,ggplotColours,theme_bw_nice,geom_violin_quantile_fill,addVertIfNotPresent,interpolate_gradient)
-importFrom(data.massageR,normalize01,normalize_range)
+importFrom(massageR,normalize01,normalize_range)
 
 
 
