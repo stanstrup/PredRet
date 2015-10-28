@@ -30,7 +30,7 @@ models <- list()
 
 
 # Make models for all systems (this will take some time) ------------------
-#loadRDS(models, file = "models.rds") # To save time you can load the data from here too
+#models <- readRDS(models, file = "models.rds") # To save time you can load the data from here too
 
 cl <- makePSOCKcluster(detectCores()-1)
 registerDoParallel(cl)
