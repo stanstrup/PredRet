@@ -3,5 +3,6 @@ _extras/structure_based_prediction/PredRet_QSRR/PredRet_std.sdf filter=lfs diff=
 _extras/structure_based_prediction/PredRet_QSRR/dataset_all_with_pred.RData filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based_prediction/PredRet_QSRR/descriptors.rds filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based_prediction/PredRet_QSRR/models.rds filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based_prediction/PredRet_QSRR/camb_dataset.rds filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based_prediction/structural_similarity_based/sigmoidal_optimization.eps filter=lfs diff=lfs merge=lfs -text
 

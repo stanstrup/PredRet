@@ -1,5 +1,25 @@
+#root
 .Rproj.user
 .Rhistory
 .RData
 predret_shiny.Rproj
 PredRetR.Rcheck
+
+
+# _extras/paper
+_extras/paper/old_plots/prediction_stats_2015_04_01.png
+_extras/paper/prediction_stats.png
+_extras/paper/prediction_stats.eps
+_extras/paper/network_circular_connected.pdf
+_extras/paper/gradient.pdf
+
+
+# _extras/paper/data
+_extras/paper/data/after_one_iteration.RData
+
+
+# retdb/markdowns
+retdb/markdowns/upload_help.html
+retdb/markdowns/intro_text.html
+retdb/markdowns/addsys_help.html
+
