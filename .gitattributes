@@ -3,4 +3,5 @@ _extras/structure_based/PredRet_QSRR/PredRet_std.sdf filter=lfs diff=lfs merge=l
 _extras/structure_based/PredRet_QSRR/dataset_all_with_pred.RData filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based/PredRet_QSRR/descriptors.rds filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based/PredRet_QSRR/models.rds filter=lfs diff=lfs merge=lfs -text
+_extras/structure_based/structural_similarity_based/sigmoidal_optimization.eps filter=lfs diff=lfs merge=lfs -text
 
