@@ -9,6 +9,7 @@ library(tidyr)
 library(Rplot.extra) # devtools::install_github("stanstrup/Rplot.extra")
 library(parallel)
 library(caret)
+#library(camb) # devtools::install_github("cambDI/camb")
 library(doParallel)
 library(qdapTools)
 library(magrittr)
@@ -25,12 +26,14 @@ load("camb functions.RData") # since the camb package doesn't run on windows
 systems <- unique(dataset$system)
 systems <- expand.grid(pred = c(FALSE,TRUE),systems = systems)
 models <- list()
-
+camb_dataset <- list()
 
 
 
 # Make models for all systems (this will take some time) ------------------
-#models <- readRDS(models, file = "models.rds") # To save time you can load the data from here too
+# models       <- readRDS("models.rds") # To save time you can load the data from here too
+# camb_dataset <- readRDS("camb_dataset.rds")
+
 
 cl <- makePSOCKcluster(detectCores()-1)
 registerDoParallel(cl)
@@ -63,7 +66,7 @@ for(i in 1:nrow(systems)){
 stopCluster(cl)
 
 #saveRDS(models, file = "models.rds")
-
+#saveRDS(camb_dataset, file = "camb_dataset.rds")
 
 
 
@@ -122,7 +125,7 @@ violin_width=0.8
 p <- ggplot( plotdata, aes( x = preds, y = error_rel ) )
 #p <- p + scale_x_discrete(breaks=levels(interaction(plotdata$system,plotdata$preds)), drop=FALSE)
 p <- p + scale_y_continuous(breaks = seq(0, 50, 0.2),limits=c(0,2))
-p <- p + geom_violin(trim=TRUE, adjust=0.3,scale="width",size=0,width=violin_width)
+p <- p + geom_violin(trim=TRUE, adjust=0.3,scale="width",width=violin_width)
 p <- p + labs(title="Relative prediction errors", y="Error",fill="Quartiles")
 p <- p + theme_bw_nice + theme_common
 #p <- p + geom_violin_quantile_fill(p=p,df_gr = interaction(plotdata[,"preds"],plotdata[,"system"]),df_data = plotdata[,"error_abs"],width=violin_width)
@@ -136,7 +139,7 @@ p <- p + theme(legend.position=c(1,1),legend.justification=c(1,1),
                legend.background = element_rect(fill="transparent"))
  p <- p + facet_grid (~system)
 
-p <- p + labs(x="System")
+p <- p + labs(x="Using predictions in model or not")
 p
 
 
