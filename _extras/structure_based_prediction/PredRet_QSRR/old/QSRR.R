@@ -1,6 +1,6 @@
 
 # Change working directory ------------------------------------------------
-setwd("_extras/structure_based/PredRet_QSRR/")
+setwd("_extras/structure_based_prediction/PredRet_QSRR/")
 
 
 # Load some libraries -----------------------------------------------------
@@ -18,10 +18,12 @@ library(magrittr)
 library(doParallel) 
 library(caret)
 library(pbapply)
+library(parallel)
+
 
 
 # Get the data from PredRet and write SDF file ----------------------------
-dataset <-   PredRet_get_db(exp_pred = "exp",include_suspect = TRUE)
+dataset <-   PredRet_get_db(exp_pred = c("exp","pred"),include_suspect = TRUE)
 sdf <- inchi2sdf(dataset$inchi)
 write.SDF(sdf, file="PredRet.sdf")
 rm(sdf)
@@ -63,11 +65,27 @@ saveRDS(descriptors, file = "descriptors.rds")
                      select(-Name) %>% 
                      ReplaceInfinitesWithNA %>% ImputeFeatures
 
-colnames(descriptors) <- paste0("desc_",colnames(descriptors))
+colnames(descriptors) <- paste0("desc_padel_",colnames(descriptors))
 
 
 dataset <- cbind.data.frame(dataset,descriptors)
 rm(descriptors)
+
+
+
+
+# get Rcdk descriptors ----------------------------------------------------
+# need to restart. dunno what the hell the incompatibility is.
+library(rcdk)
+mols <- load.molecules("PredRet_std.sdf")
+rcdk_desc <- get.desc.categories() %>% sapply(get.desc.names) %>% unlist %>% as.character
+rcdk_desc <- eval.desc(mols, rcdk_desc, verbose=TRUE)
+
+# cl <- makeCluster(detectCores()-1)
+# clusterExport(cl, "mols")
+# rcdk_desc <- parLapply(cl,rcdk_desc,function(x){ require(rcdk); eval.desc(mols, x, verbose=FALSE)})
+# stopCluster(cl)
+
 
 
 
