@@ -16,6 +16,7 @@ The R package to retrieve data from the database directly from R can be installe
 install.packages("devtools")
 library(devtools)
 
+install_github("mongosoup/rmongodb")
 install_github("stanstrup/PredRet",subdir = "PredRetR")
 ```
 
