@@ -86,6 +86,19 @@ rcdk_desc <- eval.desc(mols, rcdk_desc, verbose=TRUE)
 # rcdk_desc <- parLapply(cl,rcdk_desc,function(x){ require(rcdk); eval.desc(mols, x, verbose=FALSE)})
 # stopCluster(cl)
 
+rcdk_desc <- rcdk_desc[,apply(rcdk_desc,2,function(x) !all(is.na(x)))]
+colnames(rcdk_desc) <- paste0("desc_cdk_",colnames(rcdk_desc))
+
+dataset <- cbind.data.frame(dataset,rcdk_desc)
+rm(rcdk_desc)
+
+
+
+# Add jchem descriptors ---------------------------------------------------
+library(jchemR)
+cxcalc_add_3D_sdffile(infile="PredRet_std.sdf",outfile="PredRet_std_3D.sdf",verbose=T)
+properties <- cxcalc_add_property_sdffile(infile="PredRet_std_3D.sdf",outfile="PredRet_std_3D_prop.sdf",pH_step = 0.5,verbose=T )
+saveRDS(properties, file = "calc_properties.rds")
 
 
 
@@ -97,8 +110,9 @@ dataset <- dataset %>% filter(system=="LIFE_old")
 
 
 # Make a list of the dataset containing the data and tuning parame --------
-camb_dataset <- dataset %>% do(camb_dataset = SplitSet(.$name, select(.,starts_with("desc_")), .$recorded_rt, percentage = 20)) %>% 
-                #dataset %>% do(camb_dataset = SplitSet(.$name, dplyr::select(.,one_of(var_select)), .$recorded_rt, percentage = 20)) %>% 
+camb_dataset <- dataset %>% filter(!is.na(recorded_rt)) %>% 
+                do(camb_dataset = SplitSet(.$name, select(.,starts_with("desc_padel_")), .$recorded_rt, percentage = 20)) %>% 
+                #do(camb_dataset = SplitSet(.$name, dplyr::select(.,one_of(var_select)), .$recorded_rt, percentage = 20)) %>% 
                 unlist(recursive = FALSE,use.names=FALSE) %>%  unlist(recursive = FALSE) %>% 
                 RemoveNearZeroVarianceFeatures(frequencyCutoff = 30) %>% 
                 RemoveHighlyCorrelatedFeatures(correlationCutoff = 0.95) %>% 
