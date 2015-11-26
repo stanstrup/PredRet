@@ -1,25 +1,6 @@
 ## Setting the log entries to automatically expire.
 
-mongo.index.TTLcreate <- function(mongo, ns, field, index_name, expireAfterSeconds) {
-  
-  indexes = list()
-  key=list()
-  key[[field]] <- 1L
-
-  indexes[["name"]] <- index_name
-  indexes[["expireAfterSeconds"]] <- expireAfterSeconds
-  indexes[["key"]] <- key
-  
-  
-  listCreateIndex <- list(    createIndexes = sub(".*\\.", "", ns), indexes = list(indexes)  )                 
-  
-  bsonCreateIndex <- mongo.bson.from.list(listCreateIndex)
-  mongo.command(mongo, db = gsub("\\..*","",ns), bsonCreateIndex)
-  
-}
-
-
-
+library(rmongodb)
 
 
 mongo <- PredRet_connect()
