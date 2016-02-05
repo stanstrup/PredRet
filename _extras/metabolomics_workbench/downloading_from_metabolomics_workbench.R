@@ -1,38 +1,32 @@
-library(RJSONIO)
-library(RCurl)
+# Packages ----------------------------------------------------------------
 library(dplyr)
+library(mwtabR)     # devtools::install_github("stanstrup/mwtabR")
+library(listviewer) # devtools::install_github("timelyportfolio/listviewer")
 
-# grab the data
-raw_data <- getURL("http://api.metabolomexchange.org/datasets")
-
-
-# Then covert from JSON into a list
-data <- fromJSON(raw_data)
-
-# Flattening the data
-data_flat <- lapply(data,unlist,recursive=FALSE)
-data_flat <- lapply(data_flat, function(y) lapply(y, function(x) paste(x,collapse=";")))
-data_flat <- lapply(data_flat,as.data.frame,stringsAsFactors=FALSE)
-
-data_table <- bind_rows(data_flat)
-data_table <- as.data.frame(data_table)
+setwd("_extras/metabolomics_workbench")
 
 
 
+
+
+# Download list of all studies -------------------------------
+data_table <- ME_get_studies_list()
+
+
+# Filter some studies irrelevant right now --------------------------------
 #data_table %>% select(accession,url,title,meta.analysis,meta.platform) %>% View
+#data_table_filtered <- data_table %>% filter(!grepl("NMR",meta.analysis)) %>% filter(!grepl("GC",meta.platform)) %>% filter(grepl("ST",accession))
+data_table_filtered <- data_table %>% filter(grepl("ST",accession))
 
 
-data_table_filtered <- data_table %>% filter(!grepl("NMR",meta.analysis)) %>% filter(!grepl("GC",meta.platform)) %>% filter(grepl("ST",accession))
+# Download MW data --------------------------------------------------------
+MW_mwtab_parsed <- MW_get_studies_data(data_table_filtered[,"accession"])
+#saveRDS(MW_mwtab_parsed,"MW_mwtab_parsed.rds")
 
 
-MW_mwtab <- list()
 
-for(i in 1:nrow(data_table_filtered)){
-  
-  MW_mwtab[[i]] <- getURL(paste0("http://www.metabolomicsworkbench.org/rest/study/study_id/",data_table_filtered[i,"accession"],"/mwtab"))
-  
-}
+# View data ---------------------------------------------------------------
+#jsonedit(MW_mwtab_parsed[1:2])
 
-saveRDS(MW_mwtab,"MW_mwtab.rds")
-# \n splits lines \t seperates things
 
+#View(MW_mwtab_parsed$ST000231$AN000345$METABOLITES)
