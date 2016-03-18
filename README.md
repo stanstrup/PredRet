@@ -16,7 +16,13 @@ The R package to retrieve data from the database directly from R can be installe
 install.packages("devtools")
 library(devtools)
 
+source("https://bioconductor.org/biocLite.R")
+biocLite("pcaMethods")
+
 install_github("mongosoup/rmongodb")
+install_github("stanstrup/Rplot.extra")
+install_github("stanstrup/massageR")
+
 install_github("stanstrup/PredRet",subdir = "PredRetR")
 ```
 
