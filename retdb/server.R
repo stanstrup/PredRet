@@ -18,9 +18,10 @@ shinyServer(function(input, output,session) {
 
   
   ## get username ##################
-  userID <- reactive({   as.integer(input$userID) })
-  username <- reactive({   input$username })
-  user_logged_in <- reactive({   input$user_logged_in })
+  ## bypass wordpress authentification
+  userID <- "juser" # reactive({   as.integer(input$userID) })
+  username <- "Joe User" # "reactive({   input$username })
+  user_logged_in <- "TRUE" # reactive({   input$user_logged_in })
   
   
   ## get user time ##################
