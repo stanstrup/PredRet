@@ -11,8 +11,8 @@ pageWithSidebar(
   mainPanel(
     #bsProgressBar("uploadprogress", value = 0,visible=FALSE),
     uiOutput("is_written"),
-    bsAlert(inputId="upload_complete"),
-    bsAlert(inputId="upload_alerts")#,
+    bsAlert("X1"),
+    bsAlert("X2")#,
     #tableOutput("filetable"),
     #tableOutput("data")
   )
