@@ -86,7 +86,7 @@ output$is_written <- renderUI({
   if(is.null(data_has_been_written$done))   return(NULL)
   
   if((data_has_been_written$done==1)){   
-    createAlert(session,alertId="alertID_upload_done",type="success",title=c("Done!"),message="Data written to database",dismiss=TRUE,append = FALSE)
+    createAlert(session,inputId="upload_complete",alertId="alertID_upload_done",type="success",title=c("Done!"),message="Data written to database",dismiss=TRUE,append = FALSE)
   }
   
 })

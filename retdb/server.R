@@ -11,7 +11,7 @@ library(DT)
 library(obabel2R)
 
 
-PredRet.env$predret_local <- TRUE
+PredRet.env$predret_local <- FALSE
 
 
 shinyServer(function(input, output,session) {
@@ -19,11 +19,10 @@ shinyServer(function(input, output,session) {
   
   ## get username ##################
   ## bypass wordpress authentification
-  userID <- "juser" # reactive({   as.integer(input$userID) })
-  username <- "Joe User" # "reactive({   input$username })
-  user_logged_in <- "TRUE" # reactive({   input$user_logged_in })
-  
-  
+  userID <- function() {"4711"} # reactive({   as.integer(input$userID) })
+  username <- function() {"Joe User"} # "reactive({   input$username })
+  user_logged_in <- function() {"TRUE"} # reactive({   input$user_logged_in })
+
   ## get user time ##################
   client_time <- reactive(as.numeric(input$client_time) / 1000) # in s
   time_zone_offset <- reactive(as.numeric(input$client_time_zone_offset) * 60 ) # in s 
