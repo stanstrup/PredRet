@@ -38,7 +38,7 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   }
   
   dat <- data.frame(x=x.star,y=y.star)
-  f.ug <- gam(y~s(x,k=min(length(unique(x.star)),10),bs="tp"),data=dat)
+  f.ug <- gam(y~s(x,k=min(length(unique(round(x.star,2))),10),bs="tp"),data=dat)
   
   
   w <- f.ug$residuals
