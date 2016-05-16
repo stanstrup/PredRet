@@ -25,12 +25,13 @@
   
   #### Read ini file data into environment
   
-  PredRet.env <<- new.env()
-  
-  PredRet.env$mongo <<- ini$mongo
-  PredRet.env$namespaces <<- ini$namespaces
-  PredRet.env$prediction <<- lapply(ini$prediction,as.numeric)
-  PredRet.env$suspect <<- lapply(ini$suspect,as.numeric)
+  PredRet.env                     <<- new.env()
+  PredRet.env$auth                <<- ini$auth
+  PredRet.env$auth$wordpress_auth <<- as.logical(ini$auth$wordpress_auth)
+  PredRet.env$mongo               <<- ini$mongo
+  PredRet.env$namespaces          <<- ini$namespaces
+  PredRet.env$prediction          <<- lapply(ini$prediction,as.numeric)
+  PredRet.env$suspect             <<- lapply(ini$suspect,as.numeric)
   
   rm(ini,ini_file)
   

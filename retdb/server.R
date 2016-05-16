@@ -11,16 +11,15 @@ library(DT)
 library(obabel2R)
 
 
-PredRet.env$predret_local <- TRUE
-
-
 shinyServer(function(input, output,session) {
 
   
   ## get username ##################
-  userID <- reactive({   as.integer(input$userID) })
-  username <- reactive({   input$username })
-  user_logged_in <- reactive({   input$user_logged_in })
+  if(PredRet.env$auth$wordpress_auth){
+    userID <- reactive({   as.integer(input$userID) })
+    username <- reactive({   input$username })
+    user_logged_in <- reactive({   input$user_logged_in })
+  }
   
   
   ## get user time ##################
@@ -30,10 +29,11 @@ shinyServer(function(input, output,session) {
   
   observe({
     
-    if(is.null(user_logged_in())) return(NULL) # when not set yet
-    if(  user_logged_in() == ""    ) return(NULL) # when not set yet
-    if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
-    
+    if(PredRet.env$auth$wordpress_auth){
+      if(is.null(user_logged_in())) return(NULL) # when not set yet
+      if(  user_logged_in() == ""    ) return(NULL) # when not set yet
+      if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
+    }
     
     
  
