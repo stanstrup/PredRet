@@ -1,9 +1,9 @@
 Package: PredRetR
-Version: 0.4
-Date: 2015-10-28
+Version: 0.5
+Date: 2016-05-16
 Title: PredRetR
-Author: Jan Stanstrup <jan.stanstrup@fmach.it>
-Maintainer: Jan Stanstrup <jan.stanstrup@fmach.it>
+Author: Jan Stanstrup <stanstrup@gmail.com>
+Maintainer: Jan Stanstrup <stanstrup@gmail.com>
 Depends: R (>= 2.14.0), rmongodb, ggplot2, shiny
 Suggests: rCharts
 Imports: stringr, mgcv, pracma, boot, parallel, plyr, reshape2, Rplot.extra, massageR, igraph, ini
