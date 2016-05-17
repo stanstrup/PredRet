@@ -51,7 +51,7 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   w <- sigmoid(w, a = -30, b = 0.1)
   
   
-  sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
+  sm <- smoothCon(s(x,k=min(length(unique(round(x.star,2))),10),bs="cr"),dat,knots=NULL)[[1]]
   con <- mono.con(sm$xp);   # get constraints
   
   
