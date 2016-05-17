@@ -33,7 +33,7 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   #   counter[length(counter)+1] <<- length(counter)+1
   
   # We need at least 4 unique x-values to do the fit. So we add a small amount of jitter if it is not the case.
-  if(length(unique(x.star))<4){
+  if(length(unique(round(x.star,2)))<4){
     x.star <- jitter(x.star,amount=0.01)
   }
   
