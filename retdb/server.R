@@ -19,6 +19,9 @@ shinyServer(function(input, output,session) {
     userID <- reactive({   as.integer(input$userID) })
     username <- reactive({   input$username })
     user_logged_in <- reactive({   input$user_logged_in })
+  }else{
+    userID <-   function() PredRet.env$auth$userID
+    username <- function() PredRet.env$auth$username
   }
   
   
@@ -35,7 +38,7 @@ shinyServer(function(input, output,session) {
       if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
     }
     
-    
+
  
   ## Tabs ##################
   source("server/server_upload_tab.R",local=TRUE)
