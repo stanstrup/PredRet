@@ -44,11 +44,12 @@ Requires: Biobase, Hmisc, RBGL, graph, igraph, xcms
 Package: CTSgetR
 Source: github
 Version: 1.1
-Hash: 45b8b308db3a854d7955c00da3247c2b
+Hash: e487d8eeec053c3c999db9e133c29da7
+Requires: KEGGREST, RCurl, RJSONIO, jsonlite, vwr
 GithubRepo: CTSgetR
-GithubUsername: dgrapov
+GithubUsername: stanstrup
 GithubRef: master
-GithubSha1: 9d36fd0bcb45c1b4e8b5a1667b8d960acb844d59
+GithubSha1: ed99bdbf9c7e4aec1f7df8d008da80cb88984a8e
 
 Package: ChemmineR
 Source: Bioconductor
@@ -109,15 +110,14 @@ Requires: RColorBrewer, colorspace, digest, doParallel, foreach,
 
 Package: PredRetR
 Source: github
-Version: 0.5
-Hash: bf759a21052a3ed7ce2ded4575b24dc2
+Version: 0.55
+Hash: 09dd0f6c798cc343029f390722fa0db9
 Requires: Rplot.extra, ggplot2, igraph, ini, massageR, plyr, pracma,
     reshape2, rmongodb, shiny, stringr
 GithubRepo: PredRet
 GithubUsername: stanstrup
 GithubRef: packratify
-GithubSha1: 6cbc3157c7be342b42ebab0b96f40bc3bb955201
-GithubSubdir: PredRetR
+GithubSha1: fcd15582d22bc54e928c2b6ad0c32dbe57c8d857
 
 Package: ProtGenerics
 Source: Bioconductor
@@ -230,13 +230,13 @@ Requires: pbkrtest, quantreg
 Package: chemhelper
 Source: github
 Version: 0.6
-Hash: 46c98728fb80ee69d4f931db9fbbd659
+Hash: 7b61b479a70d9423a32aec2b95787dd6
 Requires: CAMERA, CTSgetR, RCurl, Rcpp, Rdisop, devtools, dplyr,
     magrittr, obabel2R, rpubchem, scales, stringr, tidyr, xcms, xlsx
 GithubRepo: chemhelper
 GithubUsername: stanstrup
 GithubRef: master
-GithubSha1: 612b534c4f347de388ff59ec616779e9fbd6a37e
+GithubSha1: 75930cc34a9b36a303a1571260b4587b92409c75
 
 Package: chron
 Source: CRAN
