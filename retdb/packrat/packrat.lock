@@ -110,13 +110,14 @@ Requires: RColorBrewer, colorspace, digest, doParallel, foreach,
 Package: PredRetR
 Source: github
 Version: 0.5
-Hash: c3da3be9adc4cc56a3feebf38065bf74
+Hash: bf759a21052a3ed7ce2ded4575b24dc2
 Requires: Rplot.extra, ggplot2, igraph, ini, massageR, plyr, pracma,
     reshape2, rmongodb, shiny, stringr
 GithubRepo: PredRet
 GithubUsername: stanstrup
-GithubRef: master
-GithubSha1: cb8a87c9e68c7e6950c9598f1f98ce2690205f08
+GithubRef: packratify
+GithubSha1: 6cbc3157c7be342b42ebab0b96f40bc3bb955201
+GithubSubdir: PredRetR
 
 Package: ProtGenerics
 Source: Bioconductor
