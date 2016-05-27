@@ -10,19 +10,20 @@ library(PredRetR)
 library(DT)
 library(obabel2R)
 
-
-PredRet.env$predret_local <- FALSE
-
-
 shinyServer(function(input, output,session) {
-
   
   ## get username ##################
-  ## bypass wordpress authentification
-  userID <- function() {"4711"} # reactive({   as.integer(input$userID) })
-  username <- function() {"Joe User"} # "reactive({   input$username })
-  user_logged_in <- function() {"TRUE"} # reactive({   input$user_logged_in })
-
+  if(PredRet.env$auth$wordpress_auth){
+    userID <- reactive({   as.integer(input$userID) })
+    username <- reactive({   input$username })
+    user_logged_in <- reactive({   input$user_logged_in })
+  } else {
+      userID <- function() {"4711"} # reactive({   as.integer(input$userID) })
+      username <- function() {"Joe User"} # "reactive({   input$username })
+      user_logged_in <- function() {"TRUE"} # reactive({   input$user_logged_in })
+  }
+  
+  
   ## get user time ##################
   client_time <- reactive(as.numeric(input$client_time) / 1000) # in s
   time_zone_offset <- reactive(as.numeric(input$client_time_zone_offset) * 60 ) # in s 
@@ -30,10 +31,11 @@ shinyServer(function(input, output,session) {
   
   observe({
     
-    if(is.null(user_logged_in())) return(NULL) # when not set yet
-    if(  user_logged_in() == ""    ) return(NULL) # when not set yet
-    if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
-    
+    if(PredRet.env$auth$wordpress_auth){
+      if(is.null(user_logged_in())) return(NULL) # when not set yet
+      if(  user_logged_in() == ""    ) return(NULL) # when not set yet
+      if(  !(as.logical(user_logged_in()))  ) return(NULL) # if not logged in
+    }
     
     
  

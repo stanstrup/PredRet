@@ -1,9 +1,6 @@
 ## packages ##################
 library(PredRetR)
 
-PredRet.env$predret_local <- TRUE
-
-
 
 ## Re-calc all models ##################
 systems <- get_systems()

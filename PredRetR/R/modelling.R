@@ -33,7 +33,7 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   #   counter[length(counter)+1] <<- length(counter)+1
   
   # We need at least 4 unique x-values to do the fit. So we add a small amount of jitter if it is not the case.
-  if(length(unique(x.star))<4){
+  if(length(unique(round(x.star,2)))<4){
     x.star <- jitter(x.star,amount=0.01)
   }
   
@@ -51,7 +51,7 @@ gam.mono.con.fun <- function(in_data,inds,newdata){
   w <- sigmoid(w, a = -30, b = 0.1)
   
   
-  sm <- smoothCon(s(x,k=min(length(unique(x.star)),10),bs="cr"),dat,knots=NULL)[[1]]
+  sm <- smoothCon(s(x,k=min(length(unique(round(x.star,2))),10),bs="cr"),dat,knots=NULL)[[1]]
   con <- mono.con(sm$xp);   # get constraints
   
   

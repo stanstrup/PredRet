@@ -32,7 +32,6 @@ export(log_count, # database queries
        
        plot_systems, # plotting
        
-       PredRet.env, # environment to hold some vars
        PredRet_connect,
        
        PredRet_get_db,
@@ -60,6 +59,7 @@ import(ggplot2)
 import(igraph)
 import(shiny)
 
+
 importFrom(stringr,str_replace_all)
 importFrom(mgcv,gam,smoothCon,mono.con,pcls,Predict.matrix,s)
 importFrom(pracma,sigmoid)
@@ -72,11 +72,5 @@ importFrom(plyr,mutate,ddply,summarise,.)
 importFrom(reshape2,melt)
 importFrom(Rplot.extra,ggplotColours,theme_bw_nice,geom_violin_quantile_fill,addVertIfNotPresent,interpolate_gradient)
 importFrom(massageR,normalize01,normalize_range)
-
-
-
-
-
-
-
+importFrom(ini,read.ini)
 
