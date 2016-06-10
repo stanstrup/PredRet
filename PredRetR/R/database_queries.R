@@ -1,17 +1,14 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-PredRet_connect <- function(host = "predret-mongo", name = "", username = "",
-                 password = "", db = "predret") {
+PredRet_connect <- function() {
   
-  if(!PredRet.env$predret_local){
-    mongo <- mongo.create(host = host, name = name, username = username,
-                 password = password, db = db)
-  }
-  
-  if(PredRet.env$predret_local){
-    mongo <- mongo.create()
-  }
-  
+    mongo <- mongo.create(host     = PredRet.env$mongo$host, 
+                          name     = PredRet.env$mongo$name, 
+                          username = PredRet.env$mongo$username,
+                          password = PredRet.env$mongo$password,
+                          db       = PredRet.env$mongo$db
+                          )
+
   return(mongo)
 }
 
