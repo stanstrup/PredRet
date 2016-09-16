@@ -10,15 +10,17 @@ library(PredRetR)
 library(DT)
 library(obabel2R)
 
-
 shinyServer(function(input, output,session) {
-
   
   ## get username ##################
   if(PredRet.env$auth$wordpress_auth){
     userID <- reactive({   as.integer(input$userID) })
     username <- reactive({   input$username })
     user_logged_in <- reactive({   input$user_logged_in })
+  } else {
+      userID <- function() {"4711"} # reactive({   as.integer(input$userID) })
+      username <- function() {"Joe User"} # "reactive({   input$username })
+      user_logged_in <- function() {"TRUE"} # reactive({   input$user_logged_in })
   }
   
   
