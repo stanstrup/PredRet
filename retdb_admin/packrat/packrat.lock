@@ -24,6 +24,11 @@ Source: Bioconductor
 Version: 0.20.0
 Hash: ce45642fa93df3c66879867d96815407
 
+Package: BiocInstaller
+Source: Bioconductor
+Version: 1.24.0
+Hash: b1c2c51cc77fd1031c7851d3116c39d0
+
 Package: DBI
 Source: CRAN
 Version: 0.5-1
@@ -38,14 +43,15 @@ Requires: RColorBrewer, colorspace, digest, doParallel, foreach,
 
 Package: PredRetR
 Source: github
-Version: 0.5
-Hash: ca398d345deb44a986c5a9185caf7cbe
+Version: 0.55
+Hash: 816b96ba73e9531025358fbd4a7f5cd6
 Requires: Rplot.extra, ggplot2, igraph, ini, massageR, plyr, pracma,
     reshape2, rmongodb, shiny, stringr
 GithubRepo: PredRet
 GithubUsername: stanstrup
-GithubRef: master
-GithubSha1: d8efd6436e7df6469b6ac4c66405b8179eab4a6e
+GithubRef: packratify
+GithubSha1: ec6f8ade0a8a2e6ad06a430f5886f54e030414e5
+GithubSubdir: PredRetR
 
 Package: R6
 Source: CRAN
@@ -95,8 +101,8 @@ Hash: 67d0775189fd0041d95abca618c5c07e
 
 Package: colorspace
 Source: CRAN
-Version: 1.2-7
-Hash: a5cf9920b36c0a171e1b04ffed1ace5a
+Version: 1.3-2
+Hash: 0bf8618b585fa98eb23414cd3ab95118
 
 Package: curl
 Source: CRAN
