@@ -1,0 +1,136 @@
+## R Notebook and rCharts
+
+This is a short demo on how to embed d3js style charts in an R Markdown notebook, using rCharts and Shiny. If you want to follow along, please install `rCharts` from `github` using `devtools` and run `open_notebook()`.
+
+```{r eval = F}
+require(devtools)
+install_github('rCharts', 'ramnathv')
+rCharts::open_notebook()
+```
+
+Before we begin charting, let us customize some settings for rCharts and knitr
+
+```{r echo = T, message = F, cache = F}
+require(rCharts)
+options(RCHART_WIDTH = 600, RCHART_HEIGHT = 400)
+knitr::opts_chunk$set(comment = NA, results = 'asis', tidy = F, message = F)
+```
+
+<style>.rChart {width: 600px; height: 400px;}</style>
+
+Time to get charting now!
+
+---
+
+## Polychart
+
+We will create our first chart using Polychart, a javascript charting library based on the grammar of graphics, and inspired by ggplot2.
+
+```{r chart1}
+r1 <- rPlot(mpg ~ wt | am + vs, data = mtcars, type = 'point',
+  color = 'gear')
+r1$print('chart1')
+```
+
+There, we have our first embedded chart with nice tooltips! Let me add some interactivity to this chart now using javascript.
+
+<script>
+graph_chart1.addHandler(function(type, e){
+  var data = e.evtData;
+  if (type === 'click'){
+    return alert("You clicked on car with mpg: " + data.mpg.in[0]);
+  }
+})
+</script>
+
+---
+
+## Morris
+
+The next library we will be exploring is MorrisJS.
+
+```{r chart2}
+data(economics, package = 'ggplot2')
+econ <- transform(economics, date = as.character(date))
+m1 <- mPlot(x = 'date', y = c('psavert', 'uempmed'), type = 'Line',
+  data = econ)
+m1$set(pointSize = 0, lineWidth = 1)
+m1$print('chart2')
+```
+
+Hurray! There we have our second chart!
+
+---
+
+## NVD3
+
+Next, I will demonstrate my all time favorite d3js library, NVD3, which produces amazing interactive visualizations with little customization.
+
+```{r chart3}
+hair_eye_male <- subset(as.data.frame(HairEyeColor), Sex == "Male")
+n1 <- nPlot(Freq ~ Hair, group = "Eye", data = hair_eye_male, 
+  type = 'multiBarChart')
+n1$print('chart3')
+```
+
+See the interactivity that comes at zero cost! 
+
+---
+
+## xCharts
+
+Finally, I will demo xCharts, a slick looking charting library using d3js, made by TenXer.
+
+```{r chart4}
+require(reshape2)
+uspexp <- melt(USPersonalExpenditure)
+names(uspexp)[1:2] = c('category', 'year')
+x1 <- xPlot(value ~ year, group = 'category', data = uspexp, 
+  type = 'line-dotted')
+x1$print('chart4')
+```
+
+There is your xChart
+
+---
+
+## HighCharts
+
+```{r chart5}
+h1 <- hPlot(x = "Wr.Hnd", y = "NW.Hnd", data = MASS::survey, 
+  type = c("line", "bubble", "scatter"), group = "Clap", size = "Age")
+h1$print('chart5')
+```
+
+---
+
+## Leaflet
+
+```{r}
+map3 <- Leaflet$new()
+map3$setView(c(51.505, -0.09), zoom = 13)
+map3$marker(c(51.5, -0.09), bindPopup = "<p> Hi. I am a popup </p>")
+map3$marker(c(51.495, -0.083), bindPopup = "<p> Hi. I am another popup </p>")
+map3$print('chart7')
+```
+
+---
+
+## Rickshaw
+
+```{r chart6}
+usp = reshape2::melt(USPersonalExpenditure)
+p4 <- Rickshaw$new()
+p4$layer(value ~ Var2, group = 'Var1', data = usp, type = 'area')
+p4$print('chart6')
+```
+
+---
+
+## Credits
+
+I would like to acknowledge the efforts of @yihui and @rstudio in bringing R Notebooks to the R community. I would like to thank @yihui for his excellent shiny app in the knitr package, which was the basis for this app. Without their efforts, rCharts and this demo would not have been possible.
+
+For more information, please visit
+
+http://github.com/ramnathv/rCharts!

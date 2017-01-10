@@ -1,0 +1,33 @@
+<!doctype HTML>
+<meta charset = 'utf-8'>
+<html>
+  <head>
+    {{# assets.css }}
+    <link rel='stylesheet' href='{{{ . }}}'>
+    {{/ assets.css }}
+    
+    {{# assets.jshead }}
+    <script src='{{{ . }}}' type='text/javascript'></script>
+    {{/ assets.jshead }}
+    
+    <style>
+    .rChart {
+      display: block;
+      margin-left: auto; 
+      margin-right: auto;
+      width: {{params.width}}px;
+      height: {{params.height}}px;
+    }  
+    </style>
+    
+  </head>
+  <body {{{ params.bodyattrs }}}>
+    
+    {{> chartDiv }}
+    
+    {{{ script }}}
+    
+    {{> afterScript }}
+    
+  </body>
+</html>

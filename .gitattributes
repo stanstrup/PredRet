@@ -7,3 +7,5 @@ _extras/structure_based_prediction/PredRet_QSRR/camb_dataset.rds filter=lfs diff
 _extras/structure_based_prediction/structural_similarity_based/sigmoidal_optimization.eps filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based_prediction/PredRet_QSRR/results_after_padel_rcdk_jchem.RData filter=lfs diff=lfs merge=lfs -text
 _extras/structure_based_prediction/PredRet_QSRR/PredRet_std_3D_prop.sdf filter=lfs diff=lfs merge=lfs -text
+retdb/packrat/src/*/* filter=lfs diff=lfs merge=lfs -text
+retdb_admin/packrat/src/*/* filter=lfs diff=lfs merge=lfs -text

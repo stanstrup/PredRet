@@ -1,6 +1,6 @@
 Package: PredRetR
-Version: 0.5
-Date: 2016-05-16
+Version: 0.55
+Date: 2016-05-20
 Title: PredRetR
 Author: Jan Stanstrup <stanstrup@gmail.com>
 Maintainer: Jan Stanstrup <stanstrup@gmail.com>
@@ -12,3 +12,4 @@ Description: Functions for PredRet prediction of retention times.
 License: GPL (>= 2)
 URL: None
 biocViews: Metabolomics
+Remotes: stanstrup/Rplot.extra, stanstrup/massageR

@@ -1,0 +1,2 @@
+retdb/packrat/src/*/* filter=lfs diff=lfs merge=lfs -text
+retdb_admin/packrat/src/*/* filter=lfs diff=lfs merge=lfs -text

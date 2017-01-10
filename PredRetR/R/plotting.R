@@ -52,7 +52,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['predicted']]), names = F, json = F),
+    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,as.numeric(plotdata$data$predicted)), names = F, json = F),
     type = 'line',
     zIndex = 1,
     marker=list(enabled=F,states=list(hover=list(enabled=F)))
@@ -60,7 +60,7 @@ plot_systems <- function(plotdata) {
   
   
   p$series(
-    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,plotdata$data[['lower']],plotdata$data[['upper']]), names = F, json = F),
+    data = rCharts::toJSONArray2(cbind.data.frame(plotdata$data$newdata,as.numeric(plotdata$data[['lower']]),as.numeric(plotdata$data[['upper']])), names = F, json = F),
     type = 'arearange',
     fillOpacity = 0.3,
     lineWidth = 0,
