@@ -1,0 +1,49 @@
+Package: rCharts
+Type: Package
+Title: Interactive Charts using Javascript Visualization Libraries
+Version: 0.4.5
+Date: 2013-04-09
+Authors@R: c(
+  person("Thomas", "Reinholdsson", role = "ctb"),
+  person("Kenton", "Russell", role = "ctb"),
+  person("Ramnath", "Vaidyanathan", email = "ramnath.vaidya@gmail.com", 
+    role = c("aut", "cre")
+  ))
+Maintainer: Ramnath Vaidyanathan <ramnath.vaidya@gmail.com>
+Description: Create interactive visualizations with a plotting interface
+    familiar to R users using several javascript visualization libraries.
+Imports:
+    plyr,
+    lattice,
+    RCurl,
+    RJSONIO,
+    whisker,
+    yaml
+License: MIT
+Collate:
+    'utils.R'
+    'utils-rickshaw.R'
+    'rChartsClass.R'
+    'Datatables.R'
+    'Dimple.R'
+    'Polycharts.R'
+    'Morris.R'
+    'Nvd3.R'
+    'Rickshaw.R'
+    'xCharts.R'
+    'toJSON.R'
+    'getLayer.R'
+    'renderChart.R'
+    'showOutput.R'
+    'gist.R'
+    'publish.R'
+    'Highcharts.R'
+    'Vega.R'
+    'Leaflet.R'
+    'makeExamples.R'
+    'Timeline.R'
+    'Uvcharts.R'
+GithubRepo: rcharts
+GithubUsername: ramnathv
+GithubRef: 4be2f8ea71ebe3051a1cc0e224c8fcba68b82541
+GithubSHA1: 4be2f8ea71ebe3051a1cc0e224c8fcba68b82541
