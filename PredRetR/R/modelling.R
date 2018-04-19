@@ -446,7 +446,7 @@ predict_RT <- function(predict_to_system) {
     ci_width <- single_inchi_data$ci_upper-single_inchi_data$ci_lower
     ci_width_rel <-     ci_width   /   single_inchi_data$predicted
     
-    select <- ci_width < PredRet.env$prediction$ci_width_limit & ci_width_rel < PredRet.env$prediction$ci_width_limit_rel
+    select <- ci_width < PredRet.env$prediction$ci_width_limit | ci_width_rel < PredRet.env$prediction$ci_width_limit_rel
     
     if (!any(select)) next
     single_inchi_data <- single_inchi_data[select,,drop=FALSE]
