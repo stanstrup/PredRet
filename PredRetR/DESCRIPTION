@@ -12,4 +12,4 @@ Description: Functions for PredRet prediction of retention times.
 License: GPL (>= 2)
 URL: None
 biocViews: Metabolomics
-Remotes: gitlab::R_packages/Rplot.extra, gitlab::R_packages/massageR
+Remotes: gitlab::stanstrup_R_packages/Rplot.extra, gitlab::stanstrup_R_packages/massageR
